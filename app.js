@@ -337,21 +337,44 @@ class EnergyDocumentSystem {
             filename: `${data.numero_documento}.html`
         };
     }
-
-    // Descargar archivo
+   // Descargar archivo (versión mejorada)
     downloadFile(blob, filename) {
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        link.style.display = 'none';
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        window.URL.revokeObjectURL(url);
-        console.log('📥 Descarga iniciada:', filename);
+        try {
+            console.log('📥 Iniciando descarga:', filename);
+            
+            // Crear URL del blob
+            const url = window.URL.createObjectURL(blob);
+            
+            // Crear elemento de descarga
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.style.display = 'none';
+            
+            // Agregar al DOM temporalmente
+            document.body.appendChild(link);
+            
+            // Forzar clic
+            link.click();
+            
+            // Limpiar
+            setTimeout(() => {
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            }, 100);
+            
+            // Mostrar mensaje
+            this.updateStatus('success', `📥 Descarga iniciada: ${filename}`);
+            console.log('✅ Descarga forzada');
+            
+        } catch (error) {
+            console.error('❌ Error en descarga:', error);
+            
+            // Fallback: abrir en nueva ventana
+            const url = window.URL.createObjectURL(blob);
+            window.open(url, '_blank');
+            this.updateStatus('info', '📄 Documento abierto en nueva ventana');
+        }
     }
 
     // Actualizar estado del sistema en UI
