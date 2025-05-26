@@ -198,11 +198,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage-compat.js"></script>
-
-    <!-- Cargar configuración y aplicación -->
-    <script>
-        
-         // Configuración integrada
+<script>
+        // Configuración del sistema
         window.CONFIG = {
             firebaseConfig: {
                 apiKey: "AIzaSyD2ICwOZAFfrFN8pXf-OCye2WD7awyj_Q",
@@ -218,267 +215,86 @@
             }
         };
 
-        // Sistema simplificado
-        class SimpleDocumentSystem {
+        // Sistema de documentos simplificado
+        class SimpleSystem {
             constructor() {
-                console.log('🔧 Sistema simple iniciado');
-                this.setupEventListeners();
+                console.log('🔧 Sistema iniciado');
+                this.init();
             }
-
-            setupEventListeners() {
-                const generateBtn = document.getElementById('generateBtn');
-                if (generateBtn) {
-                    generateBtn.addEventListener('click', () => this.generateDocument());
-                    console.log('✅ Event listener agregado');
+            
+            init() {
+                const btn = document.getElementById('generateBtn');
+                if (btn) {
+                    btn.addEventListener('click', () => this.generate());
+                    console.log('✅ Botón conectado');
                 }
-
+                
                 // Validación
-                ['documenteroKey', 'auditId', 'documentType'].forEach(id => {
-                    const element = document.getElementById(id);
-                    if (element) {
-                        element.addEventListener('input', () => this.validateForm());
-                        element.addEventListener('change', () => this.validateForm());
+                const inputs = ['documenteroKey', 'auditId', 'documentType'];
+                inputs.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.addEventListener('input', () => this.validate());
+                        el.addEventListener('change', () => this.validate());
                     }
                 });
             }
-
-            validateForm() {
-                const apiKey = document.getElementById('documenteroKey')?.value.trim();
-                const auditId = document.getElementById('auditId')?.value.trim();
-                const docType = document.getElementById('documentType')?.value;
-                const generateBtn = document.getElementById('generateBtn');
-
-                if (!generateBtn) return;
-
-                const isValid = apiKey && auditId && docType;
-                generateBtn.disabled = !isValid;
+            
+            validate() {
+                const key = document.getElementById('documenteroKey').value;
+                const audit = document.getElementById('auditId').value;
+                const type = document.getElementById('documentType').value;
+                const btn = document.getElementById('generateBtn');
                 
-                if (isValid) {
-                    generateBtn.textContent = '🚀 Generar Documento';
-                    generateBtn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                } else {
-                    generateBtn.textContent = '⚠️ Completa todos los campos';
-                    generateBtn.style.background = '#ccc';
-                }
+                btn.disabled = !(key && audit && type);
+                btn.textContent = btn.disabled ? '⚠️ Completa campos' : '🚀 Generar Documento';
             }
-
-            async generateDocument() {
-                console.log('🚀 Generando documento...');
+            
+            generate() {
+                console.log('🚀 Generando...');
+                const audit = document.getElementById('auditId').value;
+                const type = document.getElementById('documentType').value;
                 
-                const apiKey = document.getElementById('documenteroKey').value.trim();
-                const auditId = document.getElementById('auditId').value.trim();
-                const documentType = document.getElementById('documentType').value;
-
-                this.updateStatus('info', '🔄 Generando documento...');
-
-                try {
-                    // Crear documento HTML
-                    const htmlContent = this.createHTMLDocument(auditId, documentType);
-                    const blob = new Blob([htmlContent], { type: 'text/html' });
-                    const filename = `${documentType}_${auditId}_${Date.now()}.html`;
-
-                    console.log('📄 Documento creado:', filename);
-                    console.log('📊 Tamaño:', blob.size, 'bytes');
-
-                    // Descargar
-                    this.downloadFile(blob, filename);
-                    
-                    // Actualizar UI
-                    this.updateStatus('success', `✅ Documento generado: ${filename}`);
-                    this.addDocumentToList(filename, documentType);
-
-                } catch (error) {
-                    console.error('❌ Error:', error);
-                    this.updateStatus('error', `❌ Error: ${error.message}`);
-                }
-            }
-
-            createHTMLDocument(auditId, documentType) {
-                return `<!DOCTYPE html>
-<html>
-<head>
-    <title>Reporte Energético - ${auditId}</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
-        h1 { color: #667eea; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
-        .section { margin: 30px 0; padding: 20px; background: #f8f9fa; border-radius: 8px; }
-        .highlight { background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0; }
-    </style>
-</head>
-<body>
-    <h1>🔥 Reporte de Auditoría Energética</h1>
-    
-    <div class="section">
-        <h2>📋 Información General</h2>
-        <p><strong>ID de Auditoría:</strong> ${auditId}</p>
-        <p><strong>Tipo de Documento:</strong> ${documentType}</p>
-        <p><strong>Fecha de Generación:</strong> ${new Date().toLocaleDateString('es-ES')}</p>
-        <p><strong>Hora:</strong> ${new Date().toLocaleTimeString('es-ES')}</p>
-    </div>
-
-    <div class="section">
-        <h2>📊 Resumen Ejecutivo</h2>
-        <p>Se realizó una auditoría energética completa. El sistema identificó oportunidades de mejora y generó recomendaciones específicas para optimizar el consumo energético.</p>
-    </div>
-
-    <div class="highlight">
-        <h3>✅ Documento generado exitosamente</h3>
-        <p>Este documento fue creado automáticamente por el Sistema de Documentos Energéticos.</p>
-    </div>
-
-    <div class="section">
-        <h2>🎯 Próximos Pasos</h2>
-        <ul>
-            <li>Revisar las recomendaciones técnicas</li>
-            <li>Implementar mejoras prioritarias</li>
-            <li>Programar seguimiento de resultados</li>
-        </ul>
-    </div>
-</body>
-</html>`;
-            }
-
-            downloadFile(blob, filename) {
-                console.log('📥 Descargando:', filename);
+                const html = `<!DOCTYPE html>
+<html><head><title>Reporte ${audit}</title>
+<style>body{font-family:Arial;margin:40px;} h1{color:#667eea;}</style>
+</head><body>
+<h1>🔥 Reporte Energético</h1>
+<p><b>ID:</b> ${audit}</p>
+<p><b>Tipo:</b> ${type}</p>
+<p><b>Fecha:</b> ${new Date().toLocaleString()}</p>
+<div style="background:#f8f9fa;padding:20px;margin:20px 0;">
+<h2>✅ Documento Generado</h2>
+<p>Este reporte fue creado automáticamente.</p>
+</div></body></html>`;
                 
+                const blob = new Blob([html], {type: 'text/html'});
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = filename;
-                link.style.display = 'none';
-                
-                document.body.appendChild(link);
+                link.download = `${type}_${audit}.html`;
                 link.click();
+                URL.revokeObjectURL(url);
                 
-                setTimeout(() => {
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                    console.log('✅ Descarga completada');
-                }, 100);
+                console.log('✅ Descarga iniciada');
+                this.updateStatus('success', `✅ Documento generado: ${type}_${audit}.html`);
             }
-
-            updateStatus(type, message) {
-                const statusDiv = document.getElementById('systemStatus');
-                if (statusDiv) {
-                    statusDiv.className = `status status-${type}`;
-                    statusDiv.textContent = message;
+            
+            updateStatus(type, msg) {
+                const status = document.getElementById('systemStatus');
+                if (status) {
+                    status.className = `status status-${type}`;
+                    status.textContent = msg;
                 }
             }
-
-            addDocumentToList(filename, type) {
-                const container = document.getElementById('documentsGenerated');
-                const docItem = document.createElement('div');
-                docItem.style.cssText = 'padding: 15px; margin: 10px 0; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;';
-                docItem.innerHTML = `
-                    <strong>📄 ${filename}</strong><br>
-                    <small>Tipo: ${type} • ${new Date().toLocaleString('es-ES')}</small>
-                `;
-                container.appendChild(docItem);
-            }
         }
-
-        // Inicializar cuando cargue
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Inicializando sistema...');
-            new SimpleDocumentSystem();
-        });
         
-        ></script>
-    
-    
-    <script>
-        // Variables globales
-        let systemInitialized = false;
-        let firebaseApp = null;
-        let db = null;
-        let storage = null;
-
-        // Inicializar cuando cargue la página
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeSystem();
-            setupEventListeners();
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Iniciando...');
+            new SimpleSystem();
         });
-
-        function initializeSystem() {
-            updateStatus('info', '🔧 Sistema inicializado en GitHub Pages');
-            updateStatus('success', '✅ Sistema listo para configurar credenciales');
-            
-            // Actualizar estados
-            document.getElementById('firebaseStatus').textContent = '⚠️';
-            document.getElementById('documenteroStatus').textContent = '⚠️';
-            
-            systemInitialized = true;
-        }
-
-        function setupEventListeners() {
-            // Validar API Key
-            document.getElementById('documenteroKey').addEventListener('input', validateForm);
-            document.getElementById('auditId').addEventListener('input', validateForm);
-            document.getElementById('documentType').addEventListener('change', validateForm);
-            
-            // Botón generar
-            document.getElementById('generateBtn').addEventListener('click', generateDocument);
-        }
-
-        function validateForm() {
-            const apiKey = document.getElementById('documenteroKey').value.trim();
-            const auditId = document.getElementById('auditId').value.trim();
-            const docType = document.getElementById('documentType').value;
-            const generateBtn = document.getElementById('generateBtn');
-
-            const isValid = apiKey && auditId && docType;
-            generateBtn.disabled = !isValid;
-            
-            if (isValid) {
-                generateBtn.textContent = '🚀 Generar Documento';
-                updateStatus('success', '✅ Formulario completo - Listo para generar');
-            } else {
-                generateBtn.textContent = '⚠️ Completa todos los campos';
-            }
-        }
-
-        async function generateDocument() {
-            const apiKey = document.getElementById('documenteroKey').value.trim();
-            const auditId = document.getElementById('auditId').value.trim();
-            const docType = document.getElementById('documentType').value;
-
-            updateStatus('info', '🔄 Generando documento...');
-
-            try {
-                // Simular proceso de generación
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                
-                // En una implementación real, aquí estaría la lógica de Documentero
-                const filename = `${docType}_${auditId}_${new Date().getTime()}.docx`;
-                
-                updateStatus('success', `✅ Documento generado: ${filename}`);
-                
-                // Actualizar lista de documentos
-                updateDocumentsList(filename, docType);
-                
-            } catch (error) {
-                updateStatus('error', `❌ Error: ${error.message}`);
-            }
-        }
-
-        function updateStatus(type, message) {
-            const statusDiv = document.getElementById('systemStatus');
-            statusDiv.className = `status status-${type}`;
-            statusDiv.textContent = message;
-        }
-
-        function updateDocumentsList(filename, type) {
-            const container = document.getElementById('documentsGenerated');
-            const docItem = document.createElement('div');
-            docItem.style.cssText = 'padding: 10px; margin: 5px 0; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #667eea;';
-            docItem.innerHTML = `
-                <strong>${filename}</strong><br>
-                <small>Tipo: ${type} • ${new Date().toLocaleString()}</small>
-            `;
-            container.appendChild(docItem);
-        }
-
-        console.log('✅ Sistema de Documentos Energéticos cargado');
     </script>
+    
 </body>
 </html>
