@@ -198,102 +198,288 @@
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage-compat.js"></script>
+    <!-- Librerías para procesamiento .docx -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.4/pizzip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.11/docxtemplater.min.js"></script>
 <script>
-        // Configuración del sistema
-        window.CONFIG = {
-            firebaseConfig: {
-                apiKey: "AIzaSyD2ICwOZAFfrFN8pXf-OCye2WD7awyj_Q",
-                authDomain: "modulodatoswordautomatico.firebaseapp.com",
-                projectId: "modulodatoswordautomatico",
-                storageBucket: "modulodatoswordautomatico.firebasestorage.app",
-                messagingSenderId: "744851515219",
-                appId: "1:744851515219:web:5ce8767c094f116a346"
-            },
-            documenteroConfig: {
-                apiKey: "6I43UKA-FH2ELQV-V2QOLPQ-KKU0PII",
-                baseUrl: "https://api.documentero.com/v1"
-            }
-        };
-
-        // Sistema de documentos simplificado
-        class SimpleSystem {
+<script>
+        // Tu sistema personalizado de documentos .docx
+        class CustomDocxProcessor {
             constructor() {
-                console.log('🔧 Sistema iniciado');
+                console.log('🚀 Iniciando procesador .docx personalizado');
+                this.templates = new Map(); // Almacén de plantillas
                 this.init();
             }
             
             init() {
-                const btn = document.getElementById('generateBtn');
-                if (btn) {
-                    btn.addEventListener('click', () => this.generate());
-                    console.log('✅ Botón conectado');
+                this.setupEventListeners();
+                this.updateStatus('success', '✅ Sistema personalizado listo');
+            }
+            
+            setupEventListeners() {
+                // Subida de plantillas
+                const fileInput = document.getElementById('templateFile');
+                if (fileInput) {
+                    fileInput.addEventListener('change', (e) => this.handleTemplateUpload(e));
                 }
                 
-                // Validación
-                const inputs = ['documenteroKey', 'auditId', 'documentType'];
-                inputs.forEach(id => {
+                // Validación y generación
+                ['documenteroKey', 'auditId', 'documentType', 'templateSelect'].forEach(id => {
                     const el = document.getElementById(id);
                     if (el) {
                         el.addEventListener('input', () => this.validate());
                         el.addEventListener('change', () => this.validate());
                     }
                 });
+                
+                // Botón generar
+                const btn = document.getElementById('generateBtn');
+                if (btn) {
+                    btn.addEventListener('click', () => this.generateDocument());
+                }
+                
+                console.log('✅ Event listeners configurados');
             }
             
+            // Manejar subida de plantilla
+            async handleTemplateUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                console.log('📤 Subiendo plantilla:', file.name);
+                this.updateStatus('info', `📤 Procesando plantilla: ${file.name}`);
+                
+                try {
+                    // Leer archivo
+                    const arrayBuffer = await file.arrayBuffer();
+                    
+                    // Guardar en memoria (en producción real, subirías a Firebase Storage)
+                    const templateId = Date.now().toString();
+                    this.templates.set(templateId, {
+                        name: file.name,
+                        data: arrayBuffer,
+                        uploadDate: new Date()
+                    });
+                    
+                    // Actualizar selector
+                    this.updateTemplateSelector();
+                    
+                    this.updateStatus('success', `✅ Plantilla "${file.name}" cargada correctamente`);
+                    console.log('✅ Plantilla guardada:', file.name);
+                    
+                } catch (error) {
+                    console.error('❌ Error subiendo plantilla:', error);
+                    this.updateStatus('error', `❌ Error: ${error.message}`);
+                }
+            }
+            
+            // Actualizar selector de plantillas
+            updateTemplateSelector() {
+                const select = document.getElementById('templateSelect');
+                if (!select) return;
+                
+                // Limpiar opciones existentes (excepto la primera)
+                while (select.children.length > 1) {
+                    select.removeChild(select.lastChild);
+                }
+                
+                // Agregar plantillas cargadas
+                this.templates.forEach((template, id) => {
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.textContent = `📄 ${template.name}`;
+                    select.appendChild(option);
+                });
+            }
+            
+            // Validar formulario
             validate() {
-                const key = document.getElementById('documenteroKey').value;
-                const audit = document.getElementById('auditId').value;
-                const type = document.getElementById('documentType').value;
+                const auditId = document.getElementById('auditId').value.trim();
+                const docType = document.getElementById('documentType').value;
+                const templateFile = document.getElementById('templateFile').files[0];
+                const templateSelect = document.getElementById('templateSelect').value;
                 const btn = document.getElementById('generateBtn');
                 
-                btn.disabled = !(key && audit && type);
-                btn.textContent = btn.disabled ? '⚠️ Completa campos' : '🚀 Generar Documento';
+                const hasTemplate = templateFile || templateSelect || this.templates.size > 0;
+                const isValid = auditId && docType && hasTemplate;
+                
+                btn.disabled = !isValid;
+                btn.textContent = isValid ? '🚀 Generar Documento .DOCX' : '⚠️ Falta plantilla o datos';
             }
             
-            generate() {
-                console.log('🚀 Generando...');
-                const audit = document.getElementById('auditId').value;
-                const type = document.getElementById('documentType').value;
+            // Obtener datos para el documento
+            getDocumentData(auditId, documentType) {
+                // Datos simulados (en producción, obtendrías de Firebase)
+                const now = new Date();
                 
-                const html = `<!DOCTYPE html>
-<html><head><title>Reporte ${audit}</title>
-<style>body{font-family:Arial;margin:40px;} h1{color:#667eea;}</style>
-</head><body>
-<h1>🔥 Reporte Energético</h1>
-<p><b>ID:</b> ${audit}</p>
-<p><b>Tipo:</b> ${type}</p>
-<p><b>Fecha:</b> ${new Date().toLocaleString()}</p>
-<div style="background:#f8f9fa;padding:20px;margin:20px 0;">
-<h2>✅ Documento Generado</h2>
-<p>Este reporte fue creado automáticamente.</p>
-</div></body></html>`;
+                return {
+                    // Variables básicas
+                    cliente_nombre: 'Empresa Ejemplo S.A.',
+                    cliente_direccion: 'Av. Principal 123, Ciudad',
+                    cliente_telefono: '+52 55 1234 5678',
+                    cliente_email: 'contacto@empresa.com',
+                    
+                    // Datos de auditoría
+                    auditoria_id: auditId,
+                    fecha_auditoria: now.toLocaleDateString('es-ES'),
+                    auditor_nombre: 'Ing. Juan Pérez',
+                    tipo_documento: documentType,
+                    
+                    // Fechas y números
+                    fecha_generacion: now.toLocaleDateString('es-ES'),
+                    hora_generacion: now.toLocaleTimeString('es-ES'),
+                    numero_documento: `${documentType.toUpperCase()}-${now.getTime()}`,
+                    
+                    // Datos energéticos
+                    consumo_total: '15,420 kWh',
+                    costo_anual: '$18,504.00',
+                    ahorro_estimado: '3,200 kWh',
+                    factor_potencia: '0.85',
+                    
+                    // Hallazgos
+                    total_hallazgos: '5',
+                    hallazgos_criticos: '1',
+                    hallazgos_altos: '2',
+                    hallazgos_medios: '2',
+                    
+                    // Texto de ejemplo
+                    resumen_ejecutivo: 'Se realizó una auditoría energética completa identificando oportunidades de mejora significativas en el consumo eléctrico.',
+                    
+                    // Lista de hallazgos (para tablas)
+                    hallazgo_1: 'Iluminación ineficiente en área de producción',
+                    hallazgo_2: 'Factor de potencia bajo en tablero principal',
+                    hallazgo_3: 'Motores sobredimensionados en ventilación',
+                    
+                    // Recomendaciones
+                    recomendacion_1: 'Cambio a iluminación LED de alta eficiencia',
+                    recomendacion_2: 'Instalación de banco de capacitores',
+                    recomendacion_3: 'Optimización de sistema de ventilación'
+                };
+            }
+            
+            // Generar documento usando tu plantilla
+            async generateDocument() {
+                const auditId = document.getElementById('auditId').value.trim();
+                const documentType = document.getElementById('documentType').value;
+                const templateSelect = document.getElementById('templateSelect').value;
+                const templateFile = document.getElementById('templateFile').files[0];
                 
-                const blob = new Blob([html], {type: 'text/html'});
+                this.updateStatus('info', '🔄 Generando documento .DOCX...');
+                console.log('🚀 Iniciando generación personalizada');
+                
+                try {
+                    // 1. Obtener plantilla
+                    let templateData;
+                    let templateName;
+                    
+                    if (templateFile) {
+                        // Usar archivo recién subido
+                        templateData = await templateFile.arrayBuffer();
+                        templateName = templateFile.name;
+                        console.log('📄 Usando plantilla subida:', templateName);
+                    } else if (templateSelect && this.templates.has(templateSelect)) {
+                        // Usar plantilla guardada
+                        const template = this.templates.get(templateSelect);
+                        templateData = template.data;
+                        templateName = template.name;
+                        console.log('📁 Usando plantilla guardada:', templateName);
+                    } else {
+                        throw new Error('No se encontró plantilla válida');
+                    }
+                    
+                    // 2. Obtener datos para reemplazar
+                    const documentData = this.getDocumentData(auditId, documentType);
+                    console.log('📊 Datos preparados:', Object.keys(documentData).length, 'variables');
+                    
+                    // 3. Procesar plantilla con PizZip y Docxtemplater
+                    this.updateStatus('info', '🔧 Procesando plantilla...');
+                    
+                    const zip = new PizZip(templateData);
+                    const doc = new window.docxtemplater(zip, {
+                        paragraphLoop: true,
+                        linebreaks: true,
+                    });
+                    
+                    // 4. Reemplazar variables
+                    doc.render(documentData);
+                    console.log('✅ Variables reemplazadas');
+                    
+                    // 5. Generar archivo final
+                    const output = doc.getZip().generate({
+                        type: 'blob',
+                        mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                    });
+                    
+                    // 6. Descargar
+                    const filename = `${documentData.numero_documento}.docx`;
+                    this.downloadFile(output, filename);
+                    
+                    this.updateStatus('success', `✅ Documento .DOCX generado: ${filename}`);
+                    this.addToDocumentsList(filename, documentType, templateName);
+                    
+                    console.log('🎉 Generación completada exitosamente');
+                    
+                } catch (error) {
+                    console.error('❌ Error generando documento:', error);
+                    this.updateStatus('error', `❌ Error: ${error.message}`);
+                    
+                    // Mostrar detalles del error
+                    if (error.properties && error.properties.explanation) {
+                        console.error('💡 Detalle:', error.properties.explanation);
+                        this.updateStatus('error', `❌ ${error.properties.explanation}`);
+                    }
+                }
+            }
+            
+            // Descargar archivo
+            downloadFile(blob, filename) {
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = `${type}_${audit}.html`;
-                link.click();
-                URL.revokeObjectURL(url);
+                link.download = filename;
+                link.style.display = 'none';
                 
-                console.log('✅ Descarga iniciada');
-                this.updateStatus('success', `✅ Documento generado: ${type}_${audit}.html`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                URL.revokeObjectURL(url);
+                console.log('📥 Descarga iniciada:', filename);
             }
             
-            updateStatus(type, msg) {
-                const status = document.getElementById('systemStatus');
-                if (status) {
-                    status.className = `status status-${type}`;
-                    status.textContent = msg;
+            // Actualizar estado
+            updateStatus(type, message) {
+                const statusDiv = document.getElementById('systemStatus');
+                if (statusDiv) {
+                    statusDiv.className = `status status-${type}`;
+                    statusDiv.textContent = message;
                 }
+            }
+            
+            // Agregar a lista de documentos
+            addToDocumentsList(filename, type, templateUsed) {
+                const container = document.getElementById('documentsGenerated');
+                const docDiv = document.createElement('div');
+                docDiv.style.cssText = 'padding: 15px; margin: 10px 0; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;';
+                docDiv.innerHTML = `
+                    <strong>📄 ${filename}</strong><br>
+                    <small>Tipo: ${type} • Plantilla: ${templateUsed} • ${new Date().toLocaleString('es-ES')}</small>
+                `;
+                
+                const firstChild = container.firstElementChild;
+                if (firstChild && firstChild.tagName === 'P') {
+                    container.removeChild(firstChild);
+                }
+                container.insertBefore(docDiv, container.firstChild);
             }
         }
         
-        // Inicializar
+        // Inicializar tu sistema personalizado
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚀 Iniciando...');
-            new SimpleSystem();
+            console.log('🚀 Cargando sistema personalizado...');
+            new CustomDocxProcessor();
         });
+    </script>
     </script>
     
 </body>
