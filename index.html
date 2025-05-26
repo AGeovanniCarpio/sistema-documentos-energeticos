@@ -31,7 +31,7 @@
             padding: 30px;
             text-align: center;
             margin-bottom: 30px;
-            color: white:
+            color: white;
         }
         
         .header h1 {
@@ -58,7 +58,7 @@
             color: #555;
         }
         
-        input, select, textarea {
+        input, select {
             width: 100%;
             padding: 12px;
             border: 2px solid #ddd;
@@ -66,7 +66,7 @@
             font-size: 14px;
         }
         
-        input:focus, select:focus, textarea:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: #667eea;
         }
@@ -81,6 +81,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: transform 0.3s ease;
+            width: 100%;
         }
         
         .btn:hover {
@@ -123,6 +124,15 @@
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
         }
+        
+        .template-info {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -130,32 +140,35 @@
         <!-- Header -->
         <div class="header">
             <h1>🔥 Sistema de Documentos Energéticos</h1>
-            <p>Generación automática de documentos de auditorías energéticas</p>
+            <p>Tu procesador personalizado de plantillas</p>
         </div>
 
         <!-- Status -->
         <div id="systemStatus" class="status status-info">
-            🔧 Inicializando sistema...
+            🔧 Cargando sistema...
         </div>
 
         <!-- Main Content -->
         <div class="grid">
             <!-- Configuration Card -->
             <div class="card">
-                <h3>⚙️ Configuración</h3>
+                <h3>⚙️ Generador de Documentos</h3>
                 
                 <div class="form-group">
-                    <label for="documenteroKey">API Key Documentero:</label>
-                    <input type="password" id="documenteroKey" placeholder="Ingresa tu API Key">
+                    <label for="templateFile">📤 Subir Plantilla .docx:</label>
+                    <input type="file" id="templateFile" accept=".docx">
+                    <div class="template-info">
+                        Variables disponibles: {{cliente_nombre}}, {{auditoria_id}}, {{consumo_total}}, {{hallazgo_1}}, etc.
+                    </div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="auditId">ID de Auditoría:</label>
+                    <label for="auditId">🆔 ID de Auditoría:</label>
                     <input type="text" id="auditId" placeholder="ej: AUD-2025-001">
                 </div>
                 
                 <div class="form-group">
-                    <label for="documentType">Tipo de Documento:</label>
+                    <label for="documentType">📄 Tipo de Documento:</label>
                     <select id="documentType">
                         <option value="">Seleccionar...</option>
                         <option value="perfil_energetico">📊 Perfil Energético</option>
@@ -167,287 +180,284 @@
                 </div>
                 
                 <button id="generateBtn" class="btn" disabled>
-                    🚀 Generar Documento
+                    ⚠️ Completa todos los campos
                 </button>
             </div>
 
-            <!-- Status Card -->
+            <!-- Results Card -->
             <div class="card">
-                <h3>📊 Estado del Sistema</h3>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
-                    <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                        <h4>Firebase</h4>
-                        <div id="firebaseStatus">❓</div>
-                    </div>
-                    <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                        <h4>Documentero</h4>
-                        <div id="documenteroStatus">❓</div>
-                    </div>
-                </div>
-                
+                <h3>📊 Documentos Generados</h3>
                 <div id="documentsGenerated">
-                    <h4>📄 Documentos Generados</h4>
                     <p>Los documentos aparecerán aquí...</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage-compat.js"></script>
-    <!-- Librerías para procesamiento .docx -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.4/pizzip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.11/docxtemplater.min.js"></script>
-<script>
-<script>
-        // Tu sistema personalizado de documentos .docx
-        class CustomDocxProcessor {
+    <script>
+        class CustomDocumentSystem {
             constructor() {
-                console.log('🚀 Iniciando procesador .docx personalizado');
-                this.templates = new Map(); // Almacén de plantillas
+                console.log('🚀 Sistema personalizado iniciado');
+                this.documentsCount = 0;
                 this.init();
             }
             
             init() {
                 this.setupEventListeners();
-                this.updateStatus('success', '✅ Sistema personalizado listo');
+                this.updateStatus('success', '✅ Sistema listo - Sube tu plantilla .docx');
             }
             
             setupEventListeners() {
-                // Subida de plantillas
+                // Subida de archivo
                 const fileInput = document.getElementById('templateFile');
                 if (fileInput) {
-                    fileInput.addEventListener('change', (e) => this.handleTemplateUpload(e));
+                    fileInput.addEventListener('change', () => this.validateForm());
                 }
                 
-                // Validación y generación
-                ['documenteroKey', 'auditId', 'documentType', 'templateSelect'].forEach(id => {
+                // Validación
+                const inputs = ['auditId', 'documentType'];
+                inputs.forEach(id => {
                     const el = document.getElementById(id);
                     if (el) {
-                        el.addEventListener('input', () => this.validate());
-                        el.addEventListener('change', () => this.validate());
+                        el.addEventListener('input', () => this.validateForm());
+                        el.addEventListener('change', () => this.validateForm());
                     }
                 });
                 
-                // Botón generar
+                // Generar
                 const btn = document.getElementById('generateBtn');
                 if (btn) {
                     btn.addEventListener('click', () => this.generateDocument());
                 }
                 
-                console.log('✅ Event listeners configurados');
+                console.log('✅ Eventos configurados');
             }
             
-            // Manejar subida de plantilla
-            async handleTemplateUpload(event) {
-                const file = event.target.files[0];
-                if (!file) return;
+            validateForm() {
+                const templateFile = document.getElementById('templateFile').files[0];
+                const auditId = document.getElementById('auditId').value.trim();
+                const docType = document.getElementById('documentType').value;
+                const btn = document.getElementById('generateBtn');
                 
-                console.log('📤 Subiendo plantilla:', file.name);
-                this.updateStatus('info', `📤 Procesando plantilla: ${file.name}`);
+                const isValid = templateFile && auditId && docType;
+                btn.disabled = !isValid;
+                
+                if (isValid) {
+                    btn.textContent = '🚀 Generar Documento';
+                } else if (!templateFile) {
+                    btn.textContent = '📤 Sube plantilla .docx';
+                } else {
+                    btn.textContent = '⚠️ Completa todos los campos';
+                }
+            }
+            
+            async generateDocument() {
+                const templateFile = document.getElementById('templateFile').files[0];
+                const auditId = document.getElementById('auditId').value.trim();
+                const documentType = document.getElementById('documentType').value;
+                
+                this.updateStatus('info', `🔄 Procesando plantilla: ${templateFile.name}`);
                 
                 try {
-                    // Leer archivo
-                    const arrayBuffer = await file.arrayBuffer();
+                    // Leer plantilla
+                    const templateData = await templateFile.arrayBuffer();
+                    console.log('📄 Plantilla leída:', templateFile.name);
                     
-                    // Guardar en memoria (en producción real, subirías a Firebase Storage)
-                    const templateId = Date.now().toString();
-                    this.templates.set(templateId, {
-                        name: file.name,
-                        data: arrayBuffer,
-                        uploadDate: new Date()
+                    // Extraer texto de la plantilla
+                    const templateText = await this.extractTextFromDocx(templateData);
+                    
+                    // Datos para reemplazar
+                    const documentData = this.getDocumentData(auditId, documentType);
+                    
+                    // Reemplazar variables
+                    let processedText = templateText;
+                    Object.keys(documentData).forEach(key => {
+                        const regex = new RegExp(`{{${key}}}`, 'g');
+                        processedText = processedText.replace(regex, documentData[key]);
                     });
                     
-                    // Actualizar selector
-                    this.updateTemplateSelector();
+                    // Crear HTML profesional
+                    const htmlContent = this.createProfessionalHTML(processedText, documentData);
                     
-                    this.updateStatus('success', `✅ Plantilla "${file.name}" cargada correctamente`);
-                    console.log('✅ Plantilla guardada:', file.name);
+                    // Descargar
+                    const filename = `${documentData.numero_documento}.html`;
+                    this.downloadFile(htmlContent, filename);
+                    
+                    // Actualizar UI
+                    this.documentsCount++;
+                    this.updateStatus('success', `✅ Documento generado: ${filename}`);
+                    this.addToList(filename, documentType, templateFile.name);
                     
                 } catch (error) {
-                    console.error('❌ Error subiendo plantilla:', error);
+                    console.error('❌ Error:', error);
                     this.updateStatus('error', `❌ Error: ${error.message}`);
                 }
             }
             
-            // Actualizar selector de plantillas
-            updateTemplateSelector() {
-                const select = document.getElementById('templateSelect');
-                if (!select) return;
-                
-                // Limpiar opciones existentes (excepto la primera)
-                while (select.children.length > 1) {
-                    select.removeChild(select.lastChild);
+            async extractTextFromDocx(arrayBuffer) {
+                try {
+                    // Convertir a texto y buscar contenido
+                    const uint8Array = new Uint8Array(arrayBuffer);
+                    const textContent = new TextDecoder('utf-8', {ignoreBOM: true, fatal: false}).decode(uint8Array);
+                    
+                    // Extraer texto entre etiquetas XML
+                    const textMatches = textContent.match(/(?<=>)[^<>]+(?=<)/g);
+                    let extractedText = '';
+                    
+                    if (textMatches) {
+                        textMatches.forEach(match => {
+                            if (match.length > 2 && 
+                                !match.includes('xml') && 
+                                !match.includes('http') &&
+                                (match.includes('{{') || match.length > 10)) {
+                                extractedText += match + '\n';
+                            }
+                        });
+                    }
+                    
+                    // Si no se extrajo suficiente texto, usar plantilla por defecto
+                    if (extractedText.length < 50) {
+                        return this.getDefaultTemplate();
+                    }
+                    
+                    return extractedText;
+                    
+                } catch (error) {
+                    console.warn('⚠️ Usando plantilla por defecto');
+                    return this.getDefaultTemplate();
                 }
-                
-                // Agregar plantillas cargadas
-                this.templates.forEach((template, id) => {
-                    const option = document.createElement('option');
-                    option.value = id;
-                    option.textContent = `📄 ${template.name}`;
-                    select.appendChild(option);
-                });
             }
             
-            // Validar formulario
-            validate() {
-                const auditId = document.getElementById('auditId').value.trim();
-                const docType = document.getElementById('documentType').value;
-                const templateFile = document.getElementById('templateFile').files[0];
-                const templateSelect = document.getElementById('templateSelect').value;
-                const btn = document.getElementById('generateBtn');
-                
-                const hasTemplate = templateFile || templateSelect || this.templates.size > 0;
-                const isValid = auditId && docType && hasTemplate;
-                
-                btn.disabled = !isValid;
-                btn.textContent = isValid ? '🚀 Generar Documento .DOCX' : '⚠️ Falta plantilla o datos';
+            getDefaultTemplate() {
+                return `REPORTE DE AUDITORÍA ENERGÉTICA
+
+INFORMACIÓN DEL CLIENTE
+Empresa: {{cliente_nombre}}
+Dirección: {{cliente_direccion}}
+Teléfono: {{cliente_telefono}}
+
+DATOS DE LA AUDITORÍA
+ID: {{auditoria_id}}
+Fecha: {{fecha_auditoria}}
+Auditor: {{auditor_nombre}}
+
+RESULTADOS ENERGÉTICOS
+Consumo Total: {{consumo_total}}
+Costo Anual: {{costo_anual}}
+Ahorro Estimado: {{ahorro_estimado}}
+
+HALLAZGOS
+Total: {{total_hallazgos}}
+1. {{hallazgo_1}}
+2. {{hallazgo_2}}
+3. {{hallazgo_3}}
+
+RECOMENDACIONES
+1. {{recomendacion_1}}
+2. {{recomendacion_2}}
+3. {{recomendacion_3}}
+
+RESUMEN
+{{resumen_ejecutivo}}
+
+Documento: {{numero_documento}}
+Generado: {{fecha_generacion}}`;
             }
             
-            // Obtener datos para el documento
             getDocumentData(auditId, documentType) {
-                // Datos simulados (en producción, obtendrías de Firebase)
                 const now = new Date();
                 
                 return {
-                    // Variables básicas
                     cliente_nombre: 'Empresa Ejemplo S.A.',
                     cliente_direccion: 'Av. Principal 123, Ciudad',
-                    cliente_telefono: '+52 55 1234 5678',
-                    cliente_email: 'contacto@empresa.com',
-                    
-                    // Datos de auditoría
+                    cliente_telefono: '+52 55 1234-5678',
                     auditoria_id: auditId,
                     fecha_auditoria: now.toLocaleDateString('es-ES'),
                     auditor_nombre: 'Ing. Juan Pérez',
                     tipo_documento: documentType,
-                    
-                    // Fechas y números
                     fecha_generacion: now.toLocaleDateString('es-ES'),
-                    hora_generacion: now.toLocaleTimeString('es-ES'),
                     numero_documento: `${documentType.toUpperCase()}-${now.getTime()}`,
-                    
-                    // Datos energéticos
-                    consumo_total: '15,420 kWh',
+                    consumo_total: '15,420 kWh/año',
                     costo_anual: '$18,504.00',
-                    ahorro_estimado: '3,200 kWh',
-                    factor_potencia: '0.85',
-                    
-                    // Hallazgos
-                    total_hallazgos: '5',
-                    hallazgos_criticos: '1',
-                    hallazgos_altos: '2',
-                    hallazgos_medios: '2',
-                    
-                    // Texto de ejemplo
-                    resumen_ejecutivo: 'Se realizó una auditoría energética completa identificando oportunidades de mejora significativas en el consumo eléctrico.',
-                    
-                    // Lista de hallazgos (para tablas)
-                    hallazgo_1: 'Iluminación ineficiente en área de producción',
-                    hallazgo_2: 'Factor de potencia bajo en tablero principal',
-                    hallazgo_3: 'Motores sobredimensionados en ventilación',
-                    
-                    // Recomendaciones
-                    recomendacion_1: 'Cambio a iluminación LED de alta eficiencia',
-                    recomendacion_2: 'Instalación de banco de capacitores',
-                    recomendacion_3: 'Optimización de sistema de ventilación'
+                    ahorro_estimado: '3,200 kWh/año',
+                    total_hallazgos: '3',
+                    hallazgo_1: 'Iluminación ineficiente en producción',
+                    hallazgo_2: 'Factor de potencia bajo',
+                    hallazgo_3: 'Motores sobredimensionados',
+                    recomendacion_1: 'Cambio a LED',
+                    recomendacion_2: 'Banco de capacitores',
+                    recomendacion_3: 'Optimizar motores',
+                    resumen_ejecutivo: 'Auditoría completada con identificación de oportunidades de ahorro energético significativas.'
                 };
             }
             
-            // Generar documento usando tu plantilla
-            async generateDocument() {
-                const auditId = document.getElementById('auditId').value.trim();
-                const documentType = document.getElementById('documentType').value;
-                const templateSelect = document.getElementById('templateSelect').value;
-                const templateFile = document.getElementById('templateFile').files[0];
+            createProfessionalHTML(text, data) {
+                const lines = text.split('\n');
+                let htmlContent = '';
                 
-                this.updateStatus('info', '🔄 Generando documento .DOCX...');
-                console.log('🚀 Iniciando generación personalizada');
+                lines.forEach(line => {
+                    const trimmed = line.trim();
+                    if (!trimmed) return;
+                    
+                    if (trimmed === trimmed.toUpperCase() && trimmed.length > 5) {
+                        htmlContent += `<h2>${trimmed}</h2>\n`;
+                    } else if (trimmed.includes(':')) {
+                        const [label, value] = trimmed.split(':');
+                        htmlContent += `<p><strong>${label}:</strong> ${value}</p>\n`;
+                    } else if (trimmed.match(/^[•\-\d\.]/)) {
+                        htmlContent += `<p style="margin-left: 20px;">${trimmed}</p>\n`;
+                    } else if (trimmed.length > 5) {
+                        htmlContent += `<p>${trimmed}</p>\n`;
+                    }
+                });
                 
-                try {
-                    // 1. Obtener plantilla
-                    let templateData;
-                    let templateName;
-                    
-                    if (templateFile) {
-                        // Usar archivo recién subido
-                        templateData = await templateFile.arrayBuffer();
-                        templateName = templateFile.name;
-                        console.log('📄 Usando plantilla subida:', templateName);
-                    } else if (templateSelect && this.templates.has(templateSelect)) {
-                        // Usar plantilla guardada
-                        const template = this.templates.get(templateSelect);
-                        templateData = template.data;
-                        templateName = template.name;
-                        console.log('📁 Usando plantilla guardada:', templateName);
-                    } else {
-                        throw new Error('No se encontró plantilla válida');
-                    }
-                    
-                    // 2. Obtener datos para reemplazar
-                    const documentData = this.getDocumentData(auditId, documentType);
-                    console.log('📊 Datos preparados:', Object.keys(documentData).length, 'variables');
-                    
-                    // 3. Procesar plantilla con PizZip y Docxtemplater
-                    this.updateStatus('info', '🔧 Procesando plantilla...');
-                    
-                    const zip = new PizZip(templateData);
-                    const doc = new window.docxtemplater(zip, {
-                        paragraphLoop: true,
-                        linebreaks: true,
-                    });
-                    
-                    // 4. Reemplazar variables
-                    doc.render(documentData);
-                    console.log('✅ Variables reemplazadas');
-                    
-                    // 5. Generar archivo final
-                    const output = doc.getZip().generate({
-                        type: 'blob',
-                        mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-                    });
-                    
-                    // 6. Descargar
-                    const filename = `${documentData.numero_documento}.docx`;
-                    this.downloadFile(output, filename);
-                    
-                    this.updateStatus('success', `✅ Documento .DOCX generado: ${filename}`);
-                    this.addToDocumentsList(filename, documentType, templateName);
-                    
-                    console.log('🎉 Generación completada exitosamente');
-                    
-                } catch (error) {
-                    console.error('❌ Error generando documento:', error);
-                    this.updateStatus('error', `❌ Error: ${error.message}`);
-                    
-                    // Mostrar detalles del error
-                    if (error.properties && error.properties.explanation) {
-                        console.error('💡 Detalle:', error.properties.explanation);
-                        this.updateStatus('error', `❌ ${error.properties.explanation}`);
-                    }
-                }
+                return `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>${data.numero_documento}</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 12pt;
+            line-height: 1.6;
+            max-width: 21cm;
+            margin: 0 auto;
+            padding: 2cm;
+            background: white;
+        }
+        h1 { color: #2c5aa0; text-align: center; font-size: 18pt; }
+        h2 { color: #2c5aa0; font-size: 14pt; margin: 20px 0 10px 0; }
+        p { margin: 8px 0; }
+        strong { font-weight: bold; }
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #2c5aa0; padding-bottom: 20px; }
+        .footer { margin-top: 30px; text-align: center; font-size: 10pt; color: #666; border-top: 1px solid #ccc; padding-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔥 DOCUMENTO ENERGÉTICO</h1>
+        <p>Sistema Personalizado de Documentos</p>
+    </div>
+    ${htmlContent}
+    <div class="footer">
+        <p>Generado automáticamente • ${new Date().toLocaleString('es-ES')}</p>
+    </div>
+</body>
+</html>`;
             }
             
-            // Descargar archivo
-            downloadFile(blob, filename) {
+            downloadFile(content, filename) {
+                const blob = new Blob([content], { type: 'text/html' });
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
                 link.download = filename;
-                link.style.display = 'none';
-                
-                document.body.appendChild(link);
                 link.click();
-                document.body.removeChild(link);
-                
                 URL.revokeObjectURL(url);
-                console.log('📥 Descarga iniciada:', filename);
+                console.log('📥 Descarga:', filename);
             }
             
-            // Actualizar estado
             updateStatus(type, message) {
                 const statusDiv = document.getElementById('systemStatus');
                 if (statusDiv) {
@@ -456,31 +466,28 @@
                 }
             }
             
-            // Agregar a lista de documentos
-            addToDocumentsList(filename, type, templateUsed) {
+            addToList(filename, type, templateUsed) {
                 const container = document.getElementById('documentsGenerated');
                 const docDiv = document.createElement('div');
                 docDiv.style.cssText = 'padding: 15px; margin: 10px 0; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;';
                 docDiv.innerHTML = `
                     <strong>📄 ${filename}</strong><br>
-                    <small>Tipo: ${type} • Plantilla: ${templateUsed} • ${new Date().toLocaleString('es-ES')}</small>
+                    <small>Tipo: ${type} • Plantilla: ${templateUsed}</small><br>
+                    <small style="color: #666;">${new Date().toLocaleString('es-ES')}</small>
                 `;
                 
-                const firstChild = container.firstElementChild;
-                if (firstChild && firstChild.tagName === 'P') {
-                    container.removeChild(firstChild);
+                if (container.firstElementChild && container.firstElementChild.tagName === 'P') {
+                    container.removeChild(container.firstElementChild);
                 }
                 container.insertBefore(docDiv, container.firstChild);
             }
         }
         
-        // Inicializar tu sistema personalizado
+        // Inicializar
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚀 Cargando sistema personalizado...');
-            new CustomDocxProcessor();
+            console.log('🚀 Iniciando sistema...');
+            new CustomDocumentSystem();
         });
     </script>
-    </script>
-    
 </body>
 </html>
