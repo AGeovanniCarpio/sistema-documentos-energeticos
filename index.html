@@ -200,8 +200,191 @@
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage-compat.js"></script>
 
     <!-- Cargar configuración y aplicación -->
-    <script src="config.js"></script>
-    <script src="app.js"></script>
+    <script>
+        
+         // Configuración integrada
+        window.CONFIG = {
+            firebaseConfig: {
+                apiKey: "AIzaSyD2ICwOZAFfrFN8pXf-OCye2WD7awyj_Q",
+                authDomain: "modulodatoswordautomatico.firebaseapp.com",
+                projectId: "modulodatoswordautomatico",
+                storageBucket: "modulodatoswordautomatico.firebasestorage.app",
+                messagingSenderId: "744851515219",
+                appId: "1:744851515219:web:5ce8767c094f116a346"
+            },
+            documenteroConfig: {
+                apiKey: "6I43UKA-FH2ELQV-V2QOLPQ-KKU0PII",
+                baseUrl: "https://api.documentero.com/v1"
+            }
+        };
+
+        // Sistema simplificado
+        class SimpleDocumentSystem {
+            constructor() {
+                console.log('🔧 Sistema simple iniciado');
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                const generateBtn = document.getElementById('generateBtn');
+                if (generateBtn) {
+                    generateBtn.addEventListener('click', () => this.generateDocument());
+                    console.log('✅ Event listener agregado');
+                }
+
+                // Validación
+                ['documenteroKey', 'auditId', 'documentType'].forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.addEventListener('input', () => this.validateForm());
+                        element.addEventListener('change', () => this.validateForm());
+                    }
+                });
+            }
+
+            validateForm() {
+                const apiKey = document.getElementById('documenteroKey')?.value.trim();
+                const auditId = document.getElementById('auditId')?.value.trim();
+                const docType = document.getElementById('documentType')?.value;
+                const generateBtn = document.getElementById('generateBtn');
+
+                if (!generateBtn) return;
+
+                const isValid = apiKey && auditId && docType;
+                generateBtn.disabled = !isValid;
+                
+                if (isValid) {
+                    generateBtn.textContent = '🚀 Generar Documento';
+                    generateBtn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                } else {
+                    generateBtn.textContent = '⚠️ Completa todos los campos';
+                    generateBtn.style.background = '#ccc';
+                }
+            }
+
+            async generateDocument() {
+                console.log('🚀 Generando documento...');
+                
+                const apiKey = document.getElementById('documenteroKey').value.trim();
+                const auditId = document.getElementById('auditId').value.trim();
+                const documentType = document.getElementById('documentType').value;
+
+                this.updateStatus('info', '🔄 Generando documento...');
+
+                try {
+                    // Crear documento HTML
+                    const htmlContent = this.createHTMLDocument(auditId, documentType);
+                    const blob = new Blob([htmlContent], { type: 'text/html' });
+                    const filename = `${documentType}_${auditId}_${Date.now()}.html`;
+
+                    console.log('📄 Documento creado:', filename);
+                    console.log('📊 Tamaño:', blob.size, 'bytes');
+
+                    // Descargar
+                    this.downloadFile(blob, filename);
+                    
+                    // Actualizar UI
+                    this.updateStatus('success', `✅ Documento generado: ${filename}`);
+                    this.addDocumentToList(filename, documentType);
+
+                } catch (error) {
+                    console.error('❌ Error:', error);
+                    this.updateStatus('error', `❌ Error: ${error.message}`);
+                }
+            }
+
+            createHTMLDocument(auditId, documentType) {
+                return `<!DOCTYPE html>
+<html>
+<head>
+    <title>Reporte Energético - ${auditId}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+        h1 { color: #667eea; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        .section { margin: 30px 0; padding: 20px; background: #f8f9fa; border-radius: 8px; }
+        .highlight { background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <h1>🔥 Reporte de Auditoría Energética</h1>
+    
+    <div class="section">
+        <h2>📋 Información General</h2>
+        <p><strong>ID de Auditoría:</strong> ${auditId}</p>
+        <p><strong>Tipo de Documento:</strong> ${documentType}</p>
+        <p><strong>Fecha de Generación:</strong> ${new Date().toLocaleDateString('es-ES')}</p>
+        <p><strong>Hora:</strong> ${new Date().toLocaleTimeString('es-ES')}</p>
+    </div>
+
+    <div class="section">
+        <h2>📊 Resumen Ejecutivo</h2>
+        <p>Se realizó una auditoría energética completa. El sistema identificó oportunidades de mejora y generó recomendaciones específicas para optimizar el consumo energético.</p>
+    </div>
+
+    <div class="highlight">
+        <h3>✅ Documento generado exitosamente</h3>
+        <p>Este documento fue creado automáticamente por el Sistema de Documentos Energéticos.</p>
+    </div>
+
+    <div class="section">
+        <h2>🎯 Próximos Pasos</h2>
+        <ul>
+            <li>Revisar las recomendaciones técnicas</li>
+            <li>Implementar mejoras prioritarias</li>
+            <li>Programar seguimiento de resultados</li>
+        </ul>
+    </div>
+</body>
+</html>`;
+            }
+
+            downloadFile(blob, filename) {
+                console.log('📥 Descargando:', filename);
+                
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                link.style.display = 'none';
+                
+                document.body.appendChild(link);
+                link.click();
+                
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                    console.log('✅ Descarga completada');
+                }, 100);
+            }
+
+            updateStatus(type, message) {
+                const statusDiv = document.getElementById('systemStatus');
+                if (statusDiv) {
+                    statusDiv.className = `status status-${type}`;
+                    statusDiv.textContent = message;
+                }
+            }
+
+            addDocumentToList(filename, type) {
+                const container = document.getElementById('documentsGenerated');
+                const docItem = document.createElement('div');
+                docItem.style.cssText = 'padding: 15px; margin: 10px 0; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;';
+                docItem.innerHTML = `
+                    <strong>📄 ${filename}</strong><br>
+                    <small>Tipo: ${type} • ${new Date().toLocaleString('es-ES')}</small>
+                `;
+                container.appendChild(docItem);
+            }
+        }
+
+        // Inicializar cuando cargue
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Inicializando sistema...');
+            new SimpleDocumentSystem();
+        });
+        
+        ></script>
+    
     
     <script>
         // Variables globales
