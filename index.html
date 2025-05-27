@@ -404,15 +404,16 @@ Documento: {{numero_documento}}`
             }
 
             async initFirebase() {
-                // Configuración Firebase (reemplazar con la real)
-                const firebaseConfig = {
-                    apiKey: "demo-key",
-                    authDomain: "demo-project.firebaseapp.com",
-                    projectId: "demo-project-id",
-                    storageBucket: "demo-project.appspot.com",
-                    messagingSenderId: "123456789",
-                    appId: "demo-app-id"
-                };
+                // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyD2lCwOZAFFrFN8pXf-OCye204D7awyl_Q",
+  authDomain: "modulodatoswordautomatico.firebaseapp.com",
+  projectId: "modulodatoswordautomatico",
+  storageBucket: "modulodatoswordautomatico.firebasestorage.app",
+  messagingSenderId: "744851515219",
+  appId: "1:744851515219:web:5ece87673cc094f116a3a6",
+  measurementId: "G-RZWN8C7KVM"
+};
 
                 try {
                     const app = initializeApp(firebaseConfig);
