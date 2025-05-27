@@ -3,1159 +3,632 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Autónomo de Documentos - Auditorías Energéticas</title>
+    <title>Sistema de Auditorías - FUNCIONANDO</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-        }
-        
-        .autonomous-badge {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
-        }
-        
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
-        }
-        
-        .status-online { background: #28a745; }
-        .status-offline { background: #dc3545; }
-        .status-processing { background: #ffc107; animation: blink 1s infinite; }
-        
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.3; }
-        }
+        .loading { animation: pulse 2s infinite; }
+        .success { background: #10b981; }
+        .error { background: #ef4444; }
     </style>
 </head>
-<body>
-    <div class="min-h-screen p-4">
-        <!-- Header Principal -->
-        <div class="max-w-7xl mx-auto">
-            <div class="glass-effect rounded-3xl p-8 text-center text-white mb-8">
-                <h1 class="text-4xl font-bold mb-4">🔥 Sistema Autónomo de Documentos</h1>
-                <p class="text-lg opacity-90 mb-4">Generación de Reportes de Auditorías Energéticas</p>
-                <div class="autonomous-badge text-white px-6 py-2 rounded-full text-sm font-semibold inline-block">
-                    🔧 COMPLETAMENTE AUTÓNOMO - SIN APIs EXTERNAS
-                </div>
-                <div id="systemStatusIndicator" class="mt-4">
-                    <span class="status-indicator status-processing"></span>
-                    <span id="statusText">Inicializando sistema...</span>
-                </div>
-            </div>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg p-6 mb-8">
+            <h1 class="text-3xl font-bold mb-2">🔥 Sistema de Auditorías Energéticas</h1>
+            <p class="opacity-90">Generación automática de documentos - PILOTO FUNCIONAL</p>
+            <div id="systemStatus" class="mt-4 text-sm"></div>
+        </div>
 
-            <!-- Panel de Control Principal -->
-            <div class="grid lg:grid-cols-3 gap-8">
+        <!-- Main Content -->
+        <div class="grid lg:grid-cols-2 gap-8">
+            
+            <!-- Formulario de Datos -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-bold mb-4">📋 Datos de Auditoría</h2>
                 
-                <!-- Columna 1: Generación de Documentos -->
-                <div class="lg:col-span-2">
-                    <div class="card rounded-2xl p-8 shadow-xl">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                            📝 Generador de Documentos
-                        </h2>
-                        
-                        <!-- Plantilla -->
-                        <div class="mb-6">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                📄 Plantilla del Documento
-                            </label>
-                            <div class="flex gap-3 mb-3">
-                                <select id="systemTemplate" class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                    <option value="">Seleccionar plantilla del sistema...</option>
-                                    <option value="basic_audit">📊 Auditoría Básica</option>
-                                    <option value="complete_report">🔬 Reporte Completo</option>
-                                    <option value="executive_summary">👔 Resumen Ejecutivo</option>
-                                </select>
-                                <button id="loadSystemTemplate" class="px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-                                    Cargar
-                                </button>
-                            </div>
-                            <textarea id="templateContent" rows="12" 
-                                      class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
-                                      placeholder="Contenido de la plantilla... Use variables como {{cliente_nombre}}, {{auditoria_id}}, etc."></textarea>
-                            <div class="text-xs text-gray-500 mt-2">
-                                💡 Variables disponibles: {{cliente_nombre}}, {{auditoria_id}}, {{consumo_total}}, {{ahorro_pesos_anual_led}}, {{roi_led}}, etc.
-                            </div>
-                        </div>
-
-                        <!-- Datos de la Auditoría -->
-                        <div class="grid md:grid-cols-2 gap-4 mb-6">
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">🆔 ID de Auditoría</label>
-                                <input type="text" id="auditId" class="w-full p-3 border border-gray-300 rounded-lg" 
-                                       placeholder="ej: AUD-2025-001">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">📋 Tipo de Documento</label>
-                                <select id="documentType" class="w-full p-3 border border-gray-300 rounded-lg">
-                                    <option value="">Seleccionar...</option>
-                                    <option value="perfil_energetico">📊 Perfil Energético</option>
-                                    <option value="analisis_completo">🔬 Análisis Completo</option>
-                                    <option value="informe_ejecutivo">👔 Informe Ejecutivo</option>
-                                    <option value="certificacion">🏆 Certificación</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Configuración Avanzada -->
-                        <div class="bg-gray-50 rounded-xl p-6 mb-6">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4">⚙️ Configuración Avanzada</h3>
-                            
-                            <div class="grid md:grid-cols-3 gap-4 mb-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Formato</label>
-                                    <select id="outputFormat" class="w-full p-3 border border-gray-300 rounded-lg">
-                                        <option value="docx">📘 Word (.docx)</option>
-                                        <option value="html">🌐 HTML</option>
-                                        <option value="rtf">📝 RTF</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Cálculos</label>
-                                    <select id="includeCalculations" class="w-full p-3 border border-gray-300 rounded-lg">
-                                        <option value="full">🔬 Completos</option>
-                                        <option value="basic">📊 Básicos</option>
-                                        <option value="none">❌ Ninguno</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Opciones</label>
-                                    <div class="space-y-2">
-                                        <label class="flex items-center text-sm">
-                                            <input type="checkbox" id="autoSave" checked class="mr-2"> Guardar en servidor
-                                        </label>
-                                        <label class="flex items-center text-sm">
-                                            <input type="checkbox" id="includeHeader" checked class="mr-2"> Incluir encabezado
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Datos de Cálculo -->
-                            <div class="grid md:grid-cols-4 gap-3">
-                                <input type="number" id="consumoKwh" placeholder="Consumo (kWh)" class="p-2 border rounded" value="15420">
-                                <input type="number" id="demandaKw" placeholder="Demanda (kW)" class="p-2 border rounded" value="85">
-                                <input type="number" id="factorPotencia" placeholder="F.P." step="0.01" class="p-2 border rounded" value="0.82">
-                                <select id="tarifaSelect" class="p-2 border rounded">
-                                    <option value="GDMTO">GDMTO</option>
-                                    <option value="GDMTH">GDMTH</option>
-                                    <option value="OM">OM</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Botones de Acción -->
-                        <div class="flex gap-3">
-                            <button id="generateBtn" disabled
-                                    class="flex-1 bg-gradient-to-r from-green-500 to-teal-500 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:from-green-600 hover:to-teal-600 transition-all disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed">
-                                🚀 Generar Documento Autónomo
-                            </button>
-                            <button id="previewBtn" 
-                                    class="px-6 py-4 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition-colors">
-                                👁️ Preview
-                            </button>
-                        </div>
+                <form id="auditForm">
+                    <!-- Cliente -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Cliente</label>
+                        <input type="text" id="clienteNombre" class="w-full p-3 border rounded-lg" 
+                               placeholder="Nombre del cliente" value="Industrias Ejemplo S.A.">
                     </div>
-                </div>
-
-                <!-- Columna 2: Panel de Control y Estadísticas -->
-                <div class="space-y-6">
                     
-                    <!-- Estado del Sistema -->
-                    <div class="card rounded-2xl p-6 shadow-xl">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4">📊 Estado del Sistema</h3>
-                        <div id="systemStats" class="space-y-3">
-                            <div class="flex justify-between text-sm">
-                                <span>Documentos generados:</span>
-                                <span id="docsCount" class="font-semibold">0</span>
-                            </div>
-                            <div class="flex justify-between text-sm">
-                                <span>Plantillas guardadas:</span>
-                                <span id="templatesCount" class="font-semibold">0</span>
-                            </div>
-                            <div class="flex justify-between text-sm">
-                                <span>Sistema:</span>
-                                <span class="text-green-600 font-semibold">🟢 Operativo</span>
-                            </div>
-                            <div class="flex justify-between text-sm">
-                                <span>Almacenamiento:</span>
-                                <span class="text-blue-600 font-semibold">☁️ Firebase</span>
-                            </div>
+                    <div class="grid md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Consumo (kWh)</label>
+                            <input type="number" id="consumoKwh" class="w-full p-3 border rounded-lg" 
+                                   placeholder="15420" value="15420">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Demanda (kW)</label>
+                            <input type="number" id="demandaKw" class="w-full p-3 border rounded-lg" 
+                                   placeholder="85" value="85">
                         </div>
                     </div>
-
-                    <!-- Plantillas Guardadas -->
-                    <div class="card rounded-2xl p-6 shadow-xl">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4">📚 Plantillas Guardadas</h3>
-                        <div id="savedTemplates" class="space-y-2">
-                            <p class="text-gray-500 text-sm">Cargando plantillas...</p>
+                    
+                    <div class="grid md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Factor de Potencia</label>
+                            <input type="number" step="0.01" id="factorPotencia" class="w-full p-3 border rounded-lg" 
+                                   placeholder="0.85" value="0.85">
                         </div>
-                        <button id="saveCurrentTemplate" 
-                                class="w-full mt-4 bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors">
-                            💾 Guardar Plantilla Actual
-                        </button>
-                    </div>
-
-                    <!-- Documentos Recientes -->
-                    <div class="card rounded-2xl p-6 shadow-xl">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4">📋 Documentos Recientes</h3>
-                        <div id="recentDocuments" class="space-y-2">
-                            <p class="text-gray-500 text-sm">No hay documentos generados</p>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Tarifa</label>
+                            <select id="tarifa" class="w-full p-3 border rounded-lg">
+                                <option value="GDMTO">GDMTO</option>
+                                <option value="GDMTH">GDMTH</option>
+                                <option value="OM">OM</option>
+                            </select>
                         </div>
                     </div>
+                    
+                    <!-- Subida de Archivos -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">📎 Archivos Adjuntos</label>
+                        <input type="file" id="fileUpload" multiple class="w-full p-3 border rounded-lg" 
+                               accept=".jpg,.jpeg,.png,.pdf,.docx">
+                        <div id="fileList" class="mt-2 text-sm text-gray-600"></div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-2">Observaciones</label>
+                        <textarea id="observaciones" rows="4" class="w-full p-3 border rounded-lg" 
+                                  placeholder="Observaciones adicionales..."></textarea>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Panel de Generación -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-bold mb-4">📄 Generar Documento</h2>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Tipo de Plantilla</label>
+                    <select id="templateType" class="w-full p-3 border rounded-lg">
+                        <option value="basica">📊 Auditoría Básica</option>
+                        <option value="completa">🔬 Análisis Completo</option>
+                        <option value="ejecutivo">👔 Resumen Ejecutivo</option>
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Formato</label>
+                    <select id="outputFormat" class="w-full p-3 border rounded-lg">
+                        <option value="docx">📘 Word (.docx)</option>
+                        <option value="html">🌐 HTML</option>
+                    </select>
+                </div>
+                
+                <button id="generateBtn" class="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition">
+                    🚀 Generar Documento
+                </button>
+                
+                <!-- Status y Resultados -->
+                <div id="generationStatus" class="mt-4 p-4 rounded-lg hidden"></div>
+                
+                <!-- Cálculos Automáticos -->
+                <div id="calculations" class="mt-6 p-4 bg-gray-50 rounded-lg hidden">
+                    <h3 class="font-bold mb-2">🧮 Cálculos Automáticos</h3>
+                    <div id="calculationResults"></div>
                 </div>
             </div>
-
-            <!-- Panel de Status -->
-            <div class="mt-8">
-                <div id="statusPanel" class="glass-effect rounded-2xl p-6 text-white">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <span id="currentStatus">✅ Sistema listo para generar documentos</span>
-                        </div>
-                        <div class="text-sm opacity-75">
-                            <span id="lastActivity">Última actividad: Nunca</span>
-                        </div>
-                    </div>
-                </div>
+        </div>
+        
+        <!-- Historial -->
+        <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-bold mb-4">📚 Historial de Documentos</h2>
+            <div id="documentHistory" class="space-y-2">
+                <p class="text-gray-500">No hay documentos generados aún</p>
             </div>
         </div>
     </div>
 
-    <!-- Scripts Externos -->
+    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.4/pizzip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.47.0/docxtemplater.min.js"></script>
-
-    <!-- Sistema Principal -->
+    
+    <!-- Firebase -->
     <script type="module">
         // Firebase imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, deleteDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+
+        // ===== CONFIGURACIÓN =====
+        const firebaseConfig = {
+            // ⚠️ REEMPLAZAR CON TU CONFIGURACIÓN REAL
+            apiKey: "demo-key",
+            authDomain: "demo-project.firebaseapp.com",
+            projectId: "demo-project",
+            storageBucket: "demo-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "demo-app-id"
+        };
 
         // ===== SISTEMA PRINCIPAL =====
-        class AutonomousAuditSystem {
+        class AuditSystem {
             constructor() {
+                this.app = null;
                 this.db = null;
                 this.auth = null;
-                this.userId = null;
+                this.storage = null;
                 this.isReady = false;
-                
-                // Estadísticas
-                this.stats = {
-                    documentsGenerated: 0,
-                    templatesCreated: 0,
-                    startTime: new Date()
-                };
-                
-                // Templates del sistema
-                this.systemTemplates = {
-                    basic_audit: `AUDITORÍA ENERGÉTICA BÁSICA
-
-INFORMACIÓN DEL CLIENTE
-Empresa: {{cliente_nombre}}
-Dirección: {{cliente_direccion}}
-Teléfono: {{cliente_telefono}}
-
-DATOS DE LA AUDITORÍA
-ID: {{auditoria_id}}
-Fecha: {{fecha_auditoria}}
-Auditor: {{auditor_nombre}}
-
-ANÁLISIS ENERGÉTICO
-Consumo Total Anual: {{consumo_total}}
-Costo Anual Actual: {{costo_anual_actual}}
-Tarifa Aplicada: {{tarifa_aplicada}}
-
-OPORTUNIDADES DE AHORRO
-Ahorro Proyectado: {{ahorro_pesos_anual_led}}
-ROI Estimado: {{roi_led}}
-Periodo de Recuperación: {{periodo_recuperacion_led}} años
-
-CONCLUSIONES
-{{resumen_ejecutivo}}
-
-Documento: {{numero_documento}}
-Generado: {{fecha_generacion}}`,
-
-                    complete_report: `REPORTE INTEGRAL DE AUDITORÍA ENERGÉTICA
-
-RESUMEN EJECUTIVO
-{{resumen_ejecutivo}}
-
-INFORMACIÓN GENERAL
-Cliente: {{cliente_nombre}}
-Dirección: {{cliente_direccion}}
-Contacto: {{cliente_telefono}} | {{cliente_email}}
-Auditoría ID: {{auditoria_id}}
-Fecha de Auditoría: {{fecha_auditoria}}
-Auditor Responsable: {{auditor_nombre}}
-
-ANÁLISIS ENERGÉTICO DETALLADO
-Consumo Total Anual: {{consumo_total}}
-Demanda Máxima: {{demanda_maxima}}
-Factor de Carga: {{factor_carga}}
-Factor de Potencia: {{factor_potencia_actual}}
-Intensidad Energética: {{intensidad_energetica}} kWh/m²
-
-ANÁLISIS TARIFARIO
-Tarifa Eléctrica: {{tarifa_aplicada}}
-Costo Mensual Promedio: {{costo_mensual_actual}}
-Costo Anual Total: {{costo_anual_actual}}
-Costo Promedio por kWh: {{costo_kwh_promedio}}
-
-ANÁLISIS DE MEJORAS - ILUMINACIÓN LED
-Ahorro Energético Anual: {{ahorro_kwh_anual_led}} kWh
-Ahorro Económico Anual: {{ahorro_pesos_anual_led}}
-Porcentaje de Reducción: {{ahorro_porcentaje_led}}
-Periodo de Recuperación: {{periodo_recuperacion_led}} años
-ROI Proyectado: {{roi_led}}
-VAN del Proyecto: {{van_led}}
-TIR: {{tir_led}}
-
-IMPACTO AMBIENTAL
-Reducción de Emisiones CO₂: {{reduccion_co2_ton}} toneladas/año
-Equivalente en Árboles: {{reduccion_co2_arboles}} árboles plantados
-
-RECOMENDACIÓN
-{{recomendacion_led}}
-{{justificacion_led}}
-
-CONCLUSIONES
-El análisis energético identifica oportunidades significativas de ahorro.
-Se recomienda implementar las medidas según prioridad económica.
-
-Documento: {{numero_documento}}
-Generado: {{fecha_generacion}} {{hora_generacion}}`,
-
-                    executive_summary: `RESUMEN EJECUTIVO - AUDITORÍA ENERGÉTICA
-{{cliente_nombre}}
-
-SITUACIÓN ACTUAL
-• Consumo Anual: {{consumo_total}}
-• Costo Anual: {{costo_anual_actual}}
-• Tarifa: {{tarifa_aplicada}}
-
-OPORTUNIDADES IDENTIFICADAS
-• Potencial de Ahorro: {{ahorro_pesos_anual_led}}
-• ROI Proyectado: {{roi_led}}
-• Periodo de Recuperación: {{periodo_recuperacion_led}} años
-
-RECOMENDACIONES PRIORITARIAS
-1. Modernización del sistema de iluminación
-2. Corrección del factor de potencia
-3. Optimización de sistemas HVAC
-
-PRÓXIMOS PASOS
-• Evaluar propuestas de proveedores
-• Definir cronograma de implementación
-• Establecer métricas de seguimiento
-
-{{resumen_ejecutivo}}
-
-Auditor: {{auditor_nombre}}
-Fecha: {{fecha_auditoria}}
-Documento: {{numero_documento}}`
-                };
+                this.uploadedFiles = [];
                 
                 this.init();
             }
 
             async init() {
                 try {
-                    this.updateStatus('🔄 Inicializando sistema autónomo...', 'processing');
+                    // Inicializar Firebase
+                    this.app = initializeApp(firebaseConfig);
+                    this.db = getFirestore(this.app);
+                    this.auth = getAuth(this.app);
+                    this.storage = getStorage(this.app);
                     
-                    await this.initFirebase();
-                    this.setupEventListeners();
-                    await this.loadUserData();
-                    
-                    this.isReady = true;
-                    this.updateStatus('✅ Sistema autónomo listo - Sin APIs externas', 'online');
-                    this.updateStats();
-                    
-                } catch (error) {
-                    console.error('Error inicializando:', error);
-                    this.updateStatus('❌ Error en inicialización', 'offline');
-                }
-            }
-
-            async initFirebase() {
-                // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyD2lCwOZAFFrFN8pXf-OCye204D7awyl_Q",
-  authDomain: "modulodatoswordautomatico.firebaseapp.com",
-  projectId: "modulodatoswordautomatico",
-  storageBucket: "modulodatoswordautomatico.firebasestorage.app",
-  messagingSenderId: "744851515219",
-  appId: "1:744851515219:web:5ece87673cc094f116a3a6",
-  measurementId: "G-RZWN8C7KVM"
-};
-
-                try {
-                    const app = initializeApp(firebaseConfig);
-                    this.db = getFirestore(app);
-                    this.auth = getAuth(app);
-                    
+                    // Auth anónima
                     await signInAnonymously(this.auth);
                     
-                    return new Promise((resolve, reject) => {
-                        onAuthStateChanged(this.auth, (user) => {
-                            if (user) {
-                                this.userId = user.uid;
-                                console.log('🔥 Firebase conectado:', this.userId);
-                                resolve();
-                            } else {
-                                reject(new Error('Auth failed'));
-                            }
-                        });
-                    });
+                    this.isReady = true;
+                    this.updateStatus('✅ Sistema listo - Firebase conectado', 'success');
+                    this.setupEventListeners();
+                    
                 } catch (error) {
-                    // Modo demo sin Firebase
-                    console.warn('Firebase no disponible, modo demo activado');
-                    this.userId = 'demo-user';
-                    this.db = null;
+                    console.warn('Firebase no disponible, modo offline:', error);
+                    this.isReady = false;
+                    this.updateStatus('⚠️ Modo offline - Sin Firebase', 'error');
+                    this.setupEventListeners();
                 }
             }
 
             setupEventListeners() {
-                // Cargar plantilla del sistema
-                document.getElementById('loadSystemTemplate').addEventListener('click', () => {
-                    const templateId = document.getElementById('systemTemplate').value;
-                    if (templateId && this.systemTemplates[templateId]) {
-                        document.getElementById('templateContent').value = this.systemTemplates[templateId];
-                        this.validateForm();
-                        this.updateStatus('📄 Plantilla del sistema cargada', 'online');
-                    }
-                });
-
-                // Validación de formulario
-                ['templateContent', 'auditId', 'documentType'].forEach(id => {
-                    document.getElementById(id).addEventListener('input', () => this.validateForm());
-                });
-
                 // Generar documento
-                document.getElementById('generateBtn').addEventListener('click', () => this.generateDocument());
-
-                // Preview
-                document.getElementById('previewBtn').addEventListener('click', () => this.showPreview());
-
-                // Guardar plantilla
-                document.getElementById('saveCurrentTemplate').addEventListener('click', () => this.saveTemplate());
+                document.getElementById('generateBtn').addEventListener('click', () => {
+                    this.generateDocument();
+                });
+                
+                // Subida de archivos
+                document.getElementById('fileUpload').addEventListener('change', (e) => {
+                    this.handleFileUpload(e);
+                });
+                
+                // Validación en tiempo real
+                ['clienteNombre', 'consumoKwh', 'demandaKw'].forEach(id => {
+                    document.getElementById(id).addEventListener('input', () => {
+                        this.validateForm();
+                    });
+                });
+                
+                this.validateForm();
             }
 
             validateForm() {
-                const templateContent = document.getElementById('templateContent').value.trim();
-                const auditId = document.getElementById('auditId').value.trim();
-                const documentType = document.getElementById('documentType').value;
+                const nombre = document.getElementById('clienteNombre').value.trim();
+                const consumo = document.getElementById('consumoKwh').value;
+                const demanda = document.getElementById('demandaKw').value;
                 
-                const isValid = templateContent.length > 50 && auditId && documentType;
-                const generateBtn = document.getElementById('generateBtn');
+                const isValid = nombre && consumo && demanda;
+                const btn = document.getElementById('generateBtn');
                 
-                generateBtn.disabled = !isValid;
-                generateBtn.textContent = isValid ? 
-                    '🚀 Generar Documento Autónomo' : 
-                    '⚠️ Complete todos los campos';
+                btn.disabled = !isValid;
+                btn.className = isValid ? 
+                    'w-full bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition' :
+                    'w-full bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold cursor-not-allowed';
+            }
+
+            async handleFileUpload(event) {
+                const files = Array.from(event.target.files);
+                const fileList = document.getElementById('fileList');
+                
+                if (files.length === 0) {
+                    fileList.innerHTML = '';
+                    return;
+                }
+                
+                fileList.innerHTML = `<p class="text-blue-600">📎 ${files.length} archivo(s) seleccionado(s)</p>`;
+                
+                // Intentar subir a Firebase Storage
+                if (this.isReady && this.storage) {
+                    try {
+                        const uploadPromises = files.map(async (file) => {
+                            const storageRef = ref(this.storage, `audits/${Date.now()}_${file.name}`);
+                            const snapshot = await uploadBytes(storageRef, file);
+                            const downloadURL = await getDownloadURL(snapshot.ref);
+                            
+                            return {
+                                name: file.name,
+                                size: file.size,
+                                type: file.type,
+                                url: downloadURL
+                            };
+                        });
+                        
+                        this.uploadedFiles = await Promise.all(uploadPromises);
+                        fileList.innerHTML = `<p class="text-green-600">✅ ${files.length} archivo(s) subido(s) a Firebase</p>`;
+                        
+                    } catch (error) {
+                        console.error('Error subiendo archivos:', error);
+                        fileList.innerHTML = `<p class="text-red-600">❌ Error subiendo archivos</p>`;
+                    }
+                } else {
+                    // Modo local
+                    this.uploadedFiles = files.map(file => ({
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        localFile: file
+                    }));
+                }
             }
 
             async generateDocument() {
+                const btn = document.getElementById('generateBtn');
+                const status = document.getElementById('generationStatus');
+                
+                btn.disabled = true;
+                btn.innerHTML = '⏳ Generando...';
+                status.className = 'mt-4 p-4 rounded-lg bg-blue-100 text-blue-800';
+                status.innerHTML = '🔄 Procesando datos y generando documento...';
+                status.classList.remove('hidden');
+                
+                try {
+                    // Recopilar datos
+                    const auditData = this.collectFormData();
+                    
+                    // Realizar cálculos
+                    const calculations = this.performCalculations(auditData);
+                    
+                    // Mostrar cálculos
+                    this.displayCalculations(calculations);
+                    
+                    // Combinar datos
+                    const fullData = { ...auditData, ...calculations };
+                    
+                    // Guardar en Firebase si está disponible
+                    if (this.isReady) {
+                        await this.saveToFirebase(fullData);
+                    }
+                    
+                    // Generar documento
+                    const templateType = document.getElementById('templateType').value;
+                    const outputFormat = document.getElementById('outputFormat').value;
+                    
+                    const document = await this.createDocument(fullData, templateType, outputFormat);
+                    
+                    // Descargar
+                    this.downloadDocument(document);
+                    
+                    // Agregar al historial
+                    this.addToHistory(document.filename, fullData);
+                    
+                    status.className = 'mt-4 p-4 rounded-lg bg-green-100 text-green-800';
+                    status.innerHTML = `✅ Documento generado: ${document.filename}`;
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    status.className = 'mt-4 p-4 rounded-lg bg-red-100 text-red-800';
+                    status.innerHTML = `❌ Error: ${error.message}`;
+                    
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = '🚀 Generar Documento';
+                }
+            }
+
+            collectFormData() {
+                return {
+                    cliente_nombre: document.getElementById('clienteNombre').value.trim(),
+                    consumo_kwh: parseFloat(document.getElementById('consumoKwh').value) || 0,
+                    demanda_kw: parseFloat(document.getElementById('demandaKw').value) || 0,
+                    factor_potencia: parseFloat(document.getElementById('factorPotencia').value) || 0.9,
+                    tarifa: document.getElementById('tarifa').value,
+                    observaciones: document.getElementById('observaciones').value.trim(),
+                    archivos_adjuntos: this.uploadedFiles,
+                    fecha_auditoria: new Date().toLocaleDateString('es-ES'),
+                    auditoria_id: `AUD-${Date.now()}`,
+                    numero_documento: `DOC-${Date.now()}`
+                };
+            }
+
+            performCalculations(data) {
+                const { consumo_kwh, demanda_kw, factor_potencia, tarifa } = data;
+                
+                // Tarifas CFE (simplificadas)
+                const tarifas = {
+                    GDMTO: { demanda: 189.92, energia: 1.947 },
+                    GDMTH: { demanda: 189.92, energia: 1.947 },
+                    OM: { energia: 0.956 }
+                };
+                
+                const tarifaData = tarifas[tarifa] || tarifas.GDMTO;
+                
+                // Cálculos básicos
+                const costo_demanda = demanda_kw * (tarifaData.demanda || 0);
+                const costo_energia = consumo_kwh * tarifaData.energia;
+                const costo_total_mensual = costo_demanda + costo_energia;
+                const costo_total_anual = costo_total_mensual * 12;
+                
+                // Factor de carga
+                const factor_carga = (consumo_kwh / (demanda_kw * 8760)) * 100;
+                
+                // Análisis LED simplificado
+                const ahorro_led_kwh = consumo_kwh * 0.3; // 30% de ahorro típico
+                const ahorro_led_pesos = ahorro_led_kwh * tarifaData.energia;
+                const periodo_recuperacion = 180000 / ahorro_led_pesos; // Inversión estimada
+                
+                return {
+                    costo_mensual: `$${costo_total_mensual.toLocaleString('es-MX', {minimumFractionDigits: 2})}`,
+                    costo_anual: `$${costo_total_anual.toLocaleString('es-MX', {minimumFractionDigits: 2})}`,
+                    factor_carga: factor_carga.toFixed(1) + '%',
+                    factor_potencia_actual: (factor_potencia * 100).toFixed(1) + '%',
+                    ahorro_led_kwh: ahorro_led_kwh.toFixed(0) + ' kWh',
+                    ahorro_led_pesos: `$${ahorro_led_pesos.toLocaleString('es-MX', {minimumFractionDigits: 2})}`,
+                    periodo_recuperacion: periodo_recuperacion.toFixed(1) + ' años',
+                    tarifa_aplicada: tarifa,
+                    recomendacion: periodo_recuperacion < 3 ? 'RECOMENDADO' : 'CONSIDERAR'
+                };
+            }
+
+            displayCalculations(calculations) {
+                const calcDiv = document.getElementById('calculations');
+                const resultsDiv = document.getElementById('calculationResults');
+                
+                resultsDiv.innerHTML = `
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div><strong>Costo Mensual:</strong> ${calculations.costo_mensual}</div>
+                        <div><strong>Costo Anual:</strong> ${calculations.costo_anual}</div>
+                        <div><strong>Factor Carga:</strong> ${calculations.factor_carga}</div>
+                        <div><strong>Factor Potencia:</strong> ${calculations.factor_potencia_actual}</div>
+                        <div><strong>Ahorro LED:</strong> ${calculations.ahorro_led_pesos}</div>
+                        <div><strong>Recuperación:</strong> ${calculations.periodo_recuperacion}</div>
+                    </div>
+                `;
+                
+                calcDiv.classList.remove('hidden');
+            }
+
+            async saveToFirebase(data) {
                 if (!this.isReady) return;
-
-                const templateContent = document.getElementById('templateContent').value.trim();
-                const auditId = document.getElementById('auditId').value.trim();
-                const documentType = document.getElementById('documentType').value;
-                const outputFormat = document.getElementById('outputFormat').value;
-                const includeCalculations = document.getElementById('includeCalculations').value;
-
-                this.updateStatus('🔄 Generando documento...', 'processing');
-
+                
                 try {
-                    // Preparar datos del documento
-                    let documentData = this.getDocumentData(auditId, documentType);
-                    
-                    // Agregar cálculos si se solicita
-                    if (includeCalculations !== 'none') {
-                        const calculations = this.performCalculations();
-                        documentData = { ...documentData, ...calculations };
-                    }
-
-                    // Procesar plantilla
-                    const processedContent = this.processTemplate(templateContent, documentData);
-
-                    // Generar documento según formato
-                    let result;
-                    switch (outputFormat) {
-                        case 'docx':
-                            result = await this.generateDOCX(processedContent, documentData);
-                            break;
-                        case 'html':
-                            result = this.generateHTML(processedContent, documentData);
-                            break;
-                        case 'rtf':
-                            result = this.generateRTF(processedContent, documentData);
-                            break;
-                    }
-
-                    // Guardar si está habilitado
-                    if (document.getElementById('autoSave').checked && this.db) {
-                        await this.saveDocument(result, documentData);
-                    }
-
-                    // Descargar archivo
-                    this.downloadFile(result.buffer, result.filename, result.contentType);
-
-                    // Actualizar estadísticas
-                    this.stats.documentsGenerated++;
-                    this.updateStats();
-                    this.addToRecentDocuments(result.filename, documentData);
-                    
-                    this.updateStatus(`✅ Documento generado: ${result.filename}`, 'online');
-                    
-                } catch (error) {
-                    console.error('Error generando documento:', error);
-                    this.updateStatus(`❌ Error: ${error.message}`, 'offline');
-                }
-            }
-
-            async generateDOCX(content, documentData) {
-                try {
-                    // Crear documento DOCX básico
-                    const zip = new PizZip();
-                    
-                    // Estructura mínima DOCX
-                    zip.file('[Content_Types].xml', this.getContentTypesXML());
-                    zip.file('_rels/.rels', this.getMainRelsXML());
-                    zip.file('word/_rels/document.xml.rels', this.getDocRelsXML());
-                    zip.file('word/document.xml', this.createWordXML(content, documentData));
-                    zip.file('word/styles.xml', this.getStylesXML());
-                    zip.file('docProps/core.xml', this.getCorePropsXML(documentData));
-                    zip.file('docProps/app.xml', this.getAppPropsXML());
-
-                    const buffer = zip.generate({
-                        type: 'arraybuffer',
-                        mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                    const docRef = await addDoc(collection(this.db, 'audits'), {
+                        ...data,
+                        created_at: new Date(),
+                        user_id: this.auth.currentUser?.uid
                     });
-
-                    return {
-                        buffer: buffer,
-                        filename: `${documentData.numero_documento}.docx`,
-                        contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-                    };
+                    
+                    console.log('✅ Guardado en Firebase:', docRef.id);
                 } catch (error) {
-                    throw new Error(`Error generando DOCX: ${error.message}`);
+                    console.error('Error guardando en Firebase:', error);
                 }
             }
 
-            generateHTML(content, documentData) {
-                const htmlContent = `<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>${documentData.numero_documento}</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 21cm; margin: 0 auto; padding: 2cm; }
-        h1 { color: #2c5aa0; text-align: center; }
-        h2 { color: #2c5aa0; border-bottom: 1px solid #ccc; }
-        .data-field { display: flex; justify-content: space-between; padding: 5px 0; }
-        .label { font-weight: bold; }
-    </style>
-</head>
-<body>
-    <h1>📊 REPORTE DE AUDITORÍA ENERGÉTICA</h1>
-    <p style="text-align: center; margin-bottom: 30px;">
-        <strong>Documento:</strong> ${documentData.numero_documento}<br>
-        <strong>Generado:</strong> ${new Date().toLocaleString('es-ES')}
-    </p>
-    ${this.formatContentForHTML(content)}
-    <footer style="margin-top: 40px; text-align: center; border-top: 1px solid #ccc; padding-top: 20px; font-size: 12px; color: #666;">
-        <p><strong>Sistema Autónomo de Documentos</strong></p>
-        <p>Generado sin APIs externas • Almacenado en servidor propio</p>
-    </footer>
-</body>
-</html>`;
-
-                return {
-                    buffer: new TextEncoder().encode(htmlContent).buffer,
-                    filename: `${documentData.numero_documento}.html`,
-                    contentType: 'text/html'
+            async createDocument(data, templateType, format) {
+                const templates = {
+                    basica: this.getBasicTemplate(),
+                    completa: this.getCompleteTemplate(),
+                    ejecutivo: this.getExecutiveTemplate()
                 };
-            }
-
-            generateRTF(content, documentData) {
-                let rtf = '{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Times New Roman;}}';
-                rtf += '\\qc\\b\\fs32 REPORTE DE AUDITORÍA ENERGÉTICA\\par\\par';
-                rtf += `\\qc\\fs24 Documento: ${documentData.numero_documento}\\par\\par`;
                 
-                content.split('\n').forEach(line => {
-                    const trimmed = line.trim();
-                    if (trimmed) {
-                        if (trimmed === trimmed.toUpperCase() && trimmed.length > 5) {
-                            rtf += `\\b\\fs28 ${trimmed}\\par\\par`;
-                        } else {
-                            rtf += `${trimmed}\\par`;
-                        }
-                    }
-                });
+                let template = templates[templateType] || templates.basica;
                 
-                rtf += '}';
-
-                return {
-                    buffer: new TextEncoder().encode(rtf).buffer,
-                    filename: `${documentData.numero_documento}.rtf`,
-                    contentType: 'application/rtf'
-                };
-            }
-
-            // ===== MÉTODOS DE UTILIDAD =====
-            
-            getDocumentData(auditId, documentType) {
-                const now = new Date();
-                return {
-                    auditoria_id: auditId,
-                    tipo_documento: documentType,
-                    numero_documento: `${documentType.toUpperCase()}-${auditId}-${now.getTime()}`,
-                    fecha_generacion: now.toLocaleDateString('es-ES'),
-                    hora_generacion: now.toLocaleTimeString('es-ES'),
-                    cliente_nombre: 'Cliente Ejemplo S.A. de C.V.',
-                    cliente_direccion: 'Av. Ejemplo 123, Ciudad, Estado',
-                    cliente_telefono: '+52 33 1234-5678',
-                    cliente_email: 'contacto@ejemplo.com',
-                    fecha_auditoria: now.toLocaleDateString('es-ES'),
-                    auditor_nombre: 'Ing. Auditor Ejemplo',
-                    consumo_total: '15,420 kWh/año',
-                    costo_anual_actual: '$284,567.00',
-                    tarifa_aplicada: 'GDMTO - Gran Demanda Media Tensión',
-                    resumen_ejecutivo: 'Auditoría energética completada con identificación de oportunidades significativas de ahorro. Sistema generado de forma completamente autónoma.'
-                };
-            }
-
-            performCalculations() {
-                // Datos de entrada
-                const consumo = parseFloat(document.getElementById('consumoKwh').value) || 15420;
-                const demanda = parseFloat(document.getElementById('demandaKw').value) || 85;
-                const fp = parseFloat(document.getElementById('factorPotencia').value) || 0.82;
-                const tarifa = document.getElementById('tarifaSelect').value;
-
-                // Cálculos energéticos
-                const factorCarga = (consumo / (demanda * 8760)) * 100;
-                const intensidadEnergetica = consumo / 2500; // Asumiendo 2500 m²
-                
-                // Cálculos de iluminación LED
-                const potenciaActual = 150; // W por luminaria
-                const potenciaLED = 50; // W por luminaria LED
-                const cantidadLuminarias = 200;
-                const horasAnuales = 3650;
-                
-                const consumoActualLED = (potenciaActual * cantidadLuminarias * horasAnuales) / 1000;
-                const consumoLED = (potenciaLED * cantidadLuminarias * horasAnuales) / 1000;
-                const ahorroKwh = consumoActualLED - consumoLED;
-                const ahorroPesos = ahorroKwh * 2.2; // Costo promedio kWh
-                const ahorroPortcentaje = (ahorroKwh / consumoActualLED) * 100;
-                
-                // Análisis financiero
-                const inversion = 180000;
-                const periodoRecuperacion = inversion / ahorroPesos;
-                const roi = ((ahorroPesos * 10 - inversion) / inversion) * 100;
-                const van = this.calculateVAN([ahorroPesos, ahorroPesos, ahorroPesos, ahorroPesos, ahorroPesos], 0.12, inversion);
-                const tir = this.calculateTIR([-inversion, ahorroPesos, ahorroPesos, ahorroPesos, ahorroPesos, ahorroPesos]);
-                
-                // Impacto ambiental
-                const reduccionCO2 = ahorroKwh * 0.000527; // Factor emisión CFE
-                const equivalenteArboles = reduccionCO2 * 2.5;
-
-                return {
-                    // Indicadores energéticos
-                    factor_carga: factorCarga.toFixed(1) + '%',
-                    factor_potencia_actual: (fp * 100).toFixed(1) + '%',
-                    intensidad_energetica: intensidadEnergetica.toFixed(1),
-                    costo_kwh_promedio: '$2.20',
-                    costo_mensual_actual: '$23,714.00',
-                    
-                    // Análisis LED
-                    ahorro_kwh_anual_led: this.formatNumber(ahorroKwh) + ' kWh',
-                    ahorro_pesos_anual_led: this.formatCurrency(ahorroPesos),
-                    ahorro_porcentaje_led: ahorroPortcentaje.toFixed(1) + '%',
-                    periodo_recuperacion_led: periodoRecuperacion.toFixed(1),
-                    roi_led: roi.toFixed(1) + '%',
-                    van_led: this.formatCurrency(van),
-                    tir_led: (tir * 100).toFixed(1) + '%',
-                    
-                    // Recomendaciones
-                    recomendacion_led: this.getRecommendation(periodoRecuperacion, roi),
-                    justificacion_led: this.getJustification(periodoRecuperacion, roi),
-                    
-                    // Impacto ambiental
-                    reduccion_co2_ton: reduccionCO2.toFixed(2),
-                    reduccion_co2_arboles: equivalenteArboles.toFixed(1)
-                };
-            }
-
-            calculateVAN(flujos, tasa, inversion) {
-                let van = -inversion;
-                flujos.forEach((flujo, periodo) => {
-                    van += flujo / Math.pow(1 + tasa, periodo + 1);
-                });
-                return van;
-            }
-
-            calculateTIR(flujos) {
-                let tir = 0.1;
-                for (let i = 0; i < 100; i++) {
-                    const van = flujos.reduce((sum, flujo, periodo) => 
-                        sum + flujo / Math.pow(1 + tir, periodo), 0);
-                    const derivada = flujos.reduce((sum, flujo, periodo) => 
-                        sum - (periodo * flujo) / Math.pow(1 + tir, periodo + 1), 0);
-                    
-                    const nuevaTir = tir - van / derivada;
-                    if (Math.abs(nuevaTir - tir) < 0.0001) break;
-                    tir = nuevaTir;
-                }
-                return tir;
-            }
-
-            getRecommendation(periodo, roi) {
-                if (periodo <= 2 && roi > 50) return 'ALTAMENTE RECOMENDADO';
-                if (periodo <= 4 && roi > 20) return 'RECOMENDADO';
-                if (periodo <= 6 && roi > 0) return 'CONSIDERAR';
-                return 'NO RECOMENDADO';
-            }
-
-            getJustification(periodo, roi) {
-                if (periodo <= 2 && roi > 50) return 'Excelente retorno de inversión con periodo de recuperación muy corto.';
-                if (periodo <= 4 && roi > 20) return 'Buen retorno de inversión en periodo aceptable.';
-                if (periodo <= 6 && roi > 0) return 'Retorno positivo pero periodo de recuperación largo.';
-                return 'Periodo de recuperación muy largo o retorno insuficiente.';
-            }
-
-            processTemplate(template, data) {
-                let processed = template;
+                // Reemplazar variables
                 Object.keys(data).forEach(key => {
                     const regex = new RegExp(`{{${key}}}`, 'g');
-                    processed = processed.replace(regex, data[key] || '');
+                    template = template.replace(regex, data[key] || '');
                 });
-                return processed.replace(/{{[^}]*}}/g, '[No disponible]');
+                
+                const filename = `${data.numero_documento}.${format}`;
+                
+                if (format === 'docx') {
+                    return await this.generateDOCX(template, filename);
+                } else {
+                    return this.generateHTML(template, filename);
+                }
             }
 
-            formatContentForHTML(content) {
-                return content.split('\n').map(line => {
-                    const trimmed = line.trim();
-                    if (!trimmed) return '<br>';
-                    
-                    if (trimmed === trimmed.toUpperCase() && trimmed.length > 5) {
-                        return `<h2>${trimmed}</h2>`;
-                    } else if (trimmed.includes(':')) {
-                        const [label, value] = trimmed.split(':');
-                        return `<div class="data-field"><span class="label">${label.trim()}:</span><span>${value ? value.trim() : ''}</span></div>`;
-                    } else {
-                        return `<p>${trimmed}</p>`;
-                    }
-                }).join('\n');
-            }
-
-            // ===== MÉTODOS XML PARA DOCX =====
-            
-            getContentTypesXML() {
-                return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+            async generateDOCX(content, filename) {
+                // Generar DOCX básico usando docxtemplater
+                const zip = new PizZip();
+                
+                // Estructura mínima DOCX
+                const xmlContent = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+    <w:body>
+        ${content.split('\n').map(line => `
+            <w:p>
+                <w:r>
+                    <w:t>${line}</w:t>
+                </w:r>
+            </w:p>
+        `).join('')}
+    </w:body>
+</w:document>`;
+                
+                // Crear estructura ZIP básica
+                zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
     <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
     <Default Extension="xml" ContentType="application/xml"/>
     <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
-    <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
-    <Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>
-    <Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>
-</Types>`;
-            }
-
-            getMainRelsXML() {
-                return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+</Types>`);
+                
+                zip.file('_rels/.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
     <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
-    <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>
-    <Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>
-</Relationships>`;
+</Relationships>`);
+                
+                zip.file('word/document.xml', xmlContent);
+                
+                const buffer = zip.generate({ type: 'arraybuffer' });
+                
+                return {
+                    filename: filename,
+                    buffer: buffer,
+                    contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                };
             }
 
-            getDocRelsXML() {
-                return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-    <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
-</Relationships>`;
+            generateHTML(content, filename) {
+                const htmlContent = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Auditoría Energética</title>
+<style>body{font-family:Arial;margin:2cm;} h1{color:#2c5aa0;text-align:center;}</style>
+</head><body>
+<h1>🔥 AUDITORÍA ENERGÉTICA</h1>
+<pre style="white-space: pre-wrap;">${content}</pre>
+</body></html>`;
+                
+                return {
+                    filename: filename.replace('.docx', '.html'),
+                    buffer: new TextEncoder().encode(htmlContent).buffer,
+                    contentType: 'text/html'
+                };
             }
 
-            createWordXML(content, documentData) {
-                let xml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-    <w:body>`;
-                
-                // Título principal
-                xml += `
-        <w:p>
-            <w:pPr><w:jc w:val="center"/><w:spacing w:after="320"/></w:pPr>
-            <w:r><w:rPr><w:b/><w:sz w:val="32"/><w:color w:val="2c5aa0"/></w:rPr>
-            <w:t>REPORTE DE AUDITORÍA ENERGÉTICA</w:t></w:r>
-        </w:p>`;
-                
-                // Información del documento
-                xml += `
-        <w:p>
-            <w:pPr><w:jc w:val="center"/><w:spacing w:after="480"/></w:pPr>
-            <w:r><w:rPr><w:sz w:val="24"/></w:rPr>
-            <w:t>Documento: ${documentData.numero_documento}</w:t></w:r>
-        </w:p>`;
-                
-                // Badge autónomo
-                xml += `
-        <w:p>
-            <w:pPr><w:jc w:val="center"/><w:spacing w:after="480"/></w:pPr>
-            <w:r><w:rPr><w:b/><w:sz w:val="20"/><w:color w:val="28a745"/></w:rPr>
-            <w:t>🔧 SISTEMA COMPLETAMENTE AUTÓNOMO</w:t></w:r>
-        </w:p>`;
-                
-                // Contenido principal
-                content.split('\n').forEach(line => {
-                    const trimmed = line.trim();
-                    if (!trimmed) return;
-                    
-                    if (trimmed === trimmed.toUpperCase() && trimmed.length > 5) {
-                        xml += `
-        <w:p>
-            <w:pPr><w:spacing w:before="240" w:after="120"/></w:pPr>
-            <w:r><w:rPr><w:b/><w:sz w:val="28"/><w:color w:val="2c5aa0"/></w:rPr>
-            <w:t>${trimmed}</w:t></w:r>
-        </w:p>`;
-                    } else if (trimmed.includes(':')) {
-                        const [label, value] = trimmed.split(':');
-                        xml += `
-        <w:p>
-            <w:pPr><w:spacing w:after="80"/></w:pPr>
-            <w:r><w:rPr><w:b/></w:rPr><w:t>${label.trim()}:</w:t></w:r>
-            <w:r><w:t xml:space="preserve"> ${value ? value.trim() : ''}</w:t></w:r>
-        </w:p>`;
-                    } else {
-                        xml += `
-        <w:p>
-            <w:pPr><w:spacing w:after="160"/></w:pPr>
-            <w:r><w:t>${trimmed}</w:t></w:r>
-        </w:p>`;
-                    }
-                });
-                
-                // Footer
-                xml += `
-        <w:p>
-            <w:pPr><w:jc w:val="center"/><w:spacing w:before="480"/>
-            <w:pBdr><w:top w:val="single" w:sz="4" w:space="1" w:color="cccccc"/></w:pBdr></w:pPr>
-            <w:r><w:rPr><w:sz w:val="18"/><w:color w:val="666666"/></w:rPr>
-            <w:t>Sistema Autónomo • Sin APIs Externas • ${new Date().toLocaleString('es-ES')}</w:t></w:r>
-        </w:p>`;
-                
-                xml += `    </w:body></w:document>`;
-                return xml;
-            }
-
-            getStylesXML() {
-                return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-    <w:docDefaults>
-        <w:rPrDefault>
-            <w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/></w:rPr>
-        </w:rPrDefault>
-    </w:docDefaults>
-</w:styles>`;
-            }
-
-            getCorePropsXML(documentData) {
-                return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <dc:title>${documentData.numero_documento}</dc:title>
-    <dc:creator>Sistema Autónomo de Documentos</dc:creator>
-    <dcterms:created xsi:type="dcterms:W3CDTF">${new Date().toISOString()}</dcterms:created>
-    <dcterms:modified xsi:type="dcterms:W3CDTF">${new Date().toISOString()}</dcterms:modified>
-</cp:coreProperties>`;
-            }
-
-            getAppPropsXML() {
-                return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties">
-    <Application>Sistema Autónomo de Documentos</Application>
-    <DocSecurity>0</DocSecurity>
-    <ScaleCrop>false</ScaleCrop>
-    <LinksUpToDate>false</LinksUpToDate>
-    <SharedDoc>false</SharedDoc>
-    <HyperlinksChanged>false</HyperlinksChanged>
-    <AppVersion>1.0</AppVersion>
-</Properties>`;
-            }
-
-            // ===== GESTIÓN DE DATOS =====
-            
-            async saveDocument(document, metadata) {
-                if (!this.db) return;
-                
-                try {
-                    const docData = {
-                        filename: document.filename,
-                        contentType: document.contentType,
-                        size: document.buffer.byteLength,
-                        data: this.arrayBufferToBase64(document.buffer),
-                        metadata: {
-                            ...metadata,
-                            createdAt: new Date().toISOString(),
-                            createdBy: this.userId
-                        }
-                    };
-                    
-                    await addDoc(collection(this.db, `documents/${this.userId}/files`), docData);
-                    console.log('📁 Documento guardado en servidor');
-                } catch (error) {
-                    console.error('Error guardando documento:', error);
-                }
-            }
-
-            async saveTemplate() {
-                const templateContent = document.getElementById('templateContent').value.trim();
-                if (!templateContent) return;
-                
-                const name = prompt('Nombre de la plantilla:');
-                if (!name) return;
-                
-                try {
-                    const templateData = {
-                        name: name,
-                        content: templateContent,
-                        createdAt: new Date().toISOString(),
-                        createdBy: this.userId
-                    };
-                    
-                    if (this.db) {
-                        await addDoc(collection(this.db, `templates/${this.userId}/saved`), templateData);
-                    }
-                    
-                    this.stats.templatesCreated++;
-                    this.updateStats();
-                    this.updateStatus(`✅ Plantilla "${name}" guardada`, 'online');
-                    this.loadSavedTemplates();
-                    
-                } catch (error) {
-                    console.error('Error guardando plantilla:', error);
-                    this.updateStatus('❌ Error guardando plantilla', 'offline');
-                }
-            }
-
-            async loadSavedTemplates() {
-                if (!this.db) return;
-                
-                try {
-                    const templatesRef = collection(this.db, `templates/${this.userId}/saved`);
-                    const querySnapshot = await getDocs(query(templatesRef, orderBy('createdAt', 'desc'), limit(10)));
-                    
-                    const container = document.getElementById('savedTemplates');
-                    container.innerHTML = '';
-                    
-                    if (querySnapshot.empty) {
-                        container.innerHTML = '<p class="text-gray-500 text-sm">No hay plantillas guardadas</p>';
-                        return;
-                    }
-                    
-                    querySnapshot.forEach((doc) => {
-                        const template = doc.data();
-                        const templateDiv = document.createElement('div');
-                        templateDiv.className = 'flex justify-between items-center p-2 bg-gray-50 rounded mb-2';
-                        templateDiv.innerHTML = `
-                            <span class="text-sm font-medium">${template.name}</span>
-                            <button onclick="window.auditSystem.loadTemplate('${doc.id}')" 
-                                    class="text-xs bg-blue-500 text-white px-2 py-1 rounded">
-                                Cargar
-                            </button>
-                        `;
-                        container.appendChild(templateDiv);
-                    });
-                    
-                } catch (error) {
-                    console.error('Error cargando plantillas:', error);
-                }
-            }
-
-            async loadUserData() {
-                await this.loadSavedTemplates();
-            }
-
-            // ===== UI HELPERS =====
-            
-            showPreview() {
-                const templateContent = document.getElementById('templateContent').value.trim();
-                const auditId = document.getElementById('auditId').value.trim() || 'PREVIEW-001';
-                const documentType = document.getElementById('documentType').value || 'preview';
-                
-                if (!templateContent) {
-                    alert('Primero ingrese el contenido de la plantilla');
-                    return;
-                }
-                
-                // Generar datos de preview
-                let documentData = this.getDocumentData(auditId, documentType);
-                const includeCalculations = document.getElementById('includeCalculations').value;
-                
-                if (includeCalculations !== 'none') {
-                    const calculations = this.performCalculations();
-                    documentData = { ...documentData, ...calculations };
-                }
-                
-                // Procesar plantilla
-                const processedContent = this.processTemplate(templateContent, documentData);
-                
-                // Mostrar modal de preview
-                this.showPreviewModal(processedContent, documentData);
-            }
-
-            showPreviewModal(content, data) {
-                const modal = document.createElement('div');
-                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
-                modal.innerHTML = `
-                    <div class="bg-white rounded-2xl max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-                        <div class="flex justify-between items-center p-6 border-b">
-                            <h3 class="text-xl font-bold">👁️ Preview del Documento</h3>
-                            <button onclick="this.closest('.fixed').remove()" 
-                                    class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
-                        </div>
-                        <div class="p-6 overflow-y-auto flex-1">
-                            <div class="prose max-w-none">
-                                ${this.formatContentForHTML(content)}
-                            </div>
-                        </div>
-                        <div class="p-6 border-t bg-gray-50 flex justify-end gap-3">
-                            <button onclick="this.closest('.fixed').remove()" 
-                                    class="px-4 py-2 bg-gray-500 text-white rounded-lg">
-                                Cerrar
-                            </button>
-                            <button onclick="window.auditSystem.generateDocument(); this.closest('.fixed').remove();" 
-                                    class="px-4 py-2 bg-green-500 text-white rounded-lg">
-                                Generar Documento
-                            </button>
-                        </div>
-                    </div>
-                `;
-                
-                document.body.appendChild(modal);
-            }
-
-            addToRecentDocuments(filename, metadata) {
-                const container = document.getElementById('recentDocuments');
-                
-                // Limpiar mensaje inicial
-                if (container.textContent.includes('No hay documentos')) {
-                    container.innerHTML = '';
-                }
-                
-                const docDiv = document.createElement('div');
-                docDiv.className = 'flex justify-between items-center p-3 bg-gray-50 rounded-lg mb-2';
-                docDiv.innerHTML = `
-                    <div>
-                        <div class="font-medium text-sm">${filename}</div>
-                        <div class="text-xs text-gray-500">${new Date().toLocaleString('es-ES')}</div>
-                    </div>
-                    <div class="text-xs text-green-600 font-semibold">✅ Generado</div>
-                `;
-                
-                container.insertBefore(docDiv, container.firstChild);
-                
-                // Mantener solo los últimos 5
-                while (container.children.length > 5) {
-                    container.removeChild(container.lastChild);
-                }
-            }
-
-            updateStatus(message, type) {
-                const indicator = document.getElementById('systemStatusIndicator');
-                const statusText = document.getElementById('statusText');
-                const currentStatus = document.getElementById('currentStatus');
-                const lastActivity = document.getElementById('lastActivity');
-                
-                if (statusText) statusText.textContent = message;
-                if (currentStatus) currentStatus.textContent = message;
-                if (lastActivity) lastActivity.textContent = `Última actividad: ${new Date().toLocaleTimeString('es-ES')}`;
-                
-                // Actualizar indicador visual
-                if (indicator) {
-                    const dot = indicator.querySelector('.status-indicator');
-                    if (dot) {
-                        dot.className = `status-indicator status-${type}`;
-                    }
-                }
-            }
-
-            updateStats() {
-                document.getElementById('docsCount').textContent = this.stats.documentsGenerated;
-                document.getElementById('templatesCount').textContent = this.stats.templatesCreated;
-            }
-
-            // ===== UTILIDADES =====
-            
-            downloadFile(buffer, filename, contentType) {
-                const blob = new Blob([buffer], { type: contentType });
+            downloadDocument(document) {
+                const blob = new Blob([document.buffer], { type: document.contentType });
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = filename;
+                link.download = document.filename;
                 link.click();
                 URL.revokeObjectURL(url);
             }
 
-            arrayBufferToBase64(buffer) {
-                let binary = '';
-                const bytes = new Uint8Array(buffer);
-                for (let i = 0; i < bytes.byteLength; i++) {
-                    binary += String.fromCharCode(bytes[i]);
+            addToHistory(filename, data) {
+                const history = document.getElementById('documentHistory');
+                
+                if (history.children.length === 1 && history.children[0].textContent.includes('No hay documentos')) {
+                    history.innerHTML = '';
                 }
-                return window.btoa(binary);
+                
+                const item = document.createElement('div');
+                item.className = 'p-4 bg-gray-50 rounded-lg';
+                item.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <div class="font-semibold">${filename}</div>
+                            <div class="text-sm text-gray-600">${data.cliente_nombre} - ${new Date().toLocaleString('es-ES')}</div>
+                        </div>
+                        <div class="text-green-600 font-semibold">✅ Generado</div>
+                    </div>
+                `;
+                
+                history.insertBefore(item, history.firstChild);
             }
 
-            formatNumber(num) {
-                return new Intl.NumberFormat('es-MX').format(num);
+            updateStatus(message, type) {
+                const status = document.getElementById('systemStatus');
+                const colors = {
+                    success: 'text-green-200',
+                    error: 'text-red-200',
+                    info: 'text-blue-200'
+                };
+                
+                status.className = colors[type] || 'text-white';
+                status.textContent = message;
             }
 
-            formatCurrency(num) {
-                return new Intl.NumberFormat('es-MX', {
-                    style: 'currency',
-                    currency: 'MXN'
-                }).format(num);
+            // Plantillas
+            getBasicTemplate() {
+                return `AUDITORÍA ENERGÉTICA BÁSICA
+
+CLIENTE: {{cliente_nombre}}
+AUDITORÍA: {{auditoria_id}}
+FECHA: {{fecha_auditoria}}
+
+DATOS ENERGÉTICOS
+Consumo: {{consumo_kwh}} kWh/año
+Demanda: {{demanda_kw}} kW
+Factor de Potencia: {{factor_potencia_actual}}
+Tarifa: {{tarifa_aplicada}}
+
+ANÁLISIS ECONÓMICO
+Costo Mensual: {{costo_mensual}}
+Costo Anual: {{costo_anual}}
+Factor de Carga: {{factor_carga}}
+
+OPORTUNIDADES LED
+Ahorro Estimado: {{ahorro_led_pesos}}/año
+Periodo Recuperación: {{periodo_recuperacion}}
+Recomendación: {{recomendacion}}
+
+OBSERVACIONES
+{{observaciones}}
+
+Documento: {{numero_documento}}`;
+            }
+
+            getCompleteTemplate() {
+                return `REPORTE INTEGRAL DE AUDITORÍA ENERGÉTICA
+
+===== INFORMACIÓN GENERAL =====
+Cliente: {{cliente_nombre}}
+ID Auditoría: {{auditoria_id}}
+Fecha: {{fecha_auditoria}}
+
+===== ANÁLISIS ENERGÉTICO =====
+Consumo Anual: {{consumo_kwh}} kWh
+Demanda Máxima: {{demanda_kw}} kW
+Factor de Potencia: {{factor_potencia_actual}}
+Factor de Carga: {{factor_carga}}
+Tarifa Eléctrica: {{tarifa_aplicada}}
+
+===== ANÁLISIS ECONÓMICO =====
+Costo Mensual Actual: {{costo_mensual}}
+Costo Anual Total: {{costo_anual}}
+
+===== OPORTUNIDADES DE MEJORA =====
+Tecnología LED:
+- Ahorro Económico: {{ahorro_led_pesos}}/año
+- Ahorro Energético: {{ahorro_led_kwh}}/año
+- Periodo de Recuperación: {{periodo_recuperacion}}
+- Recomendación: {{recomendacion}}
+
+===== OBSERVACIONES TÉCNICAS =====
+{{observaciones}}
+
+===== ARCHIVOS ADJUNTOS =====
+Total de archivos: {{archivos_adjuntos.length}} archivo(s)
+
+Documento: {{numero_documento}}
+Generado: ${new Date().toLocaleString('es-ES')}`;
+            }
+
+            getExecutiveTemplate() {
+                return `RESUMEN EJECUTIVO - AUDITORÍA ENERGÉTICA
+
+Cliente: {{cliente_nombre}}
+Fecha: {{fecha_auditoria}}
+
+SITUACIÓN ACTUAL
+• Costo Anual: {{costo_anual}}
+• Consumo: {{consumo_kwh}} kWh/año
+• Factor de Carga: {{factor_carga}}
+
+OPORTUNIDADES IDENTIFICADAS
+• Ahorro LED: {{ahorro_led_pesos}}/año
+• Recuperación: {{periodo_recuperacion}}
+• Recomendación: {{recomendacion}}
+
+PRÓXIMOS PASOS
+• Evaluar propuestas de proveedores LED
+• Implementar mejoras de eficiencia
+• Monitorear resultados
+
+{{observaciones}}
+
+Documento: {{numero_documento}}`;
             }
         }
 
-        // ===== INICIALIZACIÓN =====
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚀 Iniciando Sistema Autónomo de Documentos...');
-            window.auditSystem = new AutonomousAuditSystem();
+        // ===== INICIALIZAR SISTEMA =====
+        window.addEventListener('DOMContentLoaded', () => {
+            window.auditSystem = new AuditSystem();
         });
     </script>
 </body>
-</html><!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Autónomo de Documentos - Auditorías Energéticas</title>
-    <script
+</html>
