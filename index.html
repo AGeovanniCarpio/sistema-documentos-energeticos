@@ -411,6 +411,7 @@ Fecha: {{fecha_generacion}}</textarea>
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // ===== CONFIGURACIÓN FIREBASE =====
+        // 🔥 IMPORTANTE: Reemplaza estos valores con la configuración real de tu proyecto Firebase
         // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyD2lCwOZAFFrFN8pXf-OCye204D7awyl_Q",
@@ -421,6 +422,30 @@ const firebaseConfig = {
   appId: "1:744851515219:web:5ece87673cc094f116a3a6",
   measurementId: "G-RZWN8C7KVM"
 };
+
+        // Función para escapar caracteres especiales para RTF
+        function escapeRtf(text) {
+            if (text === null || text === undefined) {
+                return '';
+            }
+            let result = '';
+            for (let i = 0; i < text.length; i++) {
+                const charCode = text.charCodeAt(i);
+                if (charCode <= 127) { // Caracteres ASCII estándar
+                    // Escapar caracteres especiales de RTF: \, {, }
+                    if (charCode === 92 || charCode === 123 || charCode === 125) {
+                        result += '\\' + text[i];
+                    } else {
+                        result += text[i];
+                    }
+                } else { // Caracteres extendidos (acentos, ñ, etc.)
+                     // Usar \'xx para caracteres ANSI/extendidos.
+                    result += '\\\'' + charCode.toString(16);
+                }
+            }
+            return result;
+        }
+
 
         // ===== SISTEMA PRINCIPAL =====
         class AuditSystemPro {
@@ -729,8 +754,8 @@ const firebaseConfig = {
                 }
 
                 try {
-                    const templateId = document.getElementById('templateSelect').value; // Global document
-                    const outputFormat = document.getElementById('outputFormat').value; // Global document
+                    const templateId = document.getElementById('templateSelect').value; 
+                    const outputFormat = document.getElementById('outputFormat').value; 
                     
                     if (!templateId) {
                         throw new Error('Seleccione una plantilla');
@@ -746,23 +771,19 @@ const firebaseConfig = {
                     const templateData = this.prepareTemplateData();
                     const processedContent = this.processTemplate(plantilla.contenido, templateData);
                     
-                    // CORRECCIÓN: Renombrar variable 'document' a 'generatedDocData'
                     const generatedDocData = await this.createDocument(processedContent, templateData, outputFormat); 
                     
                     if (!generatedDocData || !generatedDocData.blob || !generatedDocData.filename) {
                         throw new Error('Fallo la creación de los datos del documento.');
                     }
                     
-                    // CORRECCIÓN: Pasar la variable renombrada
                     await this.saveDocumentRecord(generatedDocData, templateId, templateData); 
                     
-                    // CORRECCIÓN: Usar la variable renombrada
                     this.downloadFile(generatedDocData.blob, generatedDocData.filename); 
                     
                     this.documentosGenerados++;
                     this.updateCounters();
                     
-                    // CORRECCIÓN: Usar la variable renombrada
                     this.showStatus(`✅ Documento generado: ${generatedDocData.filename}`, 'success'); 
                     
                     setTimeout(() => this.loadHistory(), 1000);
@@ -823,23 +844,46 @@ const firebaseConfig = {
 
             createHtml(content, filename) {
                 const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Auditoría Energética</title><style>body{font-family:'Arial',sans-serif;max-width:21cm;margin:0 auto;padding:2cm;line-height:1.6}h1{color:#2c5aa0;text-align:center;font-size:28px;margin-bottom:30px}h2{color:#2c5aa0;font-size:20px;margin:25px 0 15px 0;border-bottom:2px solid #e0e0e0;padding-bottom:8px}.data-field{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f0f0}.label{font-weight:bold;color:#2c5aa0;min-width:45%}.value{text-align:right;font-weight:500}.content-paragraph{margin:12px 0;text-align:justify}.footer{margin-top:50px;text-align:center;border-top:3px solid #2c5aa0;padding-top:20px;font-size:12px;color:#666}.generated-info{background:#f8f9fa;padding:15px;border-radius:8px;margin:20px 0;text-align:center}</style></head><body><h1>🔥 AUDITORÍA ENERGÉTICA</h1><div class="generated-info"><strong>Sistema de Auditorías Pro</strong><br>Generado: ${new Date().toLocaleString('es-ES')}<br>Datos obtenidos desde Firebase</div>${this.formatContentForHTML(content)}<div class="footer"><p><strong>Sistema de Auditorías Energéticas Pro v1.0</strong></p><p>Generado automáticamente con datos desde Firebase • ${new Date().toLocaleString('es-ES')}</p><p>Entrega proyecto: 30/05/2025 13:40 hrs</p></div></body></html>`;
-                const blob = new Blob([html], { type: 'text/html' });
+                const blob = new Blob([html], { type: 'text/html;charset=UTF-8' });
                 return { filename, blob };
             }
 
             createRtf(content, filename) {
-                let rtf = '{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Arial;}}{\\colortbl;\\red44\\green90\\blue160;}';
-                rtf += '\\qc\\b\\fs32\\cf1 AUDITORÍA ENERGÉTICA\\par\\par';
-                rtf += '\\qc\\fs20 Generado con Firebase • ' + new Date().toLocaleDateString('es-ES') + '\\par\\par\\par';
-                content.split('\n').forEach(line => { const trimmed = line.trim(); if (!trimmed) { rtf += '\\par'; return; } if (trimmed === trimmed.toUpperCase() && trimmed.length > 5) rtf += '\\b\\fs28\\cf1 ' + trimmed + '\\par\\par'; else if (trimmed.includes(':')) { const [label, value] = trimmed.split(':', 2); rtf += '\\b ' + label.trim() + ':\\b0  ' + (value ? value.trim() : '') + '\\par'; } else rtf += trimmed + '\\par'; });
-                rtf += '\\par\\par\\qc\\fs16\\cf0 Sistema Pro Firebase • ' + new Date().toLocaleString('es-ES');
+                let rtf = '{\\rtf1\\ansi\\deff0{\\fonttbl{\\f0 Arial;}}'; 
+                rtf += '{\\colortbl;\\red44\\green90\\blue160;}'; 
+
+                rtf += '\\pard\\sa200\\sl276\\slmult1\\qc\\b\\fs32\\cf1 ' + escapeRtf('AUDITORÍA ENERGÉTICA') + '\\par\\par';
+                rtf += '\\qc\\fs20 ' + escapeRtf('Generado con Firebase • ' + new Date().toLocaleDateString('es-ES')) + '\\par\\par\\par';
+                
+                rtf += '\\pard\\sa200\\sl276\\slmult1\\ql'; 
+
+                content.split('\n').forEach(line => {
+                    const trimmed = line.trim();
+                    if (!trimmed) {
+                        rtf += '\\par';
+                        return;
+                    }
+                    
+                    if (trimmed === trimmed.toUpperCase() && trimmed.length > 5) {
+                        rtf += '\\b\\fs28\\cf1 ' + escapeRtf(trimmed) + '\\par\\par';
+                    } else if (trimmed.includes(':')) {
+                        const [label, value] = trimmed.split(':', 2);
+                        rtf += '\\b ' + escapeRtf(label.trim()) + ':\\b0  ' + escapeRtf(value ? value.trim() : '') + '\\par';
+                    } else {
+                        rtf += escapeRtf(trimmed) + '\\par';
+                    }
+                });
+                
+                rtf += '\\par\\par\\qc\\fs16\\cf0 ' + escapeRtf('Sistema Pro Firebase • ' + new Date().toLocaleString('es-ES'));
                 rtf += '}';
-                const blob = new Blob([rtf], { type: 'application/rtf' });
+                
+                const blob = new Blob([rtf], { type: 'application/rtf;charset=windows-1252' });
                 return { filename, blob };
             }
 
+
             formatContentForHTML(content) {
-                return content.split('\n').map(line => { const trimmed = line.trim(); if (!trimmed) return '<br>'; if (trimmed === trimmed.toUpperCase() && trimmed.length > 5) return `<h2>${trimmed}</h2>`; else if (trimmed.includes(':')) { const [label, value] = trimmed.split(':', 2); return `<div class="data-field"><span class="label">${label.trim()}:</span><span class="value">${value ? value.trim() : ''}</span></div>`; } else return `<p class="content-paragraph">${trimmed}</p>`; }).join('\n');
+                return content.split('\n').map(line => { const trimmed = line.trim(); if (!trimmed) return '<br>'; if (trimmed === trimmed.toUpperCase() && trimmed.length > 5) return `<h2>${trimmed}</h2>`; else if (trimmed.includes(':')) { const [label, value] = trimmed.split(':', 2); return `<div class="data-field"><span class="label">${escapeRtf(label.trim())}:</span><span class="value">${escapeRtf(value ? value.trim() : '')}</span></div>`; } else return `<p class="content-paragraph">${escapeRtf(trimmed)}</p>`; }).join('\n');
             }
 
             async saveNewTemplate() {
@@ -885,8 +929,8 @@ const firebaseConfig = {
                 const templateData = this.prepareTemplateData();
                 const processedContent = this.processTemplate(plantilla.contenido, templateData);
                 const modal = document.getElementById('previewModal');
-                const contentDiv = document.getElementById('previewContent'); // Renombrado para evitar conflicto
-                contentDiv.innerHTML = this.formatContentForHTML(processedContent); // Usar contentDiv
+                const contentDiv = document.getElementById('previewContent'); 
+                contentDiv.innerHTML = this.formatContentForHTML(processedContent); 
                 modal.style.display = 'flex';
             }
 
@@ -918,8 +962,7 @@ const firebaseConfig = {
                     console.error('Error guardando cálculos:', error);
                 }
             }
-
-            // CORRECCIÓN: Renombrar parámetro 'document' a 'docData'
+            
             async saveDocumentRecord(docData, templateId, templateData) {
                 if (!this.isConnected) return;
                 
@@ -927,11 +970,9 @@ const firebaseConfig = {
                     await addDoc(collection(this.db, 'documentos_generados'), {
                         auditoria_id: this.auditoriaActual?.id || templateData.numero_documento,
                         plantilla_id: templateId,
-                        // CORRECCIÓN: Usar el parámetro renombrado
                         nombre_archivo: docData.filename, 
                         formato: docData.filename.split('.').pop(),
                         tamaño_bytes: docData.blob.size, 
-                        // ---
                         generado_por: 'sistema_pro_firebase',
                         created_at: new Date().toISOString(),
                         user_id: this.userId,
