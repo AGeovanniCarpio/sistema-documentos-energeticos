@@ -3,1360 +3,2255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Auditorías - 100% FUNCIONAL</title>
+    <title>Sistema de Auditorías Energéticas - Entrega 30/05/2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.4/pizzip.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-        }
-
-        .header {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            text-align: center;
-            color: white;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-
-        .status-badge {
-            background: linear-gradient(45deg, #28a745, #20c997);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            display: inline-block;
-            margin-top: 10px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 30px 20px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
-        .card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-        }
-
-        .card h2 {
-            color: #2c5aa0;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #555;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        }
-
-        .calculations {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border-radius: 15px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-
-        .calc-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .calc-item {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .calc-value {
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: #2c5aa0;
-            margin-bottom: 5px;
-        }
-
-        .calc-label {
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .status {
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-            font-weight: 500;
-        }
-
-        .status-info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-
-        .status-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .status-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .file-upload {
-            border: 2px dashed #ccc;
-            padding: 20px;
-            text-align: center;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: border-color 0.3s;
-        }
-
-        .file-upload:hover {
-            border-color: #667eea;
-        }
-
-        .history-item {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            border-left: 4px solid #28a745;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 768px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            
-            .calc-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .glass-effect { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .status { padding: 12px; border-radius: 8px; margin: 10px 0; display: none; }
+        .status-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .status-info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .firebase-badge { display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .firebase-connected { background: #d4edda; color: #155724; }
+        .firebase-offline { background: #f8d7da; color: #721c24; }
+        .firebase-loading { background: #fff3cd; color: #856404; }
+        .loading-spinner { animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .calc-card { transition: all 0.3s ease; }
+        .calc-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .template-preview { max-height: 200px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        .audit-timeline { position: relative; }
+        .audit-timeline::before { content: ''; position: absolute; left: 20px; top: 0; bottom: 0; width: 2px; background: #e5e7eb; }
+        .timeline-item { position: relative; padding-left: 50px; margin-bottom: 20px; }
+        .timeline-icon { position: absolute; left: 12px; top: 4px; width: 16px; height: 16px; background: #3b82f6; border-radius: 50%; }
     </style>
 </head>
-<body>
-    <div class="header">
-        <h1>🔥 Sistema de Auditorías Energéticas</h1>
-        <p>Generación automática de documentos - VERSIÓN FUNCIONAL</p>
-        <div class="status-badge" id="systemStatus">⏳ Cargando librerías...</div>
+<body class="bg-gray-50">
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="fixed inset-0 gradient-bg flex items-center justify-center z-50">
+        <div class="text-center text-white">
+            <div class="text-6xl mb-4">🔥</div>
+            <h1 class="text-4xl font-bold mb-4">Sistema de Auditorías Energéticas</h1>
+            <div class="loading-spinner w-8 h-8 border-4 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
+            <div id="loadingStatus" class="text-lg mb-2">Conectando con Firebase...</div>
+            <div id="loadingDetails" class="text-sm opacity-75">Inicializando sistema...</div>
+            <div class="mt-4 text-xs opacity-60">Entrega: 30/05/2025 13:40 hrs</div>
+        </div>
     </div>
 
-    <div class="container">
-        <div id="loadingScreen" class="loading">
-            <div class="spinner"></div>
-            <p>Cargando sistema y librerías necesarias...</p>
-            <p id="loadingStatus">Iniciando...</p>
-        </div>
-
-        <div id="mainContent" style="display: none;">
-            <div class="grid">
-                <!-- Panel de Datos de Auditoría -->
-                <div class="card">
-                    <h2>📋 Datos de Auditoría</h2>
-                    
-                    <div class="form-group">
-                        <label>Cliente</label>
-                        <input type="text" id="clienteNombre" placeholder="Nombre de la empresa" value="Industrias Ejemplo S.A.">
+    <!-- Main Application -->
+    <div id="mainApp" style="display: none;" class="min-h-screen">
+        <!-- Header -->
+        <header class="gradient-bg text-white">
+            <div class="container mx-auto px-4 py-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-3xl font-bold mb-2">🔥 Sistema de Auditorías Energéticas</h1>
+                        <p class="opacity-90">Módulo funcional con Firebase + GitHub Pages</p>
                     </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Consumo (kWh)</label>
-                            <input type="number" id="consumoKwh" placeholder="15420" value="15420">
+                    <div class="text-right">
+                        <div id="firebaseStatus" class="firebase-badge firebase-loading">
+                            🔄 Conectando...
                         </div>
-                        <div class="form-group">
-                            <label>Demanda (kW)</label>
-                            <input type="number" id="demandaKw" placeholder="85" value="85">
+                        <div class="text-sm opacity-75 mt-1">
+                            <span id="connectionInfo">Verificando conexión...</span>
                         </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Factor de Potencia</label>
-                            <input type="number" id="factorPotencia" step="0.01" placeholder="0.85" value="0.85">
-                        </div>
-                        <div class="form-group">
-                            <label>Tarifa</label>
-                            <select id="tarifa">
-                                <option value="GDMTO" selected>GDMTO</option>
-                                <option value="GDMTH">GDMTH</option>
-                                <option value="OM">OM</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>📎 Archivos Adjuntos</label>
-                        <div class="file-upload" id="fileUpload">
-                            <p>📁 Elegir archivos o arrastrar aquí</p>
-                            <input type="file" id="fileInput" multiple style="display: none;">
-                            <div id="fileList"></div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Observaciones</label>
-                        <textarea id="observaciones" rows="3" placeholder="Observaciones adicionales">Sistema 100% funcional - Librerías cargadas dinámicamente</textarea>
-                    </div>
-                </div>
-
-                <!-- Panel de Generación -->
-                <div class="card">
-                    <h2>📄 Generar Documento</h2>
-                    
-                    <div class="form-group">
-                        <label>Tipo de Plantilla</label>
-                        <select id="tipoPlantilla">
-                            <option value="auditoria_basica">📊 Auditoría Básica</option>
-                            <option value="reporte_completo">📈 Reporte Completo</option>
-                            <option value="resumen_ejecutivo">👔 Resumen Ejecutivo</option>
-                            <option value="certificacion">🏆 Certificación</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Formato</label>
-                        <select id="formato">
-                            <option value="docx">📘 Word (.docx)</option>
-                            <option value="html">🌐 HTML</option>
-                            <option value="rtf">📝 RTF</option>
-                        </select>
-                    </div>
-
-                    <button class="btn btn-success" id="generarBtn" disabled>
-                        🚀 Generar Documento
-                    </button>
-
-                    <div id="status"></div>
-
-                    <!-- Cálculos Automáticos -->
-                    <div class="calculations">
-                        <h3>🧮 Cálculos Automáticos</h3>
-                        <div class="calc-grid">
-                            <div class="calc-item">
-                                <div class="calc-value" id="costoMensual">$46,165.94</div>
-                                <div class="calc-label">Costo Mensual</div>
-                            </div>
-                            <div class="calc-item">
-                                <div class="calc-value" id="costoAnual">$553,991.28</div>
-                                <div class="calc-label">Costo Anual</div>
-                            </div>
-                            <div class="calc-item">
-                                <div class="calc-value" id="factorCarga">2.1%</div>
-                                <div class="calc-label">Factor Carga</div>
-                            </div>
-                            <div class="calc-item">
-                                <div class="calc-value" id="factorPotenciaMostrado">85.0%</div>
-                                <div class="calc-label">Factor Potencia</div>
-                            </div>
-                            <div class="calc-item">
-                                <div class="calc-value" id="ahorroLED">$12,006.82</div>
-                                <div class="calc-label">Ahorro LED</div>
-                            </div>
-                            <div class="calc-item">
-                                <div class="calc-value" id="recuperacion">10.6 años</div>
-                                <div class="calc-label">Recuperación</div>
-                            </div>
+                        <div class="text-xs opacity-60 mt-1">
+                            Documentos: <span id="docCounter">0</span> | 
+                            Plantillas: <span id="templateCounter">0</span>
                         </div>
                     </div>
                 </div>
             </div>
+        </header>
 
-            <!-- Historial de Documentos -->
-            <div class="card">
-                <h2>📚 Historial de Documentos</h2>
-                <div id="historial">
-                    <p style="text-align: center; color: #666;">No hay documentos generados aún</p>
+        <!-- Status Messages -->
+        <div class="container mx-auto px-4 py-2">
+            <div id="statusMessage" class="status"></div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-4 py-8">
+            <div class="grid lg:grid-cols-3 gap-8">
+                
+                <!-- Column 1: Data Input -->
+                <div class="lg:col-span-1">
+                    <div class="card rounded-2xl p-6 shadow-xl mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                            📋 Datos de Auditoría
+                        </h2>
+                        
+                        <!-- Client Information -->
+                        <div class="space-y-4 mb-6">
+                            <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Información del Cliente</h3>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nombre de la Empresa</label>
+                                <input type="text" id="clienteNombre" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                       placeholder="Ej: Industrias Ejemplo S.A." 
+                                       value="Industrias Ejemplo S.A.">
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Dirección</label>
+                                    <input type="text" id="clienteDireccion" 
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                                           placeholder="Dirección completa" 
+                                           value="Av. Industrial 123, Guadalajara, Jal.">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
+                                    <input type="tel" id="clienteTelefono" 
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                                           placeholder="+52 33 1234-5678" 
+                                           value="+52 33 1234-5678">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                <input type="email" id="clienteEmail" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                                       placeholder="contacto@empresa.com" 
+                                       value="contacto@ejemplo.com">
+                            </div>
+                        </div>
+                        
+                        <!-- Energy Data -->
+                        <div class="space-y-4 mb-6">
+                            <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Datos Energéticos</h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Consumo Anual (kWh)</label>
+                                    <input type="number" id="consumoKwh" 
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                                           placeholder="15420" 
+                                           value="15420" 
+                                           min="0">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Demanda Máxima (kW)</label>
+                                    <input type="number" id="demandaKw" 
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                                           placeholder="85" 
+                                           value="85" 
+                                           min="0">
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Factor de Potencia</label>
+                                    <input type="number" id="factorPotencia" 
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                                           placeholder="0.85" 
+                                           value="0.82" 
+                                           min="0" max="1" step="0.01">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Tarifa CFE</label>
+                                    <select id="tarifaCfe" 
+                                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                        <option value="">🔄 Cargando desde Firebase...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Área de la Instalación (m²)</label>
+                                <input type="number" id="areaInstalacion" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                                       placeholder="2500" 
+                                       value="2500" 
+                                       min="0">
+                            </div>
+                        </div>
+                        
+                        <!-- Additional Information -->
+                        <div class="space-y-4 mb-6">
+                            <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Información Adicional</h3>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Auditor Responsable</label>
+                                <input type="text" id="auditorNombre" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                                       placeholder="Ing. Juan Pérez" 
+                                       value="Ing. Auditor Energético">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Observaciones y Recomendaciones</label>
+                                <textarea id="observaciones" 
+                                          rows="4" 
+                                          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                                          placeholder="Describa hallazgos, recomendaciones específicas, oportunidades de mejora...">Oportunidad significativa en modernización de sistema de iluminación a tecnología LED. Instalación eléctrica en buen estado general. Se recomienda corrección del factor de potencia para optimizar eficiencia.</textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="space-y-3">
+                            <button id="saveAuditBtn" 
+                                    class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center">
+                                <span class="mr-2">💾</span> Guardar Auditoría en Firebase
+                            </button>
+                            
+                            <button id="calculateBtn" 
+                                    class="w-full bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-purple-700 transition-colors flex items-center justify-center">
+                                <span class="mr-2">🧮</span> Calcular con Tarifas CFE
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Column 2: Calculations and Results -->
+                <div class="lg:col-span-1">
+                    <!-- Calculations Panel -->
+                    <div class="card rounded-2xl p-6 shadow-xl mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                            🧮 Cálculos Automáticos
+                        </h2>
+                        
+                        <div id="calculationsContainer">
+                            <div class="text-center text-gray-500 py-12">
+                                <div class="text-4xl mb-4">⏳</div>
+                                <p class="text-lg mb-2">Esperando datos</p>
+                                <p class="text-sm">Complete el formulario y presione "Calcular"</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 text-center">
+                            <button id="recalculateBtn" 
+                                    class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                                🔄 Recalcular
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- LED Analysis -->
+                    <div class="card rounded-2xl p-6 shadow-xl mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                            💡 Análisis LED
+                        </h2>
+                        
+                        <div id="ledAnalysisContainer">
+                            <div class="text-center text-gray-500 py-8">
+                                <div class="text-3xl mb-2">💡</div>
+                                <p>Análisis disponible después de calcular</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Column 3: Templates and Document Generation -->
+                <div class="lg:col-span-1">
+                    <!-- Template Management -->
+                    <div class="card rounded-2xl p-6 shadow-xl mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                            📄 Gestión de Plantillas
+                        </h2>
+                        
+                        <!-- Template Selection -->
+                        <div class="space-y-4 mb-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Plantilla (desde Firebase)</label>
+                                <select id="templateSelect" 
+                                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <option value="">🔄 Cargando plantillas...</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Formato de Salida</label>
+                                <select id="outputFormat" 
+                                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <option value="docx">📘 Word (.docx)</option>
+                                    <option value="html">🌐 HTML</option>
+                                    <option value="rtf">📝 RTF (Compatible Word)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Template Preview -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Vista Previa de Plantilla</label>
+                            <div id="templatePreview" 
+                                 class="template-preview bg-gray-50 border border-gray-300 rounded-lg p-4 text-sm">
+                                Seleccione una plantilla para ver la vista previa...
+                            </div>
+                        </div>
+                        
+                        <!-- Document Generation -->
+                        <div class="space-y-3">
+                            <button id="generateDocBtn" 
+                                    disabled
+                                    class="w-full bg-gray-400 text-white py-4 px-6 rounded-lg font-semibold text-lg cursor-not-allowed">
+                                ⏳ Completar datos primero
+                            </button>
+                            
+                            <button id="previewDocBtn" 
+                                    class="w-full bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors">
+                                👁️ Vista Previa del Documento
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Template Creator -->
+                    <div class="card rounded-2xl p-6 shadow-xl mb-8">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            ✏️ Crear Nueva Plantilla
+                        </h2>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nombre de la Plantilla</label>
+                                <input type="text" id="newTemplateName" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                                       placeholder="Ej: Mi Plantilla Personalizada">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                                <input type="text" id="newTemplateDesc" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                                       placeholder="Descripción breve de la plantilla">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Contenido de la Plantilla</label>
+                                <textarea id="newTemplateContent" 
+                                          rows="8" 
+                                          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 font-mono text-sm" 
+                                          placeholder="Use variables como {{cliente_nombre}}, {{consumo_kwh}}, {{costo_anual}}, etc.">AUDITORÍA ENERGÉTICA PERSONALIZADA
+
+CLIENTE: {{cliente_nombre}}
+DIRECCIÓN: {{cliente_direccion}}
+
+DATOS ENERGÉTICOS:
+- Consumo: {{consumo_kwh}} kWh/año
+- Demanda: {{demanda_kw}} kW
+- Factor de Potencia: {{factor_potencia}}
+
+ANÁLISIS ECONÓMICO:
+- Costo Anual: {{costo_anual}}
+- Tarifa: {{tarifa_nombre}}
+
+RECOMENDACIONES:
+{{observaciones}}
+
+Documento: {{numero_documento}}
+Fecha: {{fecha_generacion}}</textarea>
+                            </div>
+                            
+                            <button id="saveTemplateBtn" 
+                                    class="w-full bg-orange-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-orange-700 transition-colors">
+                                💾 Guardar Plantilla en Firebase
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <script>
-        // ===== SISTEMA PRINCIPAL - CARGA DINÁMICA DE LIBRERÍAS =====
+            
+            <!-- History and Recent Documents -->
+            <div class="mt-8">
+                <div class="card rounded-2xl p-6 shadow-xl">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">📚 Historial de Auditorías</h2>
+                        <div class="space-x-3">
+                            <button id="refreshHistoryBtn" 
+                                    class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                                🔄 Actualizar
+                            </button>
+                            <button id="exportHistoryBtn" 
+                                    class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                                📊 Exportar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="historyContainer" class="audit-timeline">
+                        <div class="text-center text-gray-500 py-12">
+                            <div class="text-4xl mb-4">📋</div>
+                            <p class="text-lg mb-2">Cargando historial desde Firebase...</p>
+                            <p class="text-sm">Sus auditorías aparecerán aquí</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
         
-        // Variables globales
-        let documentosGenerados = 0;
-        let sistemaInicializado = false;
-        let archivosSeleccionados = [];
-        let libreriasCargadas = false;
+        <!-- Footer -->
+        <footer class="gradient-bg text-white text-center py-6 mt-12">
+            <div class="container mx-auto px-4">
+                <p class="text-lg font-semibold mb-2">🔥 Sistema de Auditorías Energéticas</p>
+                <p class="text-sm opacity-75">Desarrollado con Firebase + GitHub Pages • Entrega: 30/05/2025</p>
+                <div class="mt-2 text-xs opacity-60">
+                    <span id="systemVersion">v1.0.0</span> • 
+                    <span id="buildTime">Build: --</span> • 
+                    <span>Status: <span id="systemHealth">🟢 Operativo</span></span>
+                </div>
+            </div>
+        </footer>
+    </div>
 
-        // ===== CARGA DINÁMICA DE LIBRERÍAS =====
-        async function cargarLibrerias() {
-            const loadingStatus = document.getElementById('loadingStatus');
-            
-            try {
-                loadingStatus.textContent = 'Cargando PizZip...';
+    <!-- Preview Modal -->
+    <div id="previewModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="display: none;">
+        <div class="bg-white rounded-2xl max-w-4xl max-h-[90vh] overflow-hidden flex flex-col m-4">
+            <div class="flex justify-between items-center p-6 border-b">
+                <h3 class="text-xl font-bold">👁️ Vista Previa del Documento</h3>
+                <button id="closePreviewBtn" 
+                        class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1">
+                <div id="previewContent" class="prose max-w-none">
+                    <!-- Preview content will be inserted here -->
+                </div>
+            </div>
+            <div class="p-6 border-t bg-gray-50 flex justify-end gap-3">
+                <button id="closePreviewBtn2" 
+                        class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                    Cerrar
+                </button>
+                <button id="generateFromPreviewBtn" 
+                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    🚀 Generar Documento
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, doc, getDoc, getDocs, addDoc, setDoc, query, orderBy, limit, where, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // ===== CONFIGURACIÓN FIREBASE =====
+        const firebaseConfig = {
+            // 🔥 CONFIGURACIÓN REAL - Reemplazar con tu proyecto Firebase
+            apiKey: "AIzaSyDemo_Replace_With_Real_Key",
+            authDomain: "audit-system-real.firebaseapp.com",
+            projectId: "audit-system-real",
+            storageBucket: "audit-system-real.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef123456"
+        };
+
+        // ===== SISTEMA PRINCIPAL =====
+        class AuditSystemPro {
+            constructor() {
+                this.app = null;
+                this.db = null;
+                this.auth = null;
+                this.userId = null;
+                this.isConnected = false;
                 
-                // Cargar PizZip
-                if (typeof PizZip === 'undefined') {
-                    await cargarScript('https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.4/pizzip.min.js');
-                }
+                // Data caches
+                this.tarifas = new Map();
+                this.plantillas = new Map();
+                this.configuracion = null;
+                this.auditoriaActual = null;
+                this.calculosActuales = null;
                 
-                loadingStatus.textContent = 'Cargando Docxtemplater...';
+                // Counters
+                this.documentosGenerados = 0;
+                this.plantillasCreadas = 0;
                 
-                // Cargar Docxtemplater
-                if (typeof Docxtemplater === 'undefined') {
-                    await cargarScript('https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.47.0/docxtemplater.min.js');
-                }
+                // System state
+                this.isReady = false;
+                this.startTime = new Date();
                 
-                loadingStatus.textContent = 'Verificando librerías...';
-                
-                // Verificar que las librerías están disponibles
-                await new Promise(resolve => setTimeout(resolve, 500));
-                
-                if (typeof PizZip === 'undefined') {
-                    throw new Error('PizZip no se cargó correctamente');
-                }
-                
-                if (typeof Docxtemplater === 'undefined') {
-                    console.warn('Docxtemplater no disponible, usando generación básica');
-                }
-                
-                libreriasCargadas = true;
-                loadingStatus.textContent = '✅ Librerías cargadas correctamente';
-                
-                return true;
-                
-            } catch (error) {
-                console.error('Error cargando librerías:', error);
-                loadingStatus.textContent = '⚠️ Error cargando librerías, usando modo básico';
-                libreriasCargadas = false;
-                return false;
+                this.init();
             }
-        }
 
-        function cargarScript(src) {
-            return new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = src;
-                script.onload = () => {
-                    console.log('✅ Cargado:', src);
-                    resolve();
-                };
-                script.onerror = () => {
-                    console.error('❌ Error cargando:', src);
-                    reject(new Error(`Error cargando ${src}`));
-                };
-                document.head.appendChild(script);
-            });
-        }
-
-        // ===== INICIALIZACIÓN DEL SISTEMA =====
-        async function inicializarSistema() {
-            console.log('🚀 Inicializando Sistema de Auditorías...');
-            
-            try {
-                // Cargar librerías primero
-                const libreriasOK = await cargarLibrerias();
+            async init() {
+                console.log('🔥 Iniciando Sistema de Auditorías Pro...');
                 
-                // Inicializar sistema
-                configurarEventListeners();
-                actualizarCalculos();
-                
-                sistemaInicializado = true;
-                
-                // Mostrar interfaz principal
-                document.getElementById('loadingScreen').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'block';
-                
-                // Habilitar botón
-                document.getElementById('generarBtn').disabled = false;
-                document.getElementById('generarBtn').textContent = '🚀 Generar Documento';
-                
-                // Actualizar status
-                const statusText = libreriasOK ? 
-                    '✅ Sistema completo operativo' : 
-                    '⚠️ Sistema básico operativo';
+                try {
+                    await this.initFirebase();
+                    await this.loadInitialData();
+                    this.setupEventListeners();
+                    await this.loadHistory();
                     
-                document.getElementById('systemStatus').textContent = statusText;
-                document.getElementById('systemStatus').style.background = libreriasOK ? 
-                    'linear-gradient(45deg, #28a745, #20c997)' : 
-                    'linear-gradient(45deg, #ffc107, #fd7e14)';
-                
-                mostrarStatus('✅ Sistema inicializado correctamente', 'success');
-                console.log('✅ Sistema listo para usar');
-                
-            } catch (error) {
-                console.error('❌ Error inicializando:', error);
-                mostrarStatus('❌ Error inicializando sistema: ' + error.message, 'error');
-                document.getElementById('systemStatus').textContent = '❌ Error del sistema';
-            }
-        }
-
-        function configurarEventListeners() {
-            // Botón generar documento
-            const generarBtn = document.getElementById('generarBtn');
-            generarBtn.addEventListener('click', generarDocumento);
-
-            // Actualizar cálculos cuando cambien los valores
-            const campos = ['consumoKwh', 'demandaKw', 'factorPotencia', 'tarifa'];
-            campos.forEach(id => {
-                const elemento = document.getElementById(id);
-                elemento.addEventListener('input', actualizarCalculos);
-                elemento.addEventListener('change', actualizarCalculos);
-            });
-
-            // Manejo de archivos
-            configurarManejoArchivos();
-        }
-
-        function configurarManejoArchivos() {
-            const fileUpload = document.getElementById('fileUpload');
-            const fileInput = document.getElementById('fileInput');
-
-            fileUpload.addEventListener('click', () => {
-                fileInput.click();
-            });
-
-            fileInput.addEventListener('change', (e) => {
-                manejarArchivos(e.target.files);
-            });
-
-            // Drag & Drop
-            fileUpload.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                fileUpload.style.borderColor = '#667eea';
-            });
-
-            fileUpload.addEventListener('dragleave', () => {
-                fileUpload.style.borderColor = '#ccc';
-            });
-
-            fileUpload.addEventListener('drop', (e) => {
-                e.preventDefault();
-                fileUpload.style.borderColor = '#ccc';
-                manejarArchivos(e.dataTransfer.files);
-            });
-        }
-
-        function manejarArchivos(files) {
-            const fileList = document.getElementById('fileList');
-            const fileArray = Array.from(files);
-            archivosSeleccionados = fileArray;
-            
-            if (fileArray.length > 0) {
-                fileList.innerHTML = `
-                    <div style="margin-top: 10px; font-size: 12px; color: #28a745;">
-                        📎 ${fileArray.length} archivo(s) seleccionado(s):
-                        ${fileArray.map(f => `<div>• ${f.name}</div>`).join('')}
-                    </div>
-                `;
-            } else {
-                fileList.innerHTML = '';
-            }
-        }
-
-        // ===== FUNCIONES DE CÁLCULO =====
-        function actualizarCalculos() {
-            const consumo = parseFloat(document.getElementById('consumoKwh').value) || 0;
-            const demanda = parseFloat(document.getElementById('demandaKw').value) || 0;
-            const fp = parseFloat(document.getElementById('factorPotencia').value) || 0;
-            const tarifa = document.getElementById('tarifa').value;
-
-            // Cálculos energéticos
-            const costoKwh = obtenerTarifaCosto(tarifa);
-            const costoMensual = (consumo * costoKwh + demanda * 189.92) / 12;
-            const costoAnual = costoMensual * 12;
-            const factorCarga = demanda > 0 ? (consumo / (demanda * 8760)) * 100 : 0;
-            
-            // Cálculos de LED (simplificado)
-            const ahorroLED = consumo * 0.4 * costoKwh; // 40% de ahorro típico
-            const inversionLED = demanda * 1500; // Estimación
-            const recuperacion = ahorroLED > 0 ? inversionLED / ahorroLED : 0;
-
-            // Actualizar UI
-            document.getElementById('costoMensual').textContent = formatearMoneda(costoMensual);
-            document.getElementById('costoAnual').textContent = formatearMoneda(costoAnual);
-            document.getElementById('factorCarga').textContent = factorCarga.toFixed(1) + '%';
-            document.getElementById('factorPotenciaMostrado').textContent = (fp * 100).toFixed(1) + '%';
-            document.getElementById('ahorroLED').textContent = formatearMoneda(ahorroLED);
-            document.getElementById('recuperacion').textContent = recuperacion.toFixed(1) + ' años';
-        }
-
-        function obtenerTarifaCosto(tarifa) {
-            const tarifas = {
-                'GDMTO': 1.947,
-                'GDMTH': 2.1,
-                'OM': 0.956
-            };
-            return tarifas[tarifa] || 2.0;
-        }
-
-        function formatearMoneda(cantidad) {
-            return new Intl.NumberFormat('es-MX', {
-                style: 'currency',
-                currency: 'MXN'
-            }).format(cantidad);
-        }
-
-        // ===== FUNCIÓN PRINCIPAL DE GENERACIÓN =====
-        async function generarDocumento() {
-            if (!sistemaInicializado) {
-                mostrarStatus('⚠️ Sistema no está listo', 'error');
-                return;
+                    this.isReady = true;
+                    this.showMainInterface();
+                    this.updateSystemInfo();
+                    
+                    this.showStatus('✅ Sistema completamente cargado y listo', 'success');
+                    console.log('✅ Sistema Pro inicializado correctamente');
+                    
+                } catch (error) {
+                    console.error('❌ Error inicializando sistema:', error);
+                    this.showStatus('❌ Error de conexión: ' + error.message, 'error');
+                    this.activateOfflineMode();
+                }
             }
 
-            const btn = document.getElementById('generarBtn');
-            btn.disabled = true;
-            btn.textContent = '⏳ Generando...';
-
-            try {
-                // Recopilar datos
-                const datos = recopilarDatos();
+            async initFirebase() {
+                this.updateLoadingStatus('Conectando con Firebase...', 'Estableciendo conexión segura...');
                 
-                // Obtener plantilla
-                const plantilla = obtenerPlantilla(datos.tipoPlantilla);
-                
-                // Procesar documento
-                const contenido = procesarPlantilla(plantilla, datos);
-                
-                // Crear y descargar documento
-                await crearDocumento(contenido, datos);
-                
-                // Agregar al historial
-                agregarAlHistorial(datos);
-                
-                mostrarStatus(`✅ Documento generado: ${datos.nombreArchivo}`, 'success');
-                
-            } catch (error) {
-                console.error('Error generando documento:', error);
-                mostrarStatus('❌ Error generando documento: ' + error.message, 'error');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = '🚀 Generar Documento';
+                try {
+                    // Initialize Firebase
+                    this.app = initializeApp(firebaseConfig);
+                    this.db = getFirestore(this.app);
+                    this.auth = getAuth(this.app);
+                    
+                    this.updateLoadingStatus('Autenticando usuario...', 'Configurando acceso seguro...');
+                    
+                    // Anonymous authentication
+                    await signInAnonymously(this.auth);
+                    
+                    // Wait for auth state
+                    await new Promise((resolve, reject) => {
+                        const timeout = setTimeout(() => reject(new Error('Timeout de autenticación')), 10000);
+                        
+                        onAuthStateChanged(this.auth, (user) => {
+                            clearTimeout(timeout);
+                            if (user) {
+                                this.userId = user.uid;
+                                this.isConnected = true;
+                                console.log('✅ Firebase autenticado:', this.userId);
+                                resolve();
+                            } else {
+                                reject(new Error('Autenticación fallida'));
+                            }
+                        });
+                    });
+                    
+                    this.updateLoadingStatus('Verificando conexión...', 'Validando acceso a base de datos...');
+                    
+                    // Test connection
+                    await getDocs(query(collection(this.db, 'tarifas_cfe'), limit(1)));
+                    
+                    this.updateFirebaseStatus('connected');
+                    console.log('🔥 Firebase conectado exitosamente');
+                    
+                } catch (error) {
+                    console.error('Firebase Error:', error);
+                    throw new Error(`Firebase: ${error.message}`);
+                }
             }
-        }
 
-        function recopilarDatos() {
-            const now = new Date();
-            const consumo = parseFloat(document.getElementById('consumoKwh').value) || 0;
-            const demanda = parseFloat(document.getElementById('demandaKw').value) || 0;
-            const fp = parseFloat(document.getElementById('factorPotencia').value) || 0;
-            const tarifa = document.getElementById('tarifa').value;
-            const clienteNombre = document.getElementById('clienteNombre').value || 'Cliente Ejemplo';
-
-            // Calcular datos
-            const costoKwh = obtenerTarifaCosto(tarifa);
-            const costoMensual = (consumo * costoKwh + demanda * 189.92) / 12;
-            const costoAnual = costoMensual * 12;
-            const factorCarga = demanda > 0 ? (consumo / (demanda * 8760)) * 100 : 0;
-            const ahorroLED = consumo * 0.4 * costoKwh;
-
-            return {
-                // Datos básicos
-                clienteNombre: clienteNombre,
-                consumoKwh: consumo,
-                demandaKw: demanda,
-                factorPotencia: fp,
-                tarifa: tarifa,
-                observaciones: document.getElementById('observaciones').value,
-                tipoPlantilla: document.getElementById('tipoPlantilla').value,
-                formato: document.getElementById('formato').value,
+            async loadInitialData() {
+                this.updateLoadingStatus('Cargando datos del sistema...', 'Sincronizando información...');
                 
-                // Datos calculados
-                costoMensual: formatearMoneda(costoMensual),
-                costoAnual: formatearMoneda(costoAnual),
-                factorCarga: factorCarga.toFixed(1) + '%',
-                ahorroLED: formatearMoneda(ahorroLED),
-                
-                // Metadatos
-                fechaGeneracion: now.toLocaleDateString('es-ES'),
-                horaGeneracion: now.toLocaleTimeString('es-ES'),
-                numeroDocumento: `AUD-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(++documentosGenerados).padStart(3, '0')}`,
-                nombreArchivo: `Auditoria_${clienteNombre.replace(/\s+/g, '_')}_${now.toISOString().split('T')[0]}`,
-                
-                // Archivos
-                totalArchivos: archivosSeleccionados.length
-            };
-        }
+                try {
+                    // Load CFE rates
+                    this.updateLoadingStatus('Cargando tarifas CFE...', 'Obteniendo tarifas oficiales...');
+                    await this.loadTarifasCFE();
+                    
+                    // Load templates
+                    this.updateLoadingStatus('Cargando plantillas...', 'Sincronizando plantillas...');
+                    await this.loadPlantillas();
+                    
+                    // Load system configuration
+                    this.updateLoadingStatus('Configurando sistema...', 'Aplicando configuración...');
+                    await this.loadConfiguracion();
+                    
+                    console.log('✅ Datos iniciales cargados correctamente');
+                    
+                } catch (error) {
+                    console.error('Error cargando datos:', error);
+                    throw new Error(`Error cargando datos: ${error.message}`);
+                }
+            }
 
-        // ===== PLANTILLAS =====
-        function obtenerPlantilla(tipo) {
-            const plantillas = {
-                auditoria_basica: `AUDITORÍA ENERGÉTICA BÁSICA
+            async loadTarifasCFE() {
+                try {
+                    const tarifasSnapshot = await getDocs(collection(this.db, 'tarifas_cfe'));
+                    this.tarifas.clear();
+                    
+                    tarifasSnapshot.forEach((doc) => {
+                        const tarifa = { id: doc.id, ...doc.data() };
+                        if (tarifa.active) {
+                            this.tarifas.set(doc.id, tarifa);
+                        }
+                    });
+                    
+                    // If no rates in Firebase, create default ones
+                    if (this.tarifas.size === 0) {
+                        await this.createDefaultTarifas();
+                    }
+                    
+                    this.updateTarifaSelector();
+                    this.updateCounters();
+                    
+                    console.log(`✅ ${this.tarifas.size} tarifas CFE cargadas`);
+                    
+                } catch (error) {
+                    console.error('Error cargando tarifas:', error);
+                    this.loadDefaultTarifas();
+                }
+            }
+
+            async loadPlantillas() {
+                try {
+                    const plantillasSnapshot = await getDocs(collection(this.db, 'plantillas'));
+                    this.plantillas.clear();
+                    
+                    plantillasSnapshot.forEach((doc) => {
+                        const plantilla = { id: doc.id, ...doc.data() };
+                        if (plantilla.active) {
+                            this.plantillas.set(doc.id, plantilla);
+                        }
+                    });
+                    
+                    // If no templates in Firebase, create default ones
+                    if (this.plantillas.size === 0) {
+                        await this.createDefaultPlantillas();
+                    }
+                    
+                    this.updateTemplateSelector();
+                    this.updateCounters();
+                    
+                    console.log(`✅ ${this.plantillas.size} plantillas cargadas`);
+                    
+                } catch (error) {
+                    console.error('Error cargando plantillas:', error);
+                    this.loadDefaultPlantillas();
+                }
+            }
+
+            async loadConfiguracion() {
+                try {
+                    const configDoc = await getDoc(doc(this.db, 'configuracion', 'sistema'));
+                    if (configDoc.exists()) {
+                        this.configuracion = configDoc.data();
+                    } else {
+                        await this.createDefaultConfig();
+                    }
+                    
+                    console.log('✅ Configuración del sistema cargada');
+                    
+                } catch (error) {
+                    console.error('Error cargando configuración:', error);
+                    this.loadDefaultConfig();
+                }
+            }
+
+            // ===== DEFAULT DATA CREATION =====
+            async createDefaultTarifas() {
+                const defaultTarifas = {
+                    'GDMTO': {
+                        nombre: 'Gran Demanda Media Tensión Ordinaria',
+                        vigencia: '2025-01-01',
+                        cargo_fijo: 485.75,
+                        demanda_facturable: 189.92,
+                        energia: 1.947,
+                        factor_potencia: { bonificacion: 0.025, penalizacion: 0.06 },
+                        active: true,
+                        created_at: new Date().toISOString()
+                    },
+                    'GDMTH': {
+                        nombre: 'Gran Demanda Media Tensión Horaria',
+                        vigencia: '2025-01-01',
+                        cargo_fijo: 485.75,
+                        demanda_facturable: { punta: 245.83, intermedia: 189.92, base: 134.02 },
+                        energia: { punta: 2.892, intermedia: 1.947, base: 1.634 },
+                        factor_potencia: { bonificacion: 0.025, penalizacion: 0.06 },
+                        active: true,
+                        created_at: new Date().toISOString()
+                    },
+                    'OM': {
+                        nombre: 'Ordinaria Menor',
+                        vigencia: '2025-01-01',
+                        cargo_fijo: 0,
+                        energia: { basico: 0.793, intermedio: 0.956, excedente: 2.859 },
+                        limites: { basico: 75, intermedio: 140 },
+                        active: true,
+                        created_at: new Date().toISOString()
+                    }
+                };
+
+                for (const [id, tarifa] of Object.entries(defaultTarifas)) {
+                    await setDoc(doc(this.db, 'tarifas_cfe', id), tarifa);
+                    this.tarifas.set(id, { id, ...tarifa });
+                }
+
+                console.log('✅ Tarifas CFE por defecto creadas en Firebase');
+            }
+
+            async createDefaultPlantillas() {
+                const defaultPlantillas = {
+                    'auditoria_basica': {
+                        nombre: 'Auditoría Energética Básica',
+                        descripcion: 'Reporte estándar de auditoría energética',
+                        categoria: 'basica',
+                        contenido: `AUDITORÍA ENERGÉTICA BÁSICA
 
 INFORMACIÓN DEL CLIENTE
-Empresa: {{clienteNombre}}
-Fecha: {{fechaGeneracion}}
+Empresa: {{cliente_nombre}}
+Dirección: {{cliente_direccion}}
+Teléfono: {{cliente_telefono}}
+Email: {{cliente_email}}
 
-DATOS ENERGÉTICOS
-Consumo anual: {{consumoKwh}} kWh
-Demanda: {{demandaKw}} kW
-Factor de potencia: {{factorPotencia}}
-Tarifa: {{tarifa}}
+DATOS DE LA AUDITORÍA
+ID: {{numero_documento}}
+Fecha: {{fecha_generacion}}
+Auditor: {{auditor_nombre}}
 
-ANÁLISIS ECONÓMICO
-Costo mensual: {{costoMensual}}
-Costo anual: {{costoAnual}}
-Factor de carga: {{factorCarga}}
+ANÁLISIS ENERGÉTICO
+Consumo Total Anual: {{consumo_kwh}} kWh
+Demanda Máxima: {{demanda_kw}} kW
+Factor de Potencia: {{factor_potencia}}
+Factor de Carga: {{factor_carga}}
+Área de Instalación: {{area_instalacion}} m²
+Intensidad Energética: {{intensidad_energetica}} kWh/m²
 
-OPORTUNIDADES DE AHORRO
-Ahorro LED estimado: {{ahorroLED}}
+ANÁLISIS TARIFARIO
+Tarifa Aplicada: {{tarifa_nombre}}
+Cargo Fijo Mensual: {{cargo_fijo_mensual}}
+Costo Mensual Promedio: {{costo_mensual}}
+Costo Anual Total: {{costo_anual}}
+Costo Promedio por kWh: {{costo_kwh_promedio}}
 
-OBSERVACIONES
+OPORTUNIDADES DE AHORRO - TECNOLOGÍA LED
+Ahorro Energético Anual: {{ahorro_kwh_led}} kWh
+Ahorro Económico Anual: {{ahorro_pesos_led}}
+Porcentaje de Reducción: {{ahorro_porcentaje_led}}%
+Inversión Estimada: {{inversion_led}}
+Periodo de Recuperación: {{periodo_recuperacion_led}} años
+ROI Proyectado: {{roi_led}}%
+
+IMPACTO AMBIENTAL
+Reducción de Emisiones CO₂: {{co2_reducido}} toneladas/año
+Equivalente en Árboles Plantados: {{arboles_equivalentes}} árboles
+
+OBSERVACIONES Y RECOMENDACIONES
 {{observaciones}}
 
-ARCHIVOS ADJUNTOS
-Total de archivos: {{totalArchivos}}
+CONCLUSIONES
+El análisis energético identifica oportunidades significativas de ahorro.
+{{conclusion_recomendacion}}
 
-Documento: {{numeroDocumento}}
-Generado: {{fechaGeneracion}} {{horaGeneracion}}`,
+Documento: {{numero_documento}}
+Generado: {{fecha_generacion}} {{hora_generacion}}
+Sistema: Auditorías Energéticas Pro v1.0`,
+                        
+                        variables: [
+                            'cliente_nombre', 'cliente_direccion', 'cliente_telefono', 'cliente_email',
+                            'numero_documento', 'fecha_generacion', 'auditor_nombre',
+                            'consumo_kwh', 'demanda_kw', 'factor_potencia', 'factor_carga',
+                            'area_instalacion', 'intensidad_energetica', 'tarifa_nombre',
+                            'cargo_fijo_mensual', 'costo_mensual', 'costo_anual', 'costo_kwh_promedio',
+                            'ahorro_kwh_led', 'ahorro_pesos_led', 'ahorro_porcentaje_led',
+                            'inversion_led', 'periodo_recuperacion_led', 'roi_led',
+                            'co2_reducido', 'arboles_equivalentes', 'observaciones',
+                            'conclusion_recomendacion', 'hora_generacion'
+                        ],
+                        active: true,
+                        created_at: new Date().toISOString()
+                    },
+                    
+                    'reporte_ejecutivo': {
+                        nombre: 'Resumen Ejecutivo',
+                        descripcion: 'Reporte conciso para directivos',
+                        categoria: 'ejecutivo',
+                        contenido: `RESUMEN EJECUTIVO - AUDITORÍA ENERGÉTICA
 
-                reporte_completo: `REPORTE COMPLETO DE AUDITORÍA ENERGÉTICA
+CLIENTE: {{cliente_nombre}}
+DOCUMENTO: {{numero_documento}}
+FECHA: {{fecha_generacion}}
 
-═══════════════════════════════════════════
+SITUACIÓN ACTUAL
+• Consumo Anual: {{consumo_kwh}} kWh
+• Costo Anual: {{costo_anual}}
+• Tarifa: {{tarifa_nombre}}
+• Factor de Potencia: {{factor_potencia}}
 
-CLIENTE: {{clienteNombre}}
-DOCUMENTO: {{numeroDocumento}}
-FECHA: {{fechaGeneracion}}
+OPORTUNIDAD PRINCIPAL - MODERNIZACIÓN LED
+💡 Potencial de Ahorro: {{ahorro_pesos_led}}
+📊 ROI Proyectado: {{roi_led}}%
+⏰ Recuperación: {{periodo_recuperacion_led}} años
+🌱 Impacto Ambiental: {{co2_reducido}} ton CO₂ reducidas
 
-═══════════════════════════════════════════
+RECOMENDACIONES PRIORITARIAS
+1. Implementar tecnología LED en toda la instalación
+2. Optimizar factor de potencia
+3. Establecer programa de gestión energética
 
-ANÁLISIS ENERGÉTICO DETALLADO
+BENEFICIOS ESPERADOS
+• Reducción del {{ahorro_porcentaje_led}}% en consumo de iluminación
+• Ahorro anual de {{ahorro_pesos_led}}
+• Mejora en la calidad de la iluminación
+• Reducción significativa del mantenimiento
 
-Consumo Total Anual: {{consumoKwh}} kWh
-Demanda Máxima: {{demandaKw}} kW
-Factor de Potencia: {{factorPotencia}}
-Factor de Carga: {{factorCarga}}
-Tarifa Aplicada: {{tarifa}}
-
-ANÁLISIS ECONÓMICO
-
-Costo Mensual Promedio: {{costoMensual}}
-Costo Anual Total: {{costoAnual}}
-
-OPORTUNIDADES DE MEJORA
-
-Tecnología LED:
-- Ahorro estimado: {{ahorroLED}}
-- Reducción en consumo: ~40%
-- Periodo de recuperación: 2-4 años
-
-RECOMENDACIONES
-
-1. Implementar tecnología LED en todas las áreas
-2. Corregir factor de potencia si es menor a 0.9
-3. Implementar sistema de gestión energética
-4. Capacitar al personal en uso eficiente de energía
-
-OBSERVACIONES TÉCNICAS
-{{observaciones}}
-
-DOCUMENTACIÓN ADJUNTA
-Archivos incluidos: {{totalArchivos}}
-
-═══════════════════════════════════════════
-Documento generado automáticamente
-Sistema de Auditorías Energéticas v1.0
-{{fechaGeneracion}} {{horaGeneracion}}
-═══════════════════════════════════════════`,
-
-                resumen_ejecutivo: `RESUMEN EJECUTIVO
-AUDITORÍA ENERGÉTICA
-
-Cliente: {{clienteNombre}}
-Documento: {{numeroDocumento}}
-Fecha: {{fechaGeneracion}}
-
-DATOS CLAVE
-• Consumo anual: {{consumoKwh}} kWh
-• Costo anual: {{costoAnual}}
-• Factor de potencia: {{factorPotencia}}
-
-OPORTUNIDAD PRINCIPAL
-💡 Actualización a tecnología LED
-💰 Ahorro estimado: {{ahorroLED}}
-
-RECOMENDACIÓN
-Implementar mejoras de eficiencia energética
-con enfoque en iluminación LED.
+PRÓXIMOS PASOS
+• Evaluar propuestas de proveedores especializados
+• Definir cronograma de implementación por fases
+• Establecer métricas de seguimiento y control
 
 {{observaciones}}
 
-Generado: {{fechaGeneracion}}`,
+CONCLUSIÓN
+{{conclusion_recomendacion}}
 
-                certificacion: `CERTIFICADO DE AUDITORÍA ENERGÉTICA
+Auditor: {{auditor_nombre}}
+Sistema: Auditorías Pro - {{fecha_generacion}}`,
+                        
+                        variables: [
+                            'cliente_nombre', 'numero_documento', 'fecha_generacion',
+                            'consumo_kwh', 'costo_anual', 'tarifa_nombre', 'factor_potencia',
+                            'ahorro_pesos_led', 'roi_led', 'periodo_recuperacion_led',
+                            'co2_reducido', 'ahorro_porcentaje_led', 'observaciones',
+                            'conclusion_recomendacion', 'auditor_nombre'
+                        ],
+                        active: true,
+                        created_at: new Date().toISOString()
+                    }
+                };
 
-Se certifica que se ha realizado una auditoría energética a:
+                for (const [id, plantilla] of Object.entries(defaultPlantillas)) {
+                    await setDoc(doc(this.db, 'plantillas', id), plantilla);
+                    this.plantillas.set(id, { id, ...plantilla });
+                }
 
-{{clienteNombre}}
-
-Consumo verificado: {{consumoKwh}} kWh/año
-Demanda registrada: {{demandaKw}} kW
-Factor de potencia: {{factorPotencia}}
-
-La instalación cumple con los parámetros evaluados.
-
-Certificado válido por 12 meses.
-
-Documento: {{numeroDocumento}}
-Fecha: {{fechaGeneracion}}
-
-Auditor Energético Certificado`
-            };
-
-            return plantillas[tipo] || plantillas.auditoria_basica;
-        }
-
-        function procesarPlantilla(plantilla, datos) {
-            let contenido = plantilla;
-            
-            // Reemplazar todas las variables
-            Object.keys(datos).forEach(key => {
-                const regex = new RegExp(`{{${key}}}`, 'g');
-                contenido = contenido.replace(regex, datos[key]);
-            });
-            
-            return contenido;
-        }
-
-        // ===== FUNCIONES DE CREACIÓN DE DOCUMENTOS =====
-        async function crearDocumento(contenido, datos) {
-            const formato = datos.formato;
-            const nombreArchivo = `${datos.nombreArchivo}.${formato}`;
-
-            switch (formato) {
-                case 'docx':
-                    await crearDocx(contenido, nombreArchivo);
-                    break;
-                case 'html':
-                    crearHtml(contenido, nombreArchivo);
-                    break;
-                case 'rtf':
-                    crearRtf(contenido, nombreArchivo);
-                    break;
-                default:
-                    throw new Error('Formato no soportado: ' + formato);
+                console.log('✅ Plantillas por defecto creadas en Firebase');
             }
-        }
 
-        async function crearDocx(contenido, nombreArchivo) {
-            try {
-                if (!libreriasCargadas || typeof PizZip === 'undefined') {
-                    console.warn('PizZip no disponible, generando RTF compatible con Word');
-                    await crearRtf(contenido, nombreArchivo.replace('.docx', '.rtf'));
-                    mostrarStatus('💡 Documento generado en formato RTF (compatible con Word)', 'info');
+            async createDefaultConfig() {
+                const defaultConfig = {
+                    version: '1.0.0',
+                    parametros_led: {
+                        eficiencia_ahorro: 0.65,
+                        vida_util_años: 10,
+                        factor_mantenimiento: 0.95,
+                        costo_instalacion_kw: 2200
+                    },
+                    factores_ambientales: {
+                        co2_kwh_mx: 0.000527,
+                        arboles_por_ton_co2: 2.5
+                    },
+                    formulas_calculo: {
+                        factor_carga: 'consumo_kwh / (demanda_kw * 8760) * 100',
+                        intensidad_energetica: 'consumo_kwh / area_m2',
+                        costo_kwh_promedio: 'costo_total_anual / consumo_kwh'
+                    },
+                    created_at: new Date().toISOString()
+                };
+
+                await setDoc(doc(this.db, 'configuracion', 'sistema'), defaultConfig);
+                this.configuracion = defaultConfig;
+
+                console.log('✅ Configuración por defecto creada en Firebase');
+            }
+
+            // ===== CALCULATIONS ENGINE =====
+            async performCalculations() {
+                if (!this.isConnected) {
+                    this.showStatus('⚠️ Sin conexión para realizar cálculos', 'error');
+                    return null;
+                }
+
+                try {
+                    const datosAuditoria = this.gatherAuditData();
+                    const tarifaData = this.tarifas.get(datosAuditoria.tarifa_codigo);
+                    
+                    if (!tarifaData) {
+                        throw new Error('Tarifa no encontrada en Firebase');
+                    }
+
+                    // Perform calculations with Firebase data
+                    const calculos = this.calculateWithFirebaseRates(datosAuditoria, tarifaData);
+                    
+                    // Save calculations to Firebase
+                    await this.saveCalculationsToFirebase(datosAuditoria.id, calculos);
+                    
+                    // Display results
+                    this.displayCalculations(calculos);
+                    this.displayLEDAnalysis(calculos);
+                    
+                    this.calculosActuales = calculos;
+                    this.enableDocumentGeneration();
+                    
+                    this.showStatus('✅ Cálculos completados con tarifas de Firebase', 'success');
+                    return calculos;
+                    
+                } catch (error) {
+                    console.error('Error en cálculos:', error);
+                    this.showStatus('❌ Error en cálculos: ' + error.message, 'error');
+                    return null;
+                }
+            }
+
+            calculateWithFirebaseRates(datos, tarifaData) {
+                const { consumo_kwh, demanda_kw, factor_potencia, area_instalacion } = datos;
+                
+                // Basic energy calculations
+                let costoMensual = 0;
+                let cargoFijo = tarifaData.cargo_fijo || 0;
+                
+                // Calculate monthly cost based on rate type
+                if (tarifaData.id === 'GDMTO') {
+                    costoMensual = cargoFijo + 
+                                   (demanda_kw * tarifaData.demanda_facturable) + 
+                                   (consumo_kwh / 12 * tarifaData.energia);
+                } else if (tarifaData.id === 'GDMTH') {
+                    // Hourly rate calculation
+                    const distribution = { punta: 0.15, intermedia: 0.55, base: 0.30 };
+                    costoMensual = cargoFijo;
+                    
+                    Object.entries(distribution).forEach(([periodo, factor]) => {
+                        costoMensual += (demanda_kw * factor * tarifaData.demanda_facturable[periodo]) +
+                                       (consumo_kwh / 12 * factor * tarifaData.energia[periodo]);
+                    });
+                } else if (tarifaData.id === 'OM') {
+                    const consumoMensual = consumo_kwh / 12;
+                    let consumoRestante = consumoMensual;
+                    
+                    // Stepped calculation
+                    if (consumoRestante > 0) {
+                        const basico = Math.min(consumoRestante, tarifaData.limites.basico);
+                        costoMensual += basico * tarifaData.energia.basico;
+                        consumoRestante -= basico;
+                    }
+                    
+                    if (consumoRestante > 0) {
+                        const intermedio = Math.min(consumoRestante, tarifaData.limites.intermedio - tarifaData.limites.basico);
+                        costoMensual += intermedio * tarifaData.energia.intermedio;
+                        consumoRestante -= intermedio;
+                    }
+                    
+                    if (consumoRestante > 0) {
+                        costoMensual += consumoRestante * tarifaData.energia.excedente;
+                    }
+                }
+
+                // Power factor adjustment
+                if (tarifaData.factor_potencia && factor_potencia !== 0.9) {
+                    let ajuste = 0;
+                    if (factor_potencia > 0.9) {
+                        const centesimas = Math.floor((factor_potencia - 0.9) * 100);
+                        ajuste = costoMensual * centesimas * tarifaData.factor_potencia.bonificacion;
+                    } else {
+                        const centesimas = Math.ceil((0.9 - factor_potencia) * 100);
+                        ajuste = -costoMensual * centesimas * tarifaData.factor_potencia.penalizacion;
+                    }
+                    costoMensual += ajuste;
+                }
+
+                const costoAnual = costoMensual * 12;
+                const factorCarga = demanda_kw > 0 ? (consumo_kwh / (demanda_kw * 8760)) * 100 : 0;
+                const intensidadEnergetica = area_instalacion > 0 ? consumo_kwh / area_instalacion : 0;
+                const costoKwhPromedio = consumo_kwh > 0 ? costoAnual / consumo_kwh : 0;
+                
+                // LED Analysis with Firebase parameters
+                const parametrosLED = this.configuracion?.parametros_led || {
+                    eficiencia_ahorro: 0.65,
+                    vida_util_años: 10,
+                    costo_instalacion_kw: 2200
+                };
+                
+                const potenciaIluminacion = demanda_kw * 0.25; // Assume 25% for lighting
+                const consumoIluminacion = potenciaIluminacion * 3000; // 3000 hours/year
+                const ahorroKwhLed = consumoIluminacion * parametrosLED.eficiencia_ahorro;
+                const ahorroPesosLed = ahorroKwhLed * costoKwhPromedio;
+                const inversionLed = potenciaIluminacion * parametrosLED.costo_instalacion_kw;
+                const periodoRecuperacion = ahorroPesosLed > 0 ? inversionLed / ahorroPesosLed : 0;
+                const roiLed = ahorroPesosLed > 0 ? ((ahorroPesosLed * parametrosLED.vida_util_años - inversionLed) / inversionLed) * 100 : 0;
+                const ahorroPortcentajeLed = consumoIluminacion > 0 ? (ahorroKwhLed / consumoIluminacion) * 100 : 0;
+                
+                // Environmental impact
+                const factoresAmbientales = this.configuracion?.factores_ambientales || {
+                    co2_kwh_mx: 0.000527,
+                    arboles_por_ton_co2: 2.5
+                };
+                
+                const co2Reducido = ahorroKwhLed * factoresAmbientales.co2_kwh_mx;
+                const arbolesEquivalentes = co2Reducido * factoresAmbientales.arboles_por_ton_co2;
+                
+                // Recommendation
+                let conclusionRecomendacion = '';
+                if (periodoRecuperacion <= 3 && roiLed > 20) {
+                    conclusionRecomendacion = 'ALTAMENTE RECOMENDADO: Excelente oportunidad de inversión con retorno rápido.';
+                } else if (periodoRecuperacion <= 5 && roiLed > 10) {
+                    conclusionRecomendacion = 'RECOMENDADO: Buena oportunidad de ahorro con retorno aceptable.';
+                } else if (periodoRecuperacion <= 8) {
+                    conclusionRecomendacion = 'CONSIDERAR: Proyecto viable con beneficios a mediano plazo.';
+                } else {
+                    conclusionRecomendacion = 'EVALUAR: Revisar condiciones técnicas y económicas del proyecto.';
+                }
+
+                return {
+                    // Basic metrics
+                    tarifa_nombre: tarifaData.nombre,
+                    cargo_fijo_mensual: cargoFijo,
+                    costo_mensual: costoMensual,
+                    costo_anual: costoAnual,
+                    factor_carga: factorCarga,
+                    intensidad_energetica: intensidadEnergetica,
+                    costo_kwh_promedio: costoKwhPromedio,
+                    
+                    // LED analysis
+                    ahorro_kwh_led: ahorroKwhLed,
+                    ahorro_pesos_led: ahorroPesosLed,
+                    ahorro_porcentaje_led: ahorroPortcentajeLed,
+                    inversion_led: inversionLed,
+                    periodo_recuperacion_led: periodoRecuperacion,
+                    roi_led: roiLed,
+                    
+                    // Environmental impact
+                    co2_reducido: co2Reducido,
+                    arboles_equivalentes: arbolesEquivalentes,
+                    
+                    // Conclusion
+                    conclusion_recomendacion: conclusionRecomendacion,
+                    
+                    // Metadata
+                    calculated_at: new Date().toISOString(),
+                    source: 'firebase_real_time',
+                    tarifa_utilizada: tarifaData.id
+                };
+            }
+
+            displayCalculations(calculos) {
+                const container = document.getElementById('calculationsContainer');
+                
+                container.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="calc-card bg-blue-50 p-4 rounded-lg border border-blue-200">
+                            <div class="text-blue-800 font-semibold text-sm">Costo Mensual</div>
+                            <div class="text-2xl font-bold text-blue-900">${this.formatCurrency(calculos.costo_mensual)}</div>
+                            <div class="text-xs text-blue-600 mt-1">Incluye cargo fijo y consumo</div>
+                        </div>
+                        
+                        <div class="calc-card bg-green-50 p-4 rounded-lg border border-green-200">
+                            <div class="text-green-800 font-semibold text-sm">Costo Anual</div>
+                            <div class="text-2xl font-bold text-green-900">${this.formatCurrency(calculos.costo_anual)}</div>
+                            <div class="text-xs text-green-600 mt-1">Total estimado año</div>
+                        </div>
+                        
+                        <div class="calc-card bg-purple-50 p-4 rounded-lg border border-purple-200">
+                            <div class="text-purple-800 font-semibold text-sm">Factor de Carga</div>
+                            <div class="text-2xl font-bold text-purple-900">${calculos.factor_carga.toFixed(1)}%</div>
+                            <div class="text-xs text-purple-600 mt-1">Eficiencia de uso</div>
+                        </div>
+                        
+                        <div class="calc-card bg-orange-50 p-4 rounded-lg border border-orange-200">
+                            <div class="text-orange-800 font-semibold text-sm">Costo kWh Promedio</div>
+                            <div class="text-2xl font-bold text-orange-900">${this.formatCurrency(calculos.costo_kwh_promedio)}</div>
+                            <div class="text-xs text-orange-600 mt-1">Precio efectivo energía</div>
+                        </div>
+                        
+                        <div class="calc-card bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                            <div class="text-yellow-800 font-semibold text-sm">Intensidad Energética</div>
+                            <div class="text-2xl font-bold text-yellow-900">${calculos.intensidad_energetica.toFixed(1)}</div>
+                            <div class="text-xs text-yellow-600 mt-1">kWh/m²·año</div>
+                        </div>
+                        
+                        <div class="calc-card bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+                            <div class="text-indigo-800 font-semibold text-sm">Tarifa Aplicada</div>
+                            <div class="text-lg font-bold text-indigo-900">${calculos.tarifa_utilizada}</div>
+                            <div class="text-xs text-indigo-600 mt-1">${calculos.tarifa_nombre}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-gray-50 rounded-lg text-center">
+                        <div class="text-sm text-gray-600 mb-2">
+                            📊 Calculado con tarifas CFE desde Firebase
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            ${new Date(calculos.calculated_at).toLocaleString('es-ES')} • Fuente: ${calculos.source}
+                        </div>
+                    </div>
+                `;
+            }
+
+            displayLEDAnalysis(calculos) {
+                const container = document.getElementById('ledAnalysisContainer');
+                
+                const getROIColor = (roi) => {
+                    if (roi > 50) return 'text-green-700 bg-green-100 border-green-300';
+                    if (roi > 20) return 'text-blue-700 bg-blue-100 border-blue-300';
+                    if (roi > 0) return 'text-yellow-700 bg-yellow-100 border-yellow-300';
+                    return 'text-red-700 bg-red-100 border-red-300';
+                };
+                
+                const getRecoveryColor = (years) => {
+                    if (years <= 2) return 'text-green-700';
+                    if (years <= 4) return 'text-blue-700';
+                    if (years <= 6) return 'text-yellow-700';
+                    return 'text-red-700';
+                };
+
+                container.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+                                <div class="text-emerald-800 font-semibold text-sm">Ahorro Anual LED</div>
+                                <div class="text-xl font-bold text-emerald-900">${this.formatCurrency(calculos.ahorro_pesos_led)}</div>
+                                <div class="text-xs text-emerald-600 mt-1">${calculos.ahorro_kwh_led.toFixed(0)} kWh ahorrados</div>
+                            </div>
+                            
+                            <div class="bg-teal-50 p-4 rounded-lg border border-teal-200">
+                                <div class="text-teal-800 font-semibold text-sm">Inversión Estimada</div>
+                                <div class="text-xl font-bold text-teal-900">${this.formatCurrency(calculos.inversion_led)}</div>
+                                <div class="text-xs text-teal-600 mt-1">Instalación completa LED</div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-sky-50 p-3 rounded-lg border border-sky-200 text-center">
+                                <div class="text-sky-800 font-semibold text-sm">Reducción Consumo</div>
+                                <div class="text-lg font-bold text-sky-900">${calculos.ahorro_porcentaje_led.toFixed(1)}%</div>
+                            </div>
+                            
+                            <div class="p-3 rounded-lg border text-center ${getRecoveryColor(calculos.periodo_recuperacion_led)}">
+                                <div class="font-semibold text-sm">Recuperación</div>
+                                <div class="text-lg font-bold">${calculos.periodo_recuperacion_led.toFixed(1)} años</div>
+                            </div>
+                            
+                            <div class="p-3 rounded-lg border text-center ${getROIColor(calculos.roi_led)}">
+                                <div class="font-semibold text-sm">ROI 10 años</div>
+                                <div class="text-lg font-bold">${calculos.roi_led.toFixed(1)}%</div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                            <h4 class="text-green-800 font-semibold mb-2">🌱 Impacto Ambiental</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span class="text-green-700 font-medium">CO₂ Reducido:</span>
+                                    <span class="text-green-900 font-bold">${calculos.co2_reducido.toFixed(2)} toneladas/año</span>
+                                </div>
+                                <div>
+                                    <span class="text-green-700 font-medium">Equivale a:</span>
+                                    <span class="text-green-900 font-bold">${calculos.arboles_equivalentes.toFixed(1)} árboles plantados</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <h4 class="text-gray-800 font-semibold mb-2">📋 Recomendación</h4>
+                            <p class="text-gray-700 text-sm">${calculos.conclusion_recomendacion}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // ===== DOCUMENT GENERATION =====
+            async generateDocument() {
+                if (!this.calculosActuales) {
+                    this.showStatus('⚠️ Primero debe completar los cálculos', 'error');
                     return;
                 }
 
-                // Crear documento DOCX usando PizZip
-                const zip = new PizZip();
-                
-                // Contenido del documento Word
-                const docContent = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-    <w:body>
-        ${contenido.split('\n').map(line => {
-            const lineaTrim = line.trim();
-            if (lineaTrim) {
-                if (lineaTrim.includes('═══') || (lineaTrim === lineaTrim.toUpperCase() && lineaTrim.length > 10)) {
-                    return `<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="28"/><w:color w:val="2c5aa0"/></w:rPr><w:t>${escapeXml(lineaTrim)}</w:t></w:r></w:p>`;
-                } else {
-                    return `<w:p><w:r><w:t>${escapeXml(lineaTrim)}</w:t></w:r></w:p>`;
+                try {
+                    const templateId = document.getElementById('templateSelect').value;
+                    const outputFormat = document.getElementById('outputFormat').value;
+                    
+                    if (!templateId) {
+                        throw new Error('Seleccione una plantilla');
+                    }
+
+                    const plantilla = this.plantillas.get(templateId);
+                    if (!plantilla) {
+                        throw new Error('Plantilla no encontrada en Firebase');
+                    }
+
+                    this.showStatus('🔄 Generando documento...', 'info');
+
+                    // Prepare template data
+                    const templateData = this.prepareTemplateData();
+                    
+                    // Process template
+                    const processedContent = this.processTemplate(plantilla.contenido, templateData);
+                    
+                    // Generate document
+                    const document = await this.createDocument(processedContent, templateData, outputFormat);
+                    
+                    // Save document record to Firebase
+                    await this.saveDocumentRecord(document, templateId, templateData);
+                    
+                    // Download file
+                    this.downloadFile(document.blob, document.filename);
+                    
+                    this.documentosGenerados++;
+                    this.updateCounters();
+                    
+                    this.showStatus(`✅ Documento generado: ${document.filename}`, 'success');
+                    
+                    // Refresh history
+                    setTimeout(() => this.loadHistory(), 1000);
+                    
+                } catch (error) {
+                    console.error('Error generando documento:', error);
+                    this.showStatus('❌ Error: ' + error.message, 'error');
                 }
             }
-            return '<w:p/>';
-        }).join('')}
-    </w:body>
-</w:document>`;
 
-                // Estructura básica del archivo DOCX
-                zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-    <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-    <Default Extension="xml" ContentType="application/xml"/>
-    <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
-    <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
-    <Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>
-    <Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>
-</Types>`);
+            prepareTemplateData() {
+                const datos = this.gatherAuditData();
+                const calculos = this.calculosActuales;
+                
+                const now = new Date();
+                
+                return {
+                    // Client data
+                    cliente_nombre: datos.cliente_nombre,
+                    cliente_direccion: datos.cliente_direccion,
+                    cliente_telefono: datos.cliente_telefono,
+                    cliente_email: datos.cliente_email,
+                    
+                    // Audit data
+                    numero_documento: datos.id,
+                    fecha_generacion: now.toLocaleDateString('es-ES'),
+                    hora_generacion: now.toLocaleTimeString('es-ES'),
+                    auditor_nombre: datos.auditor_nombre,
+                    
+                    // Energy data
+                    consumo_kwh: datos.consumo_kwh.toLocaleString('es-MX'),
+                    demanda_kw: datos.demanda_kw.toLocaleString('es-MX'),
+                    factor_potencia: (datos.factor_potencia * 100).toFixed(1) + '%',
+                    area_instalacion: datos.area_instalacion.toLocaleString('es-MX'),
+                    
+                    // Calculations from Firebase
+                    tarifa_nombre: calculos.tarifa_nombre,
+                    cargo_fijo_mensual: this.formatCurrency(calculos.cargo_fijo_mensual),
+                    costo_mensual: this.formatCurrency(calculos.costo_mensual),
+                    costo_anual: this.formatCurrency(calculos.costo_anual),
+                    factor_carga: calculos.factor_carga.toFixed(1) + '%',
+                    intensidad_energetica: calculos.intensidad_energetica.toFixed(1),
+                    costo_kwh_promedio: this.formatCurrency(calculos.costo_kwh_promedio),
+                    
+                    // LED analysis
+                    ahorro_kwh_led: calculos.ahorro_kwh_led.toFixed(0),
+                    ahorro_pesos_led: this.formatCurrency(calculos.ahorro_pesos_led),
+                    ahorro_porcentaje_led: calculos.ahorro_porcentaje_led.toFixed(1),
+                    inversion_led: this.formatCurrency(calculos.inversion_led),
+                    periodo_recuperacion_led: calculos.periodo_recuperacion_led.toFixed(1),
+                    roi_led: calculos.roi_led.toFixed(1),
+                    
+                    // Environmental impact
+                    co2_reducido: calculos.co2_reducido.toFixed(2),
+                    arboles_equivalentes: calculos.arboles_equivalentes.toFixed(1),
+                    
+                    // Additional
+                    observaciones: datos.observaciones,
+                    conclusion_recomendacion: calculos.conclusion_recomendacion
+                };
+            }
 
-                zip.file('_rels/.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-    <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
-    <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>
-    <Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>
-</Relationships>`);
-
-                zip.file('word/_rels/document.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-    <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
-</Relationships>`);
-
-                zip.file('word/document.xml', docContent);
-
-                zip.file('word/styles.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-    <w:docDefaults>
-        <w:rPrDefault>
-            <w:rPr>
-                <w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/>
-                <w:sz w:val="22"/>
-            </w:rPr>
-        </w:rPrDefault>
-    </w:docDefaults>
-</w:styles>`);
-
-                zip.file('docProps/core.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <dc:title>Auditoría Energética</dc:title>
-    <dc:creator>Sistema de Auditorías</dc:creator>
-    <dcterms:created xsi:type="dcterms:W3CDTF">${new Date().toISOString()}</dcterms:created>
-    <dcterms:modified xsi:type="dcterms:W3CDTF">${new Date().toISOString()}</dcterms:modified>
-</cp:coreProperties>`);
-
-                zip.file('docProps/app.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties">
-    <Application>Sistema de Auditorías Energéticas</Application>
-    <DocSecurity>0</DocSecurity>
-    <ScaleCrop>false</ScaleCrop>
-    <LinksUpToDate>false</LinksUpToDate>
-    <SharedDoc>false</SharedDoc>
-    <HyperlinksChanged>false</HyperlinksChanged>
-    <AppVersion>1.0</AppVersion>
-</Properties>`);
-
-                const content = zip.generate({ 
-                    type: 'blob',
-                    mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            processTemplate(template, data) {
+                let processed = template;
+                Object.keys(data).forEach(key => {
+                    const regex = new RegExp(`{{${key}}}`, 'g');
+                    processed = processed.replace(regex, data[key]);
                 });
                 
-                descargarArchivo(content, nombreArchivo);
-
-            } catch (error) {
-                console.error('Error creando DOCX:', error);
-                console.warn('Fallback a RTF...');
-                await crearRtf(contenido, nombreArchivo.replace('.docx', '.rtf'));
-                mostrarStatus('💡 Documento generado en formato RTF (compatible con Word)', 'info');
+                // Clean unprocessed variables
+                processed = processed.replace(/{{[^}]*}}/g, '[No disponible]');
+                
+                return processed;
             }
-        }
 
-        function crearHtml(contenido, nombreArchivo) {
-            const htmlContent = `<!DOCTYPE html>
+            async createDocument(content, data, format) {
+                const filename = `${data.numero_documento}.${format}`;
+                
+                switch (format) {
+                    case 'docx':
+                        if (typeof PizZip !== 'undefined') {
+                            return this.createDocx(content, filename);
+                        } else {
+                            return this.createRtf(content, filename.replace('.docx', '.rtf'));
+                        }
+                    case 'html':
+                        return this.createHtml(content, filename);
+                    case 'rtf':
+                        return this.createRtf(content, filename);
+                    default:
+                        throw new Error('Formato no soportado');
+                }
+            }
+
+            createDocx(content, filename) {
+                const zip = new PizZip();
+                
+                // DOCX structure
+                const docContent = `<?xml version="1.0" encoding="UTF-8"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+<w:body>
+${content.split('\n').map(line => {
+    const escapedLine = line.replace(/[<>&]/g, (c) => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+    
+    if (line.trim() === line.trim().toUpperCase() && line.trim().length > 5) {
+        return `<w:p><w:pPr><w:jc w:val="left"/><w:spacing w:before="240" w:after="120"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="28"/><w:color w:val="2c5aa0"/></w:rPr><w:t>${escapedLine}</w:t></w:r></w:p>`;
+    } else if (line.includes(':')) {
+        const [label, value] = line.split(':', 2);
+        return `<w:p><w:pPr><w:spacing w:after="80"/></w:pPr><w:r><w:rPr><w:b/></w:rPr><w:t>${label.trim()}:</w:t></w:r><w:r><w:t xml:space="preserve"> ${value ? value.trim() : ''}</w:t></w:r></w:p>`;
+    } else {
+        return `<w:p><w:pPr><w:spacing w:after="120"/></w:pPr><w:r><w:t>${escapedLine}</w:t></w:r></w:p>`;
+    }
+}).join('')}
+</w:body>
+</w:document>`;
+
+                // Content Types
+                zip.file('[Content_Types].xml', 
+                    '<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
+                
+                // Main relationships
+                zip.file('_rels/.rels', 
+                    '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+                
+                // Document
+                zip.file('word/document.xml', docContent);
+
+                const blob = zip.generate({ type: 'blob' });
+                return { filename, blob };
+            }
+
+            createHtml(content, filename) {
+                const html = `<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auditoría Energética - ${new Date().toLocaleDateString('es-ES')}</title>
+    <title>Auditoría Energética</title>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            line-height: 1.6;
-            max-width: 21cm;
-            margin: 0 auto;
-            padding: 2cm;
-            color: #333;
-            background: white;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            border-bottom: 3px solid #2c5aa0;
-            padding-bottom: 20px;
-        }
-        
-        .header h1 {
-            color: #2c5aa0;
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-        
-        .badge {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
-            display: inline-block;
-            margin: 10px 0;
-        }
-        
-        .content {
-            white-space: pre-wrap;
-            font-family: inherit;
-            line-height: 1.8;
-        }
-        
-        .footer {
-            margin-top: 40px;
-            text-align: center;
-            font-size: 12px;
-            color: #666;
-            border-top: 1px solid #ddd;
-            padding-top: 20px;
-        }
-        
-        @media print {
-            body { margin: 1cm; }
-            .no-print { display: none; }
-        }
+        body { font-family: 'Arial', sans-serif; max-width: 21cm; margin: 0 auto; padding: 2cm; line-height: 1.6; }
+        h1 { color: #2c5aa0; text-align: center; font-size: 28px; margin-bottom: 30px; }
+        h2 { color: #2c5aa0; font-size: 20px; margin: 25px 0 15px 0; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px; }
+        .data-field { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+        .label { font-weight: bold; color: #2c5aa0; min-width: 45%; }
+        .value { text-align: right; font-weight: 500; }
+        .content-paragraph { margin: 12px 0; text-align: justify; }
+        .footer { margin-top: 50px; text-align: center; border-top: 3px solid #2c5aa0; padding-top: 20px; font-size: 12px; color: #666; }
+        .generated-info { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>⚡ AUDITORÍA ENERGÉTICA</h1>
-        <p>Sistema Automatizado de Generación de Documentos</p>
-        <div class="badge">🔥 DOCUMENTO GENERADO AUTOMÁTICAMENTE</div>
+    <h1>🔥 AUDITORÍA ENERGÉTICA</h1>
+    <div class="generated-info">
+        <strong>Sistema de Auditorías Pro</strong><br>
+        Generado: ${new Date().toLocaleString('es-ES')}<br>
+        Datos obtenidos desde Firebase
     </div>
-    
-    <div class="content">${contenido}</div>
-    
+    ${this.formatContentForHTML(content)}
     <div class="footer">
-        <p><strong>Sistema de Auditorías Energéticas v1.0</strong></p>
-        <p>Generado: ${new Date().toLocaleString('es-ES')}</p>
-        <p>🌐 Documento HTML profesional</p>
+        <p><strong>Sistema de Auditorías Energéticas Pro v1.0</strong></p>
+        <p>Generado automáticamente con datos desde Firebase • ${new Date().toLocaleString('es-ES')}</p>
+        <p>Entrega proyecto: 30/05/2025 13:40 hrs</p>
     </div>
 </body>
 </html>`;
+                
+                const blob = new Blob([html], { type: 'text/html' });
+                return { filename, blob };
+            }
 
-            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-            descargarArchivo(blob, nombreArchivo);
-        }
+            createRtf(content, filename) {
+                let rtf = '{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Arial;}}';
+                rtf += '{\\colortbl;\\red44\\green90\\blue160;}'; // Blue color
+                
+                // Title
+                rtf += '\\qc\\b\\fs32\\cf1 AUDITORÍA ENERGÉTICA\\par\\par';
+                rtf += '\\qc\\fs20 Generado con Firebase • ' + new Date().toLocaleDateString('es-ES') + '\\par\\par\\par';
+                
+                // Content
+                content.split('\n').forEach(line => {
+                    const trimmed = line.trim();
+                    if (!trimmed) {
+                        rtf += '\\par';
+                        return;
+                    }
+                    
+                    if (trimmed === trimmed.toUpperCase() && trimmed.length > 5) {
+                        rtf += '\\b\\fs28\\cf1 ' + trimmed + '\\par\\par';
+                    } else if (trimmed.includes(':')) {
+                        const [label, value] = trimmed.split(':', 2);
+                        rtf += '\\b ' + label.trim() + ':\\b0  ' + (value ? value.trim() : '') + '\\par';
+                    } else {
+                        rtf += trimmed + '\\par';
+                    }
+                });
+                
+                // Footer
+                rtf += '\\par\\par\\qc\\fs16\\cf0 Sistema Pro Firebase • ' + new Date().toLocaleString('es-ES');
+                rtf += '}';
+                
+                const blob = new Blob([rtf], { type: 'application/rtf' });
+                return { filename, blob };
+            }
 
-        function crearRtf(contenido, nombreArchivo) {
-            // Generar RTF que es compatible con Word
-            let rtf = '{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Calibri;}{\\f1 Arial;}}';
-            rtf += '{\\colortbl;\\red44;\\green90;\\blue160;\\red40;\\green167;\\blue69;}'; // Colores
-            
-            // Título principal
-            rtf += '\\qc\\b\\fs36\\cf1 AUDITOR\\u205?A ENERG\\u201?TICA\\par\\par';
-            rtf += '\\qc\\fs24\\cf2 Sistema Automatizado\\par\\par\\par';
-            
-            // Contenido
-            const lineas = contenido.split('\n');
-            lineas.forEach(linea => {
-                const lineaTrim = linea.trim();
-                if (!lineaTrim) {
-                    rtf += '\\par';
+            formatContentForHTML(content) {
+                return content.split('\n').map(line => {
+                    const trimmed = line.trim();
+                    if (!trimmed) return '<br>';
+                    
+                    if (trimmed === trimmed.toUpperCase() && trimmed.length > 5) {
+                        return `<h2>${trimmed}</h2>`;
+                    } else if (trimmed.includes(':')) {
+                        const [label, value] = trimmed.split(':', 2);
+                        return `<div class="data-field"><span class="label">${label.trim()}:</span><span class="value">${value ? value.trim() : ''}</span></div>`;
+                    } else {
+                        return `<p class="content-paragraph">${trimmed}</p>`;
+                    }
+                }).join('\n');
+            }
+
+            // ===== TEMPLATE MANAGEMENT =====
+            async saveNewTemplate() {
+                const name = document.getElementById('newTemplateName').value.trim();
+                const description = document.getElementById('newTemplateDesc').value.trim();
+                const content = document.getElementById('newTemplateContent').value.trim();
+                
+                if (!name || !content) {
+                    this.showStatus('⚠️ Complete el nombre y contenido de la plantilla', 'error');
+                    return;
+                }
+
+                try {
+                    const templateData = {
+                        nombre: name,
+                        descripcion: description || 'Plantilla personalizada',
+                        contenido: content,
+                        categoria: 'custom',
+                        variables: this.extractVariables(content),
+                        active: true,
+                        created_at: new Date().toISOString(),
+                        created_by: this.userId
+                    };
+
+                    const docRef = await addDoc(collection(this.db, 'plantillas'), templateData);
+                    
+                    // Add to local cache
+                    this.plantillas.set(docRef.id, { id: docRef.id, ...templateData });
+                    
+                    // Update selector
+                    this.updateTemplateSelector();
+                    
+                    // Clear form
+                    document.getElementById('newTemplateName').value = '';
+                    document.getElementById('newTemplateDesc').value = '';
+                    document.getElementById('newTemplateContent').value = '';
+                    
+                    this.plantillasCreadas++;
+                    this.updateCounters();
+                    
+                    this.showStatus(`✅ Plantilla "${name}" guardada en Firebase`, 'success');
+                    
+                } catch (error) {
+                    console.error('Error guardando plantilla:', error);
+                    this.showStatus('❌ Error guardando plantilla: ' + error.message, 'error');
+                }
+            }
+
+            extractVariables(content) {
+                const regex = /{{([^}]+)}}/g;
+                const variables = [];
+                let match;
+                
+                while ((match = regex.exec(content)) !== null) {
+                    if (!variables.includes(match[1])) {
+                        variables.push(match[1]);
+                    }
+                }
+                
+                return variables;
+            }
+
+            showTemplatePreview() {
+                const templateId = document.getElementById('templateSelect').value;
+                const previewDiv = document.getElementById('templatePreview');
+                
+                if (!templateId) {
+                    previewDiv.textContent = 'Seleccione una plantilla para ver la vista previa...';
                     return;
                 }
                 
-                if (lineaTrim.includes('═══') || (lineaTrim === lineaTrim.toUpperCase() && lineaTrim.length > 10)) {
-                    // Encabezados
-                    rtf += `\\qc\\b\\fs28\\cf1 ${lineaTrim}\\par\\par`;
-                } else if (lineaTrim.includes(':')) {
-                    // Campos con datos
-                    const [label, value] = lineaTrim.split(':');
-                    rtf += `\\b ${label.trim()}:\\b0  ${value ? value.trim() : ''}\\par`;
+                const plantilla = this.plantillas.get(templateId);
+                if (plantilla) {
+                    previewDiv.textContent = plantilla.contenido.substring(0, 500) + 
+                        (plantilla.contenido.length > 500 ? '...' : '');
                 } else {
-                    // Texto normal
-                    rtf += `${lineaTrim}\\par`;
+                    previewDiv.textContent = 'Error cargando plantilla';
                 }
-            });
-            
-            // Footer
-            rtf += '\\par\\par\\qc\\fs16\\cf0 ';
-            rtf += `Generado autom\\u225?ticamente \\u8226? ${new Date().toLocaleString('es-ES')}`;
-            rtf += '}';
+            }
 
-            const blob = new Blob([rtf], { type: 'application/rtf' });
-            descargarArchivo(blob, nombreArchivo);
-        }
-
-        // ===== FUNCIONES DE UTILIDAD =====
-        function escapeXml(unsafe) {
-            if (!unsafe) return '';
-            return unsafe.toString().replace(/[<>&'"]/g, function (c) {
-                switch (c) {
-                    case '<': return '&lt;';
-                    case '>': return '&gt;';
-                    case '&': return '&amp;';
-                    case '\'': return '&apos;';
-                    case '"': return '&quot;';
-                    default: return c;
+            showDocumentPreview() {
+                if (!this.calculosActuales) {
+                    this.showStatus('⚠️ Complete los cálculos primero', 'error');
+                    return;
                 }
-            });
-        }
 
-        function descargarArchivo(blob, nombreArchivo) {
-            try {
+                const templateId = document.getElementById('templateSelect').value;
+                if (!templateId) {
+                    this.showStatus('⚠️ Seleccione una plantilla', 'error');
+                    return;
+                }
+
+                const plantilla = this.plantillas.get(templateId);
+                if (!plantilla) {
+                    this.showStatus('❌ Plantilla no encontrada', 'error');
+                    return;
+                }
+
+                // Prepare and process template
+                const templateData = this.prepareTemplateData();
+                const processedContent = this.processTemplate(plantilla.contenido, templateData);
+
+                // Show in modal
+                const modal = document.getElementById('previewModal');
+                const content = document.getElementById('previewContent');
+                
+                content.innerHTML = this.formatContentForHTML(processedContent);
+                modal.style.display = 'flex';
+            }
+
+            closePreviewModal() {
+                document.getElementById('previewModal').style.display = 'none';
+            }
+
+            // ===== AUDIT MANAGEMENT =====
+            async saveAudit() {
+                if (!this.isConnected) {
+                    this.showStatus('⚠️ Sin conexión a Firebase', 'error');
+                    return;
+                }
+
+                try {
+                    const datos = this.gatherAuditData();
+                    
+                    const auditData = {
+                        id: datos.id,
+                        cliente: {
+                            nombre: datos.cliente_nombre,
+                            direccion: datos.cliente_direccion,
+                            telefono: datos.cliente_telefono,
+                            email: datos.cliente_email
+                        },
+                        datos_energeticos: {
+                            consumo_kwh: datos.consumo_kwh,
+                            demanda_kw: datos.demanda_kw,
+                            factor_potencia: datos.factor_potencia,
+                            tarifa_codigo: datos.tarifa_codigo,
+                            area_instalacion: datos.area_instalacion
+                        },
+                        auditor_nombre: datos.auditor_nombre,
+                        observaciones: datos.observaciones,
+                        estado: 'completada',
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString(),
+                        user_id: this.userId
+                    };
+
+                    const docRef = await addDoc(collection(this.db, 'auditorias'), auditData);
+                    
+                    this.auditoriaActual = { ...auditData, docId: docRef.id };
+                    
+                    this.showStatus(`✅ Auditoría ${datos.id} guardada en Firebase`, 'success');
+                    
+                    // Auto-calculate after saving
+                    setTimeout(() => this.performCalculations(), 500);
+                    
+                } catch (error) {
+                    console.error('Error guardando auditoría:', error);
+                    this.showStatus('❌ Error guardando: ' + error.message, 'error');
+                }
+            }
+
+            async saveCalculationsToFirebase(auditId, calculos) {
+                if (!this.isConnected) return;
+                
+                try {
+                    await addDoc(collection(this.db, 'calculos'), {
+                        auditoria_id: auditId,
+                        ...calculos,
+                        user_id: this.userId
+                    });
+                    
+                    console.log('✅ Cálculos guardados en Firebase');
+                } catch (error) {
+                    console.error('Error guardando cálculos:', error);
+                }
+            }
+
+            async saveDocumentRecord(document, templateId, templateData) {
+                if (!this.isConnected) return;
+                
+                try {
+                    await addDoc(collection(this.db, 'documentos_generados'), {
+                        auditoria_id: this.auditoriaActual?.id || templateData.numero_documento,
+                        plantilla_id: templateId,
+                        nombre_archivo: document.filename,
+                        formato: document.filename.split('.').pop(),
+                        tamaño_bytes: document.blob.size,
+                        generado_por: 'sistema_pro_firebase',
+                        created_at: new Date().toISOString(),
+                        user_id: this.userId,
+                        cliente_nombre: templateData.cliente_nombre
+                    });
+                    
+                    console.log('✅ Registro de documento guardado en Firebase');
+                } catch (error) {
+                    console.error('Error guardando registro de documento:', error);
+                }
+            }
+
+            // ===== HISTORY MANAGEMENT =====
+            async loadHistory() {
+                if (!this.isConnected) {
+                    document.getElementById('historyContainer').innerHTML = 
+                        '<div class="text-center text-gray-500 py-8">⚠️ Sin conexión a Firebase para cargar historial</div>';
+                    return;
+                }
+
+                try {
+                    const q = query(
+                        collection(this.db, 'auditorias'),
+                        where('user_id', '==', this.userId),
+                        orderBy('created_at', 'desc'),
+                        limit(10)
+                    );
+                    
+                    const snapshot = await getDocs(q);
+                    const container = document.getElementById('historyContainer');
+                    
+                    if (snapshot.empty) {
+                        container.innerHTML = `
+                            <div class="text-center text-gray-500 py-12">
+                                <div class="text-4xl mb-4">📋</div>
+                                <p class="text-lg mb-2">No hay auditorías guardadas</p>
+                                <p class="text-sm">Sus auditorías aparecerán aquí cuando las guarde en Firebase</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    container.innerHTML = '';
+                    snapshot.forEach((doc, index) => {
+                        const data = doc.data();
+                        const item = document.createElement('div');
+                        item.className = 'timeline-item';
+                        
+                        const date = new Date(data.created_at);
+                        const timeAgo = this.getTimeAgo(date);
+                        
+                        item.innerHTML = `
+                            <div class="timeline-icon bg-blue-500"></div>
+                            <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex-1">
+                                        <h4 class="font-bold text-gray-800 text-lg">${data.id}</h4>
+                                        <p class="text-blue-600 font-medium">${data.cliente.nombre}</p>
+                                        <p class="text-gray-600 text-sm">${data.cliente.direccion}</p>
+                                        <div class="mt-2 flex flex-wrap gap-2">
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                                                ${data.datos_energeticos.consumo_kwh.toLocaleString()} kWh
+                                            </span>
+                                            <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
+                                                ${data.datos_energeticos.demanda_kw} kW
+                                            </span>
+                                            <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs">
+                                                ${data.datos_energeticos.tarifa_codigo}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="text-right text-sm text-gray-500">
+                                        <div class="font-medium">${timeAgo}</div>
+                                        <div class="text-xs">${date.toLocaleDateString('es-ES')}</div>
+                                        <div class="text-xs text-green-600 mt-1">✅ Firebase</div>
+                                    </div>
+                                </div>
+                                <div class="mt-3 pt-3 border-t border-gray-100">
+                                    <p class="text-gray-600 text-sm">${data.observaciones.substring(0, 100)}${data.observaciones.length > 100 ? '...' : ''}</p>
+                                </div>
+                            </div>
+                        `;
+                        
+                        container.appendChild(item);
+                    });
+                    
+                    this.showStatus(`✅ ${snapshot.size} auditorías cargadas desde Firebase`, 'success');
+                    
+                } catch (error) {
+                    console.error('Error cargando historial:', error);
+                    this.showStatus('❌ Error cargando historial: ' + error.message, 'error');
+                }
+            }
+
+            // ===== UI HELPERS =====
+            gatherAuditData() {
+                const now = new Date();
+                const id = `AUD-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(Date.now()).slice(-3)}`;
+                
+                return {
+                    id: id,
+                    cliente_nombre: document.getElementById('clienteNombre').value.trim() || 'Cliente Ejemplo',
+                    cliente_direccion: document.getElementById('clienteDireccion').value.trim() || 'Dirección no especificada',
+                    cliente_telefono: document.getElementById('clienteTelefono').value.trim() || 'Teléfono no especificado',
+                    cliente_email: document.getElementById('clienteEmail').value.trim() || 'email@ejemplo.com',
+                    consumo_kwh: parseFloat(document.getElementById('consumoKwh').value) || 0,
+                    demanda_kw: parseFloat(document.getElementById('demandaKw').value) || 0,
+                    factor_potencia: parseFloat(document.getElementById('factorPotencia').value) || 0.9,
+                    area_instalacion: parseFloat(document.getElementById('areaInstalacion').value) || 0,
+                    tarifa_codigo: document.getElementById('tarifaCfe').value || 'GDMTO',
+                    auditor_nombre: document.getElementById('auditorNombre').value.trim() || 'Auditor Sistema',
+                    observaciones: document.getElementById('observaciones').value.trim() || 'Sin observaciones específicas'
+                };
+            }
+
+            updateTarifaSelector() {
+                const selector = document.getElementById('tarifaCfe');
+                selector.innerHTML = '';
+                
+                this.tarifas.forEach((tarifa, id) => {
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.textContent = `${id} - ${tarifa.nombre}`;
+                    selector.appendChild(option);
+                });
+                
+                // Select GDMTO by default
+                if (this.tarifas.has('GDMTO')) {
+                    selector.value = 'GDMTO';
+                }
+            }
+
+            updateTemplateSelector() {
+                const selector = document.getElementById('templateSelect');
+                selector.innerHTML = '';
+                
+                if (this.plantillas.size === 0) {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'No hay plantillas disponibles';
+                    selector.appendChild(option);
+                    return;
+                }
+                
+                // Add default option
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Seleccionar plantilla...';
+                selector.appendChild(defaultOption);
+                
+                // Group templates by category
+                const categorias = {
+                    'basica': '📊 Básicas',
+                    'ejecutivo': '👔 Ejecutivas',
+                    'custom': '✏️ Personalizadas'
+                };
+                
+                Object.entries(categorias).forEach(([categoria, label]) => {
+                    const templates = Array.from(this.plantillas.entries())
+                        .filter(([id, template]) => template.categoria === categoria);
+                    
+                    if (templates.length > 0) {
+                        const optgroup = document.createElement('optgroup');
+                        optgroup.label = label;
+                        
+                        templates.forEach(([id, template]) => {
+                            const option = document.createElement('option');
+                            option.value = id;
+                            option.textContent = `${template.nombre} - ${template.descripcion}`;
+                            optgroup.appendChild(option);
+                        });
+                        
+                        selector.appendChild(optgroup);
+                    }
+                });
+                
+                // Select first template by default
+                if (this.plantillas.size > 0) {
+                    const firstTemplate = this.plantillas.keys().next().value;
+                    selector.value = firstTemplate;
+                    this.showTemplatePreview();
+                }
+            }
+
+            updateCounters() {
+                document.getElementById('docCounter').textContent = this.documentosGenerados;
+                document.getElementById('templateCounter').textContent = this.plantillas.size;
+            }
+
+            updateFirebaseStatus(status) {
+                const statusBadge = document.getElementById('firebaseStatus');
+                const connectionInfo = document.getElementById('connectionInfo');
+                
+                switch (status) {
+                    case 'connected':
+                        statusBadge.className = 'firebase-badge firebase-connected';
+                        statusBadge.textContent = '🔥 Firebase Conectado';
+                        connectionInfo.textContent = `Usuario: ${this.userId.substring(0, 8)}...`;
+                        break;
+                    case 'offline':
+                        statusBadge.className = 'firebase-badge firebase-offline';
+                        statusBadge.textContent = '⚠️ Modo Offline';
+                        connectionInfo.textContent = 'Sin conexión a Firebase';
+                        break;
+                    case 'loading':
+                        statusBadge.className = 'firebase-badge firebase-loading';
+                        statusBadge.textContent = '🔄 Conectando...';
+                        connectionInfo.textContent = 'Estableciendo conexión...';
+                        break;
+                }
+            }
+
+            updateLoadingStatus(main, detail) {
+                document.getElementById('loadingStatus').textContent = main;
+                document.getElementById('loadingDetails').textContent = detail;
+            }
+
+            showMainInterface() {
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                
+                this.updateFirebaseStatus('connected');
+                this.enableDocumentGeneration();
+            }
+
+            enableDocumentGeneration() {
+                const btn = document.getElementById('generateDocBtn');
+                if (this.calculosActuales && document.getElementById('templateSelect').value) {
+                    btn.disabled = false;
+                    btn.className = 'w-full bg-green-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-green-700 transition-colors';
+                    btn.textContent = '🚀 Generar Documento con Firebase';
+                } else {
+                    btn.disabled = true;
+                    btn.className = 'w-full bg-gray-400 text-white py-4 px-6 rounded-lg font-semibold text-lg cursor-not-allowed';
+                    btn.textContent = '⏳ Complete cálculos y seleccione plantilla';
+                }
+            }
+
+            updateSystemInfo() {
+                document.getElementById('buildTime').textContent = `Build: ${this.startTime.toLocaleTimeString('es-ES')}`;
+                document.getElementById('systemHealth').innerHTML = this.isConnected ? '🟢 Operativo' : '🟡 Modo Offline';
+            }
+
+            activateOfflineMode() {
+                this.isConnected = false;
+                this.loadDefaultTarifas();
+                this.loadDefaultPlantillas();
+                this.loadDefaultConfig();
+                
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                
+                this.updateFirebaseStatus('offline');
+                this.showStatus('⚠️ Modo offline activado - Funcionalidad limitada', 'error');
+            }
+
+            loadDefaultTarifas() {
+                const defaultTarifas = {
+                    'GDMTO': { id: 'GDMTO', nombre: 'GDMTO (Offline)', energia: 1.947, demanda_facturable: 189.92, cargo_fijo: 485.75 },
+                    'GDMTH': { id: 'GDMTH', nombre: 'GDMTH (Offline)', energia: { intermedia: 1.947 }, demanda_facturable: { intermedia: 189.92 }, cargo_fijo: 485.75 },
+                    'OM': { id: 'OM', nombre: 'OM (Offline)', energia: { intermedio: 0.956 } }
+                };
+                
+                this.tarifas.clear();
+                Object.entries(defaultTarifas).forEach(([id, tarifa]) => {
+                    this.tarifas.set(id, tarifa);
+                });
+                
+                this.updateTarifaSelector();
+            }
+
+            loadDefaultPlantillas() {
+                const defaultPlantillas = {
+                    'offline_basic': {
+                        id: 'offline_basic',
+                        nombre: 'Auditoría Básica (Offline)',
+                        descripcion: 'Plantilla básica sin Firebase',
+                        categoria: 'basica',
+                        contenido: `AUDITORÍA ENERGÉTICA BÁSICA (MODO OFFLINE)
+
+Cliente: {{cliente_nombre}}
+Dirección: {{cliente_direccion}}
+
+DATOS ENERGÉTICOS:
+Consumo: {{consumo_kwh}} kWh/año
+Demanda: {{demanda_kw}} kW
+Factor de Potencia: {{factor_potencia}}
+
+ANÁLISIS ECONÓMICO:
+Costo Anual: {{costo_anual}}
+Tarifa: {{tarifa_nombre}}
+
+OBSERVACIONES:
+{{observaciones}}
+
+Documento: {{numero_documento}}
+Generado en modo offline: {{fecha_generacion}}`
+                    }
+                };
+                
+                this.plantillas.clear();
+                Object.entries(defaultPlantillas).forEach(([id, plantilla]) => {
+                    this.plantillas.set(id, plantilla);
+                });
+                
+                this.updateTemplateSelector();
+            }
+
+            loadDefaultConfig() {
+                this.configuracion = {
+                    parametros_led: { eficiencia_ahorro: 0.65, vida_util_años: 10, costo_instalacion_kw: 2200 },
+                    factores_ambientales: { co2_kwh_mx: 0.000527, arboles_por_ton_co2: 2.5 }
+                };
+            }
+
+            // ===== EVENT LISTENERS SETUP =====
+            setupEventListeners() {
+                // Save audit button
+                document.getElementById('saveAuditBtn').addEventListener('click', () => {
+                    this.saveAudit();
+                });
+
+                // Calculate button
+                document.getElementById('calculateBtn').addEventListener('click', () => {
+                    this.performCalculations();
+                });
+
+                // Recalculate button
+                document.getElementById('recalculateBtn').addEventListener('click', () => {
+                    this.performCalculations();
+                });
+
+                // Generate document button
+                document.getElementById('generateDocBtn').addEventListener('click', () => {
+                    this.generateDocument();
+                });
+
+                // Preview document button
+                document.getElementById('previewDocBtn').addEventListener('click', () => {
+                    this.showDocumentPreview();
+                });
+
+                // Save template button
+                document.getElementById('saveTemplateBtn').addEventListener('click', () => {
+                    this.saveNewTemplate();
+                });
+
+                // Template selector change
+                document.getElementById('templateSelect').addEventListener('change', () => {
+                    this.showTemplatePreview();
+                    this.enableDocumentGeneration();
+                });
+
+                // Auto-calculation on data change
+                ['consumoKwh', 'demandaKw', 'factorPotencia', 'tarifaCfe', 'areaInstalacion'].forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.addEventListener('input', () => {
+                            clearTimeout(this.autoCalculateTimeout);
+                            this.autoCalculateTimeout = setTimeout(() => {
+                                if (this.isConnected && this.isReady) {
+                                    this.performCalculations();
+                                }
+                            }, 2000);
+                        });
+                    }
+                });
+
+                // History refresh button
+                document.getElementById('refreshHistoryBtn').addEventListener('click', () => {
+                    this.loadHistory();
+                });
+
+                // Export history button
+                document.getElementById('exportHistoryBtn').addEventListener('click', () => {
+                    this.exportHistory();
+                });
+
+                // Preview modal close buttons
+                document.getElementById('closePreviewBtn').addEventListener('click', () => {
+                    this.closePreviewModal();
+                });
+
+                document.getElementById('closePreviewBtn2').addEventListener('click', () => {
+                    this.closePreviewModal();
+                });
+
+                document.getElementById('generateFromPreviewBtn').addEventListener('click', () => {
+                    this.closePreviewModal();
+                    this.generateDocument();
+                });
+
+                // Close modal on outside click
+                document.getElementById('previewModal').addEventListener('click', (e) => {
+                    if (e.target.id === 'previewModal') {
+                        this.closePreviewModal();
+                    }
+                });
+            }
+
+            // ===== UTILITY FUNCTIONS =====
+            formatCurrency(amount) {
+                return new Intl.NumberFormat('es-MX', {
+                    style: 'currency',
+                    currency: 'MXN',
+                    minimumFractionDigits: 2
+                }).format(amount || 0);
+            }
+
+            formatNumber(number, decimals = 0) {
+                return new Intl.NumberFormat('es-MX', {
+                    minimumFractionDigits: decimals,
+                    maximumFractionDigits: decimals
+                }).format(number || 0);
+            }
+
+            downloadFile(blob, filename) {
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = nombreArchivo;
-                link.style.display = 'none';
-                
+                link.download = filename;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                
-                // Limpiar URL después de un tiempo
-                setTimeout(() => {
-                    URL.revokeObjectURL(url);
-                }, 1000);
-                
-                console.log('✅ Archivo descargado:', nombreArchivo);
-                
-            } catch (error) {
-                console.error('Error descargando archivo:', error);
-                throw new Error('Error al descargar el archivo: ' + error.message);
-            }
-        }
-
-        function agregarAlHistorial(datos) {
-            const historial = document.getElementById('historial');
-            
-            // Limpiar mensaje inicial
-            if (historial.textContent.includes('No hay documentos')) {
-                historial.innerHTML = '';
+                URL.revokeObjectURL(url);
             }
 
-            const item = document.createElement('div');
-            item.className = 'history-item';
-            item.innerHTML = `
-                <div>
-                    <div style="font-weight: bold; margin-bottom: 5px;">
-                        📄 ${datos.nombreArchivo}.${datos.formato}
-                    </div>
-                    <div style="font-size: 12px; color: #666;">
-                        Cliente: ${datos.clienteNombre} | 
-                        Tipo: ${datos.tipoPlantilla.replace('_', ' ')} | 
-                        ${datos.fechaGeneracion} ${datos.horaGeneracion}
-                    </div>
-                </div>
-                <div style="text-align: right;">
-                    <div style="color: #28a745; font-weight: bold;">✅ Generado</div>
-                    <div style="font-size: 12px; color: #666;">#${documentosGenerados}</div>
-                </div>
-            `;
-
-            historial.insertBefore(item, historial.firstChild);
-
-            // Mantener solo los últimos 10
-            while (historial.children.length > 10) {
-                historial.removeChild(historial.lastChild);
-            }
-        }
-
-        function mostrarStatus(message, type) {
-            const statusDiv = document.getElementById('status');
-            if (statusDiv) {
+            showStatus(message, type) {
+                const statusDiv = document.getElementById('statusMessage');
                 statusDiv.className = `status status-${type}`;
                 statusDiv.textContent = message;
                 statusDiv.style.display = 'block';
-
-                // Auto-hide después de 5 segundos
+                
                 setTimeout(() => {
                     statusDiv.style.display = 'none';
-                }, 5000);
+                }, type === 'error' ? 8000 : 5000);
+            }
+
+            getTimeAgo(date) {
+                const now = new Date();
+                const diffMs = now - date;
+                const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                const diffDays = Math.floor(diffHours / 24);
+                
+                if (diffHours < 1) return 'Hace menos de 1 hora';
+                if (diffHours < 24) return `Hace ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
+                if (diffDays < 7) return `Hace ${diffDays} día${diffDays > 1 ? 's' : ''}`;
+                return date.toLocaleDateString('es-ES');
+            }
+
+            async exportHistory() {
+                if (!this.isConnected) {
+                    this.showStatus('⚠️ Sin conexión para exportar historial', 'error');
+                    return;
+                }
+
+                try {
+                    const q = query(
+                        collection(this.db, 'auditorias'),
+                        where('user_id', '==', this.userId),
+                        orderBy('created_at', 'desc')
+                    );
+                    
+                    const snapshot = await getDocs(q);
+                    
+                    if (snapshot.empty) {
+                        this.showStatus('⚠️ No hay datos para exportar', 'error');
+                        return;
+                    }
+                    
+                    // Create CSV content
+                    const headers = [
+                        'ID Auditoría', 'Cliente', 'Dirección', 'Teléfono', 'Email',
+                        'Consumo kWh', 'Demanda kW', 'Factor Potencia', 'Tarifa',
+                        'Área m²', 'Auditor', 'Fecha Creación', 'Observaciones'
+                    ];
+                    
+                    let csvContent = headers.join(',') + '\n';
+                    
+                    snapshot.forEach((doc) => {
+                        const data = doc.data();
+                        const row = [
+                            data.id,
+                            `"${data.cliente.nombre}"`,
+                            `"${data.cliente.direccion}"`,
+                            `"${data.cliente.telefono}"`,
+                            `"${data.cliente.email}"`,
+                            data.datos_energeticos.consumo_kwh,
+                            data.datos_energeticos.demanda_kw,
+                            data.datos_energeticos.factor_potencia,
+                            data.datos_energeticos.tarifa_codigo,
+                            data.datos_energeticos.area_instalacion || 0,
+                            `"${data.auditor_nombre}"`,
+                            new Date(data.created_at).toLocaleDateString('es-ES'),
+                            `"${data.observaciones}"`
+                        ];
+                        csvContent += row.join(',') + '\n';
+                    });
+                    
+                    // Download CSV
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const filename = `historial_auditorias_${new Date().toISOString().split('T')[0]}.csv`;
+                    this.downloadFile(blob, filename);
+                    
+                    this.showStatus(`✅ Historial exportado: ${snapshot.size} registros`, 'success');
+                    
+                } catch (error) {
+                    console.error('Error exportando historial:', error);
+                    this.showStatus('❌ Error exportando: ' + error.message, 'error');
+                }
+            }
+
+            // ===== VALIDATION HELPERS =====
+            validateAuditData() {
+                const errors = [];
+                
+                const consumo = parseFloat(document.getElementById('consumoKwh').value);
+                const demanda = parseFloat(document.getElementById('demandaKw').value);
+                const fp = parseFloat(document.getElementById('factorPotencia').value);
+                
+                if (!consumo || consumo <= 0) errors.push('Consumo anual debe ser mayor a 0');
+                if (!demanda || demanda <= 0) errors.push('Demanda máxima debe ser mayor a 0');
+                if (!fp || fp <= 0 || fp > 1) errors.push('Factor de potencia debe estar entre 0.01 y 1.00');
+                if (consumo && demanda && (consumo / (demanda * 8760)) > 1) {
+                    errors.push('El consumo anual es inconsistente con la demanda máxima');
+                }
+                
+                return errors;
+            }
+
+            showValidationErrors(errors) {
+                if (errors.length === 0) return;
+                
+                const errorMessage = 'Errores de validación:\n• ' + errors.join('\n• ');
+                this.showStatus(errorMessage, 'error');
+            }
+
+            // ===== AUTO-SAVE FUNCTIONALITY =====
+            enableAutoSave() {
+                let autoSaveTimeout;
+                
+                const autoSaveFields = [
+                    'clienteNombre', 'clienteDireccion', 'clienteTelefono', 'clienteEmail',
+                    'consumoKwh', 'demandaKw', 'factorPotencia', 'areaInstalacion',
+                    'auditorNombre', 'observaciones', 'tarifaCfe'
+                ];
+                
+                autoSaveFields.forEach(fieldId => {
+                    const element = document.getElementById(fieldId);
+                    if (element) {
+                        element.addEventListener('input', () => {
+                            clearTimeout(autoSaveTimeout);
+                            autoSaveTimeout = setTimeout(() => {
+                                this.autoSaveProgress();
+                            }, 10000); // Auto-save after 10 seconds of inactivity
+                        });
+                    }
+                });
+            }
+
+            autoSaveProgress() {
+                if (!this.isConnected) return;
+                
+                try {
+                    const datos = this.gatherAuditData();
+                    localStorage.setItem('audit_draft', JSON.stringify({
+                        ...datos,
+                        saved_at: new Date().toISOString()
+                    }));
+                    
+                    console.log('📝 Borrador guardado automáticamente');
+                } catch (error) {
+                    console.error('Error en auto-guardado:', error);
+                }
+            }
+
+            loadDraft() {
+                try {
+                    const draft = localStorage.getItem('audit_draft');
+                    if (draft) {
+                        const data = JSON.parse(draft);
+                        const savedTime = new Date(data.saved_at);
+                        const timeDiff = (new Date() - savedTime) / (1000 * 60 * 60); // hours
+                        
+                        if (timeDiff < 24) { // Load draft if less than 24 hours old
+                            document.getElementById('clienteNombre').value = data.cliente_nombre || '';
+                            document.getElementById('clienteDireccion').value = data.cliente_direccion || '';
+                            document.getElementById('clienteTelefono').value = data.cliente_telefono || '';
+                            document.getElementById('clienteEmail').value = data.cliente_email || '';
+                            document.getElementById('consumoKwh').value = data.consumo_kwh || '';
+                            document.getElementById('demandaKw').value = data.demanda_kw || '';
+                            document.getElementById('factorPotencia').value = data.factor_potencia || '';
+                            document.getElementById('areaInstalacion').value = data.area_instalacion || '';
+                            document.getElementById('auditorNombre').value = data.auditor_nombre || '';
+                            document.getElementById('observaciones').value = data.observaciones || '';
+                            
+                            this.showStatus('📝 Borrador cargado automáticamente', 'info');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error cargando borrador:', error);
+                }
+            }
+
+            clearDraft() {
+                localStorage.removeItem('audit_draft');
             }
         }
 
-        // ===== FUNCIONES PARA FLUTTERFLOW =====
-
-        // Función principal para FlutterFlow
-        window.generarDocumentoFlutter = async function(datosFlutter) {
-            if (!sistemaInicializado) {
-                return {
-                    success: false,
-                    error: 'Sistema no inicializado'
-                };
-            }
-
-            try {
-                // Mapear datos de FlutterFlow al formulario
-                if (datosFlutter.cliente) document.getElementById('clienteNombre').value = datosFlutter.cliente;
-                if (datosFlutter.consumo) document.getElementById('consumoKwh').value = datosFlutter.consumo;
-                if (datosFlutter.demanda) document.getElementById('demandaKw').value = datosFlutter.demanda;
-                if (datosFlutter.factor_potencia) document.getElementById('factorPotencia').value = datosFlutter.factor_potencia;
-                if (datosFlutter.tarifa) document.getElementById('tarifa').value = datosFlutter.tarifa;
-                if (datosFlutter.observaciones) document.getElementById('observaciones').value = datosFlutter.observaciones;
-                if (datosFlutter.tipo_plantilla) document.getElementById('tipoPlantilla').value = datosFlutter.tipo_plantilla;
-                if (datosFlutter.formato) document.getElementById('formato').value = datosFlutter.formato;
-
-                // Actualizar cálculos
-                actualizarCalculos();
-
-                // Generar documento
-                await generarDocumento();
-                
-                return {
-                    success: true,
-                    mensaje: 'Documento generado correctamente desde FlutterFlow',
-                    numero_documento: `AUD-${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(documentosGenerados).padStart(3, '0')}`,
-                    sistema: {
-                        librerias_cargadas: libreriasCargadas,
-                        version: '1.0.0'
-                    }
-                };
-
-            } catch (error) {
-                return {
-                    success: false,
-                    error: error.message
-                };
-            }
-        };
-
-        // Función para obtener cálculos
-        window.obtenerCalculosFlutter = function(consumo, demanda, factorPotencia, tarifa) {
-            if (!sistemaInicializado) {
-                return { error: 'Sistema no inicializado' };
-            }
-
-            try {
-                const costoKwh = obtenerTarifaCosto(tarifa);
-                const costoMensual = (consumo * costoKwh + demanda * 189.92) / 12;
-                const costoAnual = costoMensual * 12;
-                const factorCarga = demanda > 0 ? (consumo / (demanda * 8760)) * 100 : 0;
-                const ahorroLED = consumo * 0.4 * costoKwh;
-                const inversionLED = demanda * 1500;
-                const recuperacion = ahorroLED > 0 ? inversionLED / ahorroLED : 0;
-
-                return {
-                    success: true,
-                    calculos: {
-                        costo_mensual: costoMensual,
-                        costo_mensual_formatted: formatearMoneda(costoMensual),
-                        costo_anual: costoAnual,
-                        costo_anual_formatted: formatearMoneda(costoAnual),
-                        factor_carga: factorCarga,
-                        factor_carga_formatted: factorCarga.toFixed(1) + '%',
-                        ahorro_led: ahorroLED,
-                        ahorro_led_formatted: formatearMoneda(ahorroLED),
-                        periodo_recuperacion: recuperacion,
-                        periodo_recuperacion_formatted: recuperacion.toFixed(1) + ' años',
-                        recomendacion: recuperacion < 3 ? 'RECOMENDADO' : 'CONSIDERAR'
-                    }
-                };
-            } catch (error) {
-                return {
-                    success: false,
-                    error: error.message
-                };
-            }
-        };
-
-        // Función para configurar datos desde FlutterFlow
-        window.configurarDatosFlutter = function(datos) {
-            try {
-                if (datos.cliente) document.getElementById('clienteNombre').value = datos.cliente;
-                if (datos.consumo) document.getElementById('consumoKwh').value = datos.consumo;
-                if (datos.demanda) document.getElementById('demandaKw').value = datos.demanda;
-                if (datos.factor_potencia) document.getElementById('factorPotencia').value = datos.factor_potencia;
-                if (datos.tarifa) document.getElementById('tarifa').value = datos.tarifa;
-                if (datos.observaciones) document.getElementById('observaciones').value = datos.observaciones;
-                
-                // Actualizar cálculos
-                actualizarCalculos();
-                
-                return { 
-                    success: true, 
-                    mensaje: 'Datos configurados correctamente',
-                    datos_aplicados: datos
-                };
-            } catch (error) {
-                return { 
-                    success: false, 
-                    error: error.message 
-                };
-            }
-        };
-
-        // Función para obtener estado del sistema
-        window.obtenerEstadoSistema = function() {
-            return {
-                inicializado: sistemaInicializado,
-                librerias_cargadas: libreriasCargadas,
-                documentos_generados: documentosGenerados,
-                archivos_seleccionados: archivosSeleccionados.length,
-                version: '1.0.0',
-                librerias_disponibles: {
-                    pizzip: typeof PizZip !== 'undefined',
-                    docxtemplater: typeof Docxtemplater !== 'undefined'
-                },
-                funciones_disponibles: [
-                    'generarDocumentoFlutter',
-                    'obtenerCalculosFlutter', 
-                    'configurarDatosFlutter',
-                    'obtenerEstadoSistema'
-                ]
-            };
-        };
-
-        // ===== FUNCIONES DE DEBUGGING =====
-        window.debugSistema = function() {
-            const estado = obtenerEstadoSistema();
-            console.log('🔍 Estado del Sistema:', estado);
-            console.table(estado.librerias_disponibles);
-            return estado;
-        };
-
-        window.testGeneracion = async function() {
-            console.log('🧪 Probando generación de documento...');
+        // ===== SISTEMA INITIALIZATION =====
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🔥 Iniciando Sistema de Auditorías Pro...');
+            console.log('📅 Entrega: 30/05/2025 13:40 hrs');
+            console.log('🎯 Objetivo: Sistema funcional con Firebase');
             
-            try {
-                const resultado = await generarDocumentoFlutter({
-                    cliente: 'Test Cliente',
-                    consumo: 10000,
-                    demanda: 50,
-                    factor_potencia: 0.9,
-                    tarifa: 'GDMTO',
-                    tipo_plantilla: 'auditoria_basica',
-                    formato: 'html'
-                });
-                
-                console.log('✅ Resultado del test:', resultado);
-                return resultado;
-                
-            } catch (error) {
-                console.error('❌ Error en test:', error);
-                return { success: false, error: error.message };
-            }
-        };
-
-        // ===== INICIALIZACIÓN AUTOMÁTICA =====
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🔄 Página cargada, iniciando sistema...');
+            // Initialize system
+            window.auditSystemPro = new AuditSystemPro();
+            
+            // Enable auto-save after initialization
             setTimeout(() => {
-                inicializarSistema();
-            }, 100);
+                if (window.auditSystemPro.isReady) {
+                    window.auditSystemPro.enableAutoSave();
+                    window.auditSystemPro.loadDraft();
+                }
+            }, 3000);
         });
 
-        // Manejo de errores globales
-        window.addEventListener('error', function(e) {
-            console.error('❌ Error global:', e.error);
-            const statusElement = document.getElementById('loadingStatus');
-            if (statusElement) {
-                statusElement.textContent = '⚠️ Error: ' + e.error.message;
+        // ===== GLOBAL ERROR HANDLING =====
+        window.addEventListener('error', (event) => {
+            console.error('Error global:', event.error);
+            if (window.auditSystemPro && window.auditSystemPro.showStatus) {
+                window.auditSystemPro.showStatus('❌ Error del sistema: ' + event.error.message, 'error');
             }
         });
 
-        // Mensaje de bienvenida
-        console.log('🔥 Sistema de Auditorías Energéticas v1.0');
-        console.log('✅ Versión con carga dinámica de librerías');
-        console.log('📱 Listo para integración con FlutterFlow');
-        console.log('🧪 Ejecuta testGeneracion() para probar');
-        console.log('🔍 Ejecuta debugSistema() para estado completo');
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('Promise rechazada:', event.reason);
+            if (window.auditSystemPro && window.auditSystemPro.showStatus) {
+                window.auditSystemPro.showStatus('❌ Error de conexión: ' + event.reason, 'error');
+            }
+        });
+
+        // ===== SYSTEM HEALTH CHECK =====
+        setInterval(() => {
+            if (window.auditSystemPro && window.auditSystemPro.isReady) {
+                const healthIndicator = document.getElementById('systemHealth');
+                if (healthIndicator) {
+                    healthIndicator.innerHTML = window.auditSystemPro.isConnected ? 
+                        '🟢 Operativo' : '🟡 Modo Offline';
+                }
+            }
+        }, 30000); // Check every 30 seconds
+
+        console.log('🚀 Sistema de Auditorías Pro cargado');
+        console.log('📋 Funcionalidades incluidas:');
+        console.log('  ✅ Conexión Firebase en tiempo real');
+        console.log('  ✅ Cálculos con tarifas CFE actualizadas');
+        console.log('  ✅ Generación nativa de documentos DOCX');
+        console.log('  ✅ Gestión de plantillas dinámicas');
+        console.log('  ✅ Historial persistente en Firebase');
+        console.log('  ✅ Auto-guardado de borradores');
+        console.log('  ✅ Modo offline de respaldo');
+        console.log('  ✅ Validación de datos integrada');
+        console.log('  ✅ Exportación de historial CSV');
+        console.log('  ✅ Interfaz moderna y responsiva');
 
     </script>
 </body>
 </html>
+                
