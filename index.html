@@ -1,224 +1,400 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Automatizado de Informes - Firebase + DOCX + PDF</title>
+    <title>Sistema de Auditorías Energéticas Pro v3.1</title> <!-- Incremento versión por cambios -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Librerías para DOCX y PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.4/pizzip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.40.5/docxtemplater.js"></script>
-    <!-- Librería para manejo de imágenes en DOCX -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater-image-module/3.1.1/docxtemplater-image-module.js"></script>
+    <!-- PizZip -->
+    <script src="https://cdn.jsdelivr.net/npm/pizzip@3.2.0/dist/pizzip.min.js"></script>
+    <!-- Docxtemplater -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.47.2/docxtemplater.js"></script>
+    <!-- Módulo de Imágenes (versión más reciente que estabas probando) -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/docxtemplater-image-module@3.9.1/dist/docxtemplater-image-module.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        .header-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #f97316 100%);
+        }
+
+        .card {
+            background: white;
+            border-radius: 1rem;
+            /* Bordes más redondeados */
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            /* Sombra más suave */
+        }
+
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: none;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .status-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+
+        .status-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .status-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+
+        .firebase-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .firebase-connected {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .firebase-offline {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .firebase-loading {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .btn-primary {
+            background-color: #2563eb;
+            color: white;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background-color: #f97316;
+            color: white;
+            transition: background-color 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background-color: #ea580c;
+        }
+
+        .btn-danger {
+            background-color: #dc2626;
+            color: white;
+            transition: background-color 0.2s;
+        }
+
+        .btn-danger:hover {
+            background-color: #b91c1c;
+        }
+
+        .btn-gray {
+            background-color: #6b7280;
+            color: white;
+            transition: background-color 0.2s;
+        }
+
+        .btn-gray:hover {
+            background-color: #4b5563;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        input[type="tel"],
+        select,
+        textarea {
+            border-color: #d1d5db;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+
+        .template-preview-placeholder {
+            color: #6b7280;
+        }
+
+        .image-preview-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .image-preview-item {
+            position: relative;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+
+        .image-preview-item img {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+        }
+
+        .delete-image-btn {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(239, 68, 68, 0.7);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 11px;
+            line-height: 1;
+            transition: background-color 0.2s;
+        }
+
+        .delete-image-btn:hover {
+            background: rgba(220, 38, 38, 0.9);
+        }
+    </style>
 </head>
-<body class="bg-gray-50">
-    
-    <div class="max-w-7xl mx-auto p-6">
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white p-8 rounded-xl mb-8 shadow-lg">
-            <h1 class="text-3xl font-bold mb-2">🏢 Sistema Automatizado de Informes Técnicos</h1>
-            <p class="text-blue-100 mb-4">Generación automática de auditorías energéticas desde Firebase</p>
-            <div class="flex items-center space-x-6 text-sm">
-                <div>Estado Firebase: <span id="firebaseStatus" class="font-semibold">🔄 Conectando...</span></div>
-                <div>Plantillas: <span id="plantillasCount" class="font-semibold">0</span></div>
-                <div>Datos disponibles: <span id="datosCount" class="font-semibold">0</span></div>
-            </div>
-        </div>
 
-        <!-- Panel de Estado -->
-        <div id="statusPanel" class="mb-6"></div>
-
-        <div class="grid lg:grid-cols-4 gap-6">
-            
-            <!-- Panel 1: Subida de Plantillas DOCX -->
-            <div class="bg-white rounded-xl shadow-lg p-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                    📤 Subir Plantilla DOCX
-                </h2>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Nombre de la plantilla</label>
-                        <input type="text" id="nombrePlantilla" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Auditoría Energética 2025">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Archivo DOCX</label>
-                        <input type="file" id="archivoPlantilla" accept=".docx" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                        <p class="text-xs text-gray-500 mt-1">Solo archivos .docx con placeholders como {{cliente}}, {{consumo}}, etc.</p>
-                    </div>
-                    
-                    <button onclick="subirPlantilla()" class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                        📤 Subir a Firebase
-                    </button>
-                </div>
-                
-                <!-- Lista de Plantillas -->
-                <div class="mt-6 border-t pt-4">
-                    <h3 class="font-semibold text-gray-700 mb-2">Plantillas Disponibles</h3>
-                    <div id="listaPlantillas" class="space-y-2">
-                        <p class="text-sm text-gray-500">Cargando...</p>
-                    </div>
-                </div>
+<body>
+    <div id="loadingScreen" class="fixed inset-0 header-gradient flex items-center justify-center z-50">
+        <div class="text-center text-white">
+            <div class="text-6xl mb-4">⚡</div>
+            <h1 class="text-4xl font-bold mb-4">Sistema de Auditorías Energéticas Pro</h1>
+            <div class="loading-spinner w-8 h-8 border-4 border-white border-t-transparent rounded-full mx-auto mb-4">
             </div>
-            
-            <!-- Panel 2: Subida de Imágenes -->
-            <div class="bg-white rounded-xl shadow-lg p-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                    🖼️ Gestión de Imágenes
-                </h2>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Nombre de la imagen</label>
-                        <input type="text" id="nombreImagen" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="logo_empresa">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Archivo de imagen</label>
-                        <input type="file" id="archivoImagen" accept="image/*" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                        <p class="text-xs text-gray-500 mt-1">JPG, PNG, GIF. Se usará como {{imagen_nombre}}</p>
-                    </div>
-                    
-                    <button onclick="subirImagen()" class="w-full bg-green-600 text-white p-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
-                        🖼️ Subir Imagen
-                    </button>
-                </div>
-                
-                <!-- Galería de Imágenes -->
-                <div class="mt-6 border-t pt-4">
-                    <h3 class="font-semibold text-gray-700 mb-2">Imágenes Disponibles</h3>
-                    <div id="galeriaImagenes" class="grid grid-cols-2 gap-2">
-                        <p class="text-sm text-gray-500 col-span-2">Cargando...</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Panel 3: Datos del Sistema -->
-            <div class="bg-white rounded-xl shadow-lg p-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                    📊 Datos del Sistema
-                </h2>
-                
-                <!-- Datos de Climatología -->
-                <div class="mb-4">
-                    <h3 class="font-semibold text-gray-700 mb-2">Módulo Climatología</h3>
-                    <div id="datosClimatologia" class="bg-gray-50 p-3 rounded text-sm">
-                        <p class="text-gray-500">Cargando datos...</p>
-                    </div>
-                </div>
-                
-                <!-- Datos de Calculadoras -->
-                <div class="mb-4">
-                    <h3 class="font-semibold text-gray-700 mb-2">Calculadoras</h3>
-                    <div id="datosCalculadoras" class="bg-gray-50 p-3 rounded text-sm">
-                        <p class="text-gray-500">Cargando datos...</p>
-                    </div>
-                </div>
-                
-                <!-- Datos de Facturación -->
-                <div class="mb-4">
-                    <h3 class="font-semibold text-gray-700 mb-2">Facturación</h3>
-                    <div id="datosFacturacion" class="bg-gray-50 p-3 rounded text-sm">
-                        <p class="text-gray-500">Cargando datos...</p>
-                    </div>
-                </div>
-                
-                <!-- Datos Solares -->
-                <div>
-                    <h3 class="font-semibold text-gray-700 mb-2">Módulo Solar</h3>
-                    <div id="datosSolar" class="bg-gray-50 p-3 rounded text-sm">
-                        <p class="text-gray-500">Cargando datos...</p>
-                    </div>
-                </div>
-                
-                <button onclick="actualizarDatos()" class="w-full mt-4 bg-purple-600 text-white p-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors">
-                    🔄 Actualizar Datos
-                </button>
-            </div>
-            
-            <!-- Panel 4: Generación de Informes -->
-            <div class="bg-white rounded-xl shadow-lg p-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                    📄 Generar Informe
-                </h2>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Seleccionar Plantilla</label>
-                        <select id="plantillaSeleccionada" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            <option value="">Seleccione una plantilla...</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Cliente/Proyecto</label>
-                        <input type="text" id="nombreCliente" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Industrias Ejemplo S.A." value="Industrias Ejemplo S.A.">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Fecha del informe</label>
-                        <input type="date" id="fechaInforme" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" value="">
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-3">
-                        <button onclick="generarDOCX()" id="btnGenerarDOCX" class="bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors" disabled>
-                            📘 DOCX
-                        </button>
-                        <button onclick="generarPDF()" id="btnGenerarPDF" class="bg-red-600 text-white p-3 rounded-lg font-semibold hover:bg-red-700 transition-colors" disabled>
-                            📄 PDF
-                        </button>
-                    </div>
-                    
-                    <button onclick="previsualizarInforme()" id="btnPrevisualizar" class="w-full bg-purple-600 text-white p-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors" disabled>
-                        👁️ Previsualizar Informe
-                    </button>
-                </div>
-                
-                <!-- Variables Disponibles -->
-                <div class="mt-6 border-t pt-4">
-                    <h3 class="font-semibold text-gray-700 mb-2">Variables Disponibles</h3>
-                    <div id="variablesDisponibles" class="text-xs text-gray-600 space-y-1">
-                        <p>{{cliente}} - Nombre del cliente</p>
-                        <p>{{fecha}} - Fecha del informe</p>
-                        <p>{{temperatura_promedio}} - Datos climatología</p>
-                        <p>{{consumo_electrico}} - Datos calculadoras</p>
-                        <p>{{costo_energia}} - Datos facturación</p>
-                        <p>{{radiacion_solar}} - Datos solares</p>
-                        <p>{{imagen_logo}} - Imágenes subidas</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Historial de Informes Generados -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mt-8">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-gray-800">📚 Historial de Informes</h2>
-                <button onclick="cargarHistorial()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
-                    🔄 Actualizar
-                </button>
-            </div>
-            <div id="historialInformes">
-                <p class="text-gray-500 text-center py-8">Cargando historial...</p>
-            </div>
+            <div id="loadingStatus" class="text-lg mb-2">Conectando...</div>
+            <div id="loadingDetails" class="text-sm opacity-75">Inicializando...</div>
         </div>
     </div>
 
-    <!-- Modal de Previsualización -->
-    <div id="modalPreview" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-        <div class="bg-white rounded-xl max-w-5xl w-full m-4 max-h-[90vh] overflow-hidden">
-            <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-xl font-bold">👁️ Previsualización del Informe</h3>
-                <button onclick="cerrarPreview()" class="text-gray-500 hover:text-gray-700 text-3xl">&times;</button>
+    <div id="mainApp" style="display: none;" class="min-h-screen">
+        <header class="header-gradient text-white shadow-md sticky top-0 z-40">
+            <div class="container mx-auto px-4 py-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-3xl font-bold mb-1">⚡ Sistema de Auditorías Energéticas Pro</h1>
+                        <p class="opacity-90 text-sm">Automatización y Gestión Inteligente</p>
+                    </div>
+                    <div class="text-right">
+                        <div id="firebaseStatus" class="firebase-badge firebase-loading">🔄 Conectando...</div>
+                        <div class="text-sm opacity-75 mt-1"><span id="connectionInfo">Verificando...</span></div>
+                        <div class="text-xs opacity-60 mt-1">
+                            Auditorías: <span id="auditCounter">0</span> | Plantillas: <span
+                                id="templateCounter">0</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="p-6 overflow-y-auto max-h-[70vh]">
-                <div id="contenidoPreview" class="prose max-w-none"></div>
+        </header>
+
+        <div class="container mx-auto px-4 py-2">
+            <div id="statusMessage" class="status"></div>
+        </div>
+
+        <main class="container mx-auto px-4 py-8">
+            <div class="grid lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1 space-y-8">
+                    <div class="card p-6">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-2 text-blue-600"
+                                viewBox="0 0 20 20" fill="currentColor">
+                                <path
+                                    d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                                <path fill-rule="evenodd"
+                                    d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            Datos de Auditoría
+                        </h2>
+                        <div class="space-y-4 mb-6">
+                            <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Información del Cliente</h3>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-1">Nombre
+                                    Empresa</label><input type="text" id="clienteNombre"
+                                    class="w-full p-3 border rounded-lg" value="Industrias Ejemplo"></div>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-1">Sección
+                                    Auditada</label><input type="text" id="seccionAuditada"
+                                    class="w-full p-3 border rounded-lg" value="Planta Principal"></div>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-1">Dirección</label><input
+                                    type="text" id="clienteDireccion" class="w-full p-3 border rounded-lg"
+                                    value="Av. Industrial 123"></div>
+                        </div>
+                        <div class="space-y-4 mb-6">
+                            <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Datos Energéticos</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><label class="block text-sm font-medium text-gray-700 mb-1">Consumo
+                                        (kWh)</label><input type="number" id="consumoKwh"
+                                        class="w-full p-3 border rounded-lg" value="15000"></div>
+                                <div><label class="block text-sm font-medium text-gray-700 mb-1">Demanda
+                                        (kW)</label><input type="number" id="demandaKw"
+                                        class="w-full p-3 border rounded-lg" value="80"></div>
+                            </div>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-1">Tarifa CFE</label><select
+                                    id="tarifaCfe" class="w-full p-3 border rounded-lg"></select></div>
+                        </div>
+                        <div class="space-y-4 mb-6">
+                            <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Imágenes</h3>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-1">Subir Fotos (Max. 1MB
+                                    c/u)</label><input type="file" id="auditImages" multiple accept="image/*"
+                                    class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            </div>
+                            <div id="imageListPreview" class="mt-2 image-preview-container"></div>
+                        </div>
+                        <div class="space-y-4 mb-6">
+                            <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Info Adicional</h3>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-1">Auditor</label><input
+                                    type="text" id="auditorNombre" class="w-full p-3 border rounded-lg"
+                                    value="Ing. Ejemplo"></div>
+                            <div><label
+                                    class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label><textarea
+                                    id="observaciones" rows="3"
+                                    class="w-full p-3 border rounded-lg">Observaciones iniciales...</textarea></div>
+                        </div>
+                        <div class="space-y-3">
+                            <button id="saveAuditBtn" class="w-full btn-primary py-3 px-6 rounded-lg font-semibold">💾
+                                Guardar Auditoría</button>
+                            <button id="calculateBtn" class="w-full btn-secondary py-3 px-6 rounded-lg font-semibold">🧮
+                                Calcular</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-1 space-y-8">
+                    <div class="card p-6">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6">🧮 Cálculos Automáticos</h2>
+                        <div id="calculationsContainer" class="space-y-3">
+                            <p class="text-gray-500">Esperando datos...</p>
+                        </div>
+                        <div class="mt-6 text-center"><button id="recalculateBtn"
+                                class="btn-gray px-6 py-2 rounded-lg">🔄 Recalcular</button></div>
+                    </div>
+                    <div class="card p-6">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6">💡 Análisis LED</h2>
+                        <div id="ledAnalysisContainer" class="space-y-3">
+                            <p class="text-gray-500">Análisis disponible después de calcular.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-1 space-y-8">
+                    <div class="card p-6">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6">📄 Gestión de Plantillas</h2>
+                        <div class="space-y-4 mb-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Subir Plantilla
+                                    (.docx)</label>
+                                <input type="file" id="userTemplateFile" accept=".docx"
+                                    class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                                <input type="text" id="userTemplateDescription"
+                                    class="mt-2 w-full p-2 border rounded-lg text-sm"
+                                    placeholder="Descripción breve (opcional)">
+                                <button id="uploadTemplateBtn"
+                                    class="mt-2 w-full btn-secondary py-2 px-4 rounded-lg text-sm">📤 Subir
+                                    Plantilla</button>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Seleccionar
+                                    Plantilla</label>
+                                <select id="templateSelect" class="w-full p-3 border rounded-lg">
+                                    <option value="">Cargando...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Placeholders (Plantilla
+                                Sel.)</label>
+                            <div id="templatePreview"
+                                class="h-24 overflow-y-auto bg-gray-100 border rounded-lg p-3 text-xs font-mono template-preview-placeholder">
+                                Seleccione una plantilla...</div>
+                        </div>
+                        <div class="space-y-3">
+                            <button id="generateDocBtn" disabled
+                                class="w-full bg-gray-400 text-white py-4 px-6 rounded-lg font-semibold text-lg cursor-not-allowed">⏳
+                                Completar datos</button>
+                            <button id="previewDocHtmlBtn" class="w-full btn-gray py-2 px-4 rounded-lg">👁️ Vista Previa
+                                HTML</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="p-6 border-t flex justify-end space-x-3">
-                <button onclick="cerrarPreview()" class="bg-gray-500 text-white px-6 py-2 rounded-lg">Cerrar</button>
-                <button onclick="generarDesdePrevisualizacion()" class="bg-blue-600 text-white px-6 py-2 rounded-lg">Generar DOCX</button>
+
+            <div class="mt-8 card p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">📚 Historial de Auditorías</h2>
+                    <button id="refreshHistoryBtn" class="btn-primary px-4 py-2 rounded-lg text-sm">🔄
+                        Actualizar</button>
+                </div>
+                <div id="historyContainer" class="audit-timeline">
+                    <p class="text-gray-500">Cargando historial...</p>
+                </div>
+            </div>
+        </main>
+
+        <footer class="header-gradient text-white text-center py-6 mt-12">
+            <p class="text-lg font-semibold mb-1">⚡ Sistema de Auditorías Energéticas Pro</p>
+            <p class="text-sm opacity-75">Desarrollado con Firebase y Docxtemplater</p>
+            <div class="mt-2 text-xs opacity-60"><span id="systemVersion">v3.1.0</span></div>
+        </footer>
+    </div>
+
+    <div id="previewHtmlModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50"
+        style="display: none;">
+        <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col m-4 shadow-2xl">
+            <div class="flex justify-between items-center p-5 border-b">
+                <h3 class="text-xl font-bold text-gray-800">👁️ Vista Previa HTML</h3><button id="closePreviewHtmlBtn"
+                    class="text-gray-500 hover:text-gray-700 text-3xl">&times;</button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1 bg-gray-50">
+                <div id="previewHtmlContent" class="prose max-w-none p-4 bg-white rounded-lg shadow"></div>
+            </div>
+            <div class="p-5 border-t bg-gray-100 flex justify-end gap-3">
+                <button id="closePreviewHtmlBtn2" class="btn-gray px-5 py-2 rounded-lg">Cerrar</button>
+                <button id="generateFromPreviewBtnModal" class="btn-primary px-5 py-2 rounded-lg">🚀 Generar
+                    .docx</button>
             </div>
         </div>
     </div>
@@ -226,807 +402,1148 @@
     <script type="module">
         // Firebase imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, setDoc, doc, query, orderBy, limit, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL, listAll } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+        import { getFirestore, collection, doc, getDoc, getDocs, addDoc, setDoc, query, orderBy, limit, where, updateDoc, deleteDoc, serverTimestamp, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
-        // Configuración Firebase
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
         const firebaseConfig = {
             apiKey: "AIzaSyD2lCwOZAFFrFN8pXf-OCye204D7awyl_Q",
             authDomain: "modulodatoswordautomatico.firebaseapp.com",
             projectId: "modulodatoswordautomatico",
-            storageBucket: "modulodatoswordautomatico.appspot.com",
+            storageBucket: "modulodatoswordautomatico.firebasestorage.app",
             messagingSenderId: "744851515219",
-            appId: "1:744851515219:web:5ece87673cc094f116a3a6"
+            appId: "1:744851515219:web:5ece87673cc094f116a3a6",
+            measurementId: "G-RZWN8C7KVM"
         };
 
-        // Variables globales
-        let app, db, auth, storage;
-        let isFirebaseConnected = false;
-        let plantillasDisponibles = {};
-        let imagenesDisponibles = {};
-        let datosDelSistema = {};
-        let plantillaActual = null;
-
-        // Inicializar Firebase y sistema
-        async function inicializarSistema() {
+        // Función auxiliar para convertir base64 a ArrayBuffer
+        function base64ToArrayBuffer(base64) {
             try {
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                storage = getStorage(app);
-                
-                await signInAnonymously(auth);
-                isFirebaseConnected = true;
-                
-                document.getElementById('firebaseStatus').innerHTML = '🔥 Conectado';
-                document.getElementById('firebaseStatus').className = 'font-semibold text-green-300';
-                
-                await Promise.all([
-                    cargarPlantillas(),
-                    cargarImagenes(),
-                    cargarDatosDelSistema(),
-                    cargarHistorial()
-                ]);
-                
-                mostrarStatus('✅ Sistema inicializado correctamente', 'success');
-                
-            } catch (error) {
-                console.error('Error inicializando Firebase:', error);
-                document.getElementById('firebaseStatus').innerHTML = '⚠️ Offline';
-                mostrarStatus('❌ Error conectando con Firebase: ' + error.message, 'error');
+                const base64Cleaned = base64.split(',')[1] || base64;
+                const binaryString = window.atob(base64Cleaned);
+                const len = binaryString.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                // console.log("[base64ToArrayBuffer] - Conversión exitosa, tamaño del buffer:", bytes.buffer.byteLength);
+                return bytes.buffer;
+            } catch (e) {
+                console.error("[base64ToArrayBuffer] - Error decodificando base64:", e, "String base64 (primeros 100 chars):", base64.substring(0, 100));
+                return null;
             }
         }
 
-        // Cargar plantillas DOCX desde Firebase
-        async function cargarPlantillas() {
-            try {
-                const snapshot = await getDocs(collection(db, 'plantillas_docx'));
-                plantillasDisponibles = {};
-                
-                const listElement = document.getElementById('listaPlantillas');
-                const selectElement = document.getElementById('plantillaSeleccionada');
-                
-                listElement.innerHTML = '';
-                selectElement.innerHTML = '<option value="">Seleccione una plantilla...</option>';
-                
-                if (snapshot.empty) {
-                    listElement.innerHTML = '<p class="text-sm text-gray-500">No hay plantillas subidas</p>';
-                    return;
-                }
-                
-                snapshot.forEach(doc => {
-                    const plantilla = { id: doc.id, ...doc.data() };
-                    plantillasDisponibles[doc.id] = plantilla;
-                    
-                    // Lista visual
-                    const div = document.createElement('div');
-                    div.className = 'bg-gray-50 p-2 rounded text-sm flex justify-between items-center';
-                    div.innerHTML = `
-                        <span class="font-medium">${plantilla.nombre}</span>
-                        <button onclick="eliminarPlantilla('${doc.id}')" class="text-red-500 hover:text-red-700 text-xs">🗑️</button>
-                    `;
-                    listElement.appendChild(div);
-                    
-                    // Selector
-                    const option = document.createElement('option');
-                    option.value = doc.id;
-                    option.textContent = plantilla.nombre;
-                    selectElement.appendChild(option);
-                });
-                
-                document.getElementById('plantillasCount').textContent = snapshot.size;
-                habilitarBotones();
-                
-            } catch (error) {
-                console.error('Error cargando plantillas:', error);
-                mostrarStatus('❌ Error cargando plantillas: ' + error.message, 'error');
-            }
-        }
+        class AuditSystemProV3 {
+            constructor() {
+                this.app = null; this.db = null; this.auth = null; this.storage = null;
+                this.userId = null; this.isConnected = false; this.isReady = false;
+                this.startTime = new Date();
+                this.tarifas = new Map();
+                this.userTemplates = new Map();
+                this.preloadedTemplates = new Map();
+                this.configuracion = null;
+                this.currentAuditData = null;
+                this.currentCalculations = null;
+                this.currentAuditImages = [];
+                this.auditCounter = 0;
+                this.templateCounter = 0;
+                this.imageModuleIsAvailable = typeof ImageModule !== 'undefined';
 
-        // Cargar imágenes desde Firebase Storage
-        async function cargarImagenes() {
-            try {
-                const imagenesRef = ref(storage, 'imagenes_informes/');
-                const result = await listAll(imagenesRef);
-                
-                imagenesDisponibles = {};
-                const galeriaElement = document.getElementById('galeriaImagenes');
-                galeriaElement.innerHTML = '';
-                
-                if (result.items.length === 0) {
-                    galeriaElement.innerHTML = '<p class="text-sm text-gray-500 col-span-2">No hay imágenes subidas</p>';
-                    return;
+                if (!this.imageModuleIsAvailable) {
+                    console.error("[Constructor] - ImageModule NO ESTÁ DEFINIDO. La funcionalidad de imágenes no estará disponible.");
+                } else {
+                    console.log("[Constructor] - ImageModule está DEFINIDO.");
                 }
-                
-                for (const itemRef of result.items) {
+                this.init();
+            }
+
+            updateLoadingStatus(main, detail = '') {
+                const loadingStatusEl = document.getElementById('loadingStatus');
+                const loadingDetailsEl = document.getElementById('loadingDetails');
+                if (loadingStatusEl) loadingStatusEl.textContent = main;
+                if (loadingDetailsEl) loadingDetailsEl.textContent = detail;
+            }
+
+            showStatus(message, type = 'info', duration = 5000) {
+                const statusDiv = document.getElementById('statusMessage');
+                if (!statusDiv) return;
+                statusDiv.className = `status status-${type}`;
+                statusDiv.textContent = message;
+                statusDiv.style.display = 'block';
+                statusDiv.style.opacity = '1';
+                setTimeout(() => {
+                    statusDiv.style.opacity = '0';
+                    setTimeout(() => { statusDiv.style.display = 'none'; }, 500);
+                }, duration);
+            }
+
+            async initFirebase() {
+                console.log('[FirebaseInit] - Iniciando...');
+                this.updateLoadingStatus('Conectando a Firebase...');
+                try {
+                    this.app = initializeApp(firebaseConfig);
+                    this.db = getFirestore(this.app);
+                    this.auth = getAuth(this.app);
+                    this.storage = getStorage(this.app);
+                    console.log('[FirebaseInit] - Servicios inicializados.');
+
+                    this.updateLoadingStatus('Autenticando...');
+
+                    const authPromise = new Promise((resolve, reject) => {
+                        const authTimeout = setTimeout(() => {
+                            console.error('[FirebaseInit] - Timeout de autenticación!');
+                            reject(new Error('Timeout de autenticación'));
+                        }, 15000);
+
+                        onAuthStateChanged(this.auth, (user) => {
+                            clearTimeout(authTimeout);
+                            if (user) {
+                                this.userId = user.uid;
+                                this.isConnected = true;
+                                console.log('✅ Firebase autenticado:', this.userId);
+                                this.updateFirebaseStatus('connected');
+                                resolve(user);
+                            } else {
+                                console.error('[FirebaseInit] - Autenticación fallida, usuario nulo.');
+                                this.isConnected = false;
+                                this.updateFirebaseStatus('offline');
+                                reject(new Error('Autenticación anónima fallida'));
+                            }
+                        }, (error) => {
+                            clearTimeout(authTimeout);
+                            console.error('[FirebaseInit] - Error en onAuthStateChanged:', error);
+                            this.isConnected = false;
+                            this.updateFirebaseStatus('offline');
+                            reject(error);
+                        });
+                    });
+
+                    await signInAnonymously(this.auth);
+                    await authPromise;
+
+                    console.log('[FirebaseInit] - initFirebase completado.');
+                } catch (error) {
+                    console.error('[FirebaseInit] - Error CRÍTICO:', error);
+                    this.isConnected = false;
+                    this.updateFirebaseStatus('offline');
+                    throw error;
+                }
+            }
+
+            async loadInitialData() {
+                console.log('[DataInit] - Iniciando carga de datos iniciales...');
+                this.updateLoadingStatus('Cargando datos del sistema...');
+                try {
+                    await this.loadTarifasCFE();
+                    await this.loadTemplates();
+                    await this.loadConfiguracion();
+                    console.log('[DataInit] - Carga de datos iniciales completada.');
+                } catch (error) {
+                    console.error('[DataInit] - Error cargando datos iniciales:', error);
+                    this.showStatus('⚠️ Error cargando datos del sistema. Funcionalidad limitada.', 'error');
+                    this.loadDefaultTarifas();
+                    this.loadDefaultTemplates();
+                    this.loadDefaultConfig();
+                }
+            }
+
+            async loadTarifasCFE() {
+                console.log('[Tarifas] - Cargando tarifas CFE...');
+                try {
+                    const tarifasCollectionRef = collection(this.db, 'tarifas_cfe');
+                    const tarifasSnapshot = await getDocs(tarifasCollectionRef);
+                    this.tarifas.clear();
+                    let activeTarifasFound = 0;
+                    tarifasSnapshot.forEach(doc => {
+                        if (doc.data().active !== false) {
+                            this.tarifas.set(doc.id, { id: doc.id, ...doc.data() });
+                            activeTarifasFound++;
+                        }
+                    });
+
+                    if (activeTarifasFound === 0) {
+                        console.warn('[Tarifas] - No se encontraron tarifas ACTIVAS en Firestore. Verifique el campo "active" o la existencia de la colección.');
+                        this.loadDefaultTarifas();
+                    }
+                    this.updateTarifaSelector();
+                    console.log(`[Tarifas] - ✅ ${this.tarifas.size} tarifas CFE cargadas (activas: ${activeTarifasFound}).`);
+                } catch (error) {
+                    console.error('[Tarifas] - Error cargando tarifas:', error);
+                    this.showStatus('⚠️ Error cargando tarifas CFE. Usando valores por defecto.', 'error');
+                    this.loadDefaultTarifas();
+                }
+            }
+
+            async loadTemplates() {
+                console.log('[Plantillas] - Iniciando loadTemplates...');
+                this.updateLoadingStatus('Cargando plantillas...');
+                this.userTemplates.clear();
+                this.preloadedTemplates.clear();
+                let foundPreloaded = 0;
+                let foundUser = 0;
+
+                try {
+                    const preloadedQuery = query(collection(this.db, 'plantillas_precargadas'), where('active', '==', true));
+                    const preloadedSnapshot = await getDocs(preloadedQuery);
+                    preloadedSnapshot.forEach(doc => {
+                        this.preloadedTemplates.set(doc.id, { id: doc.id, type: 'preloaded', ...doc.data() });
+                        foundPreloaded++;
+                    });
+                    console.log(`[Plantillas] - Precargadas encontradas: ${foundPreloaded}`);
+                } catch (error) { console.error('[Plantillas] - Error cargando plantillas precargadas:', error); }
+
+                if (this.userId) {
                     try {
-                        const url = await getDownloadURL(itemRef);
-                        const nombre = itemRef.name.split('.')[0];
-                        
-                        imagenesDisponibles[nombre] = {
-                            nombre: nombre,
-                            url: url,
-                            ref: itemRef
-                        };
-                        
-                        const div = document.createElement('div');
-                        div.className = 'relative group';
-                        div.innerHTML = `
-                            <img src="${url}" alt="${nombre}" class="w-full h-16 object-cover rounded border">
-                            <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <button onclick="eliminarImagen('${nombre}')" class="text-white text-xs">🗑️</button>
-                            </div>
-                            <p class="text-xs text-center mt-1 truncate">${nombre}</p>
-                        `;
-                        galeriaElement.appendChild(div);
-                        
+                        const userTemplatesQuery = query(collection(this.db, 'plantillas_usuario'), where('userId', '==', this.userId), where('active', '==', true));
+                        const userTemplatesSnapshot = await getDocs(userTemplatesQuery);
+                        userTemplatesSnapshot.forEach(doc => {
+                            this.userTemplates.set(doc.id, { id: doc.id, type: 'user', ...doc.data() });
+                            foundUser++;
+                        });
+                        console.log(`[Plantillas] - De usuario encontradas: ${foundUser}`);
+                    } catch (error) { console.error('[Plantillas] - Error cargando plantillas de usuario:', error); }
+                }
+
+                this.updateTemplateSelector();
+                this.updateCounters();
+                console.log(`[Plantillas] - Carga finalizada. Precargadas: ${foundPreloaded}, Usuario: ${foundUser}.`);
+            }
+
+            async loadConfiguracion() {
+                console.log('[Config] - Iniciando loadConfiguracion...');
+                try {
+                    const configDocRef = doc(this.db, 'configuracion', 'sistema');
+                    const configDoc = await getDoc(configDocRef);
+                    if (configDoc.exists()) {
+                        this.configuracion = configDoc.data();
+                        console.log('[Config] - Configuración cargada:', this.configuracion);
+                    } else {
+                        console.warn('[Config] - Documento "sistema" no encontrado. Creando/usando por defecto...');
+                        await this.createDefaultConfig();
+                    }
+                } catch (error) {
+                    console.error('[Config] - Error cargando configuración:', error);
+                    this.loadDefaultConfig();
+                }
+                console.log('[Config] - loadConfiguracion completado.');
+            }
+
+            async init() {
+                console.log('⚡ Iniciando Sistema de Auditorías Pro v3...');
+                try {
+                    await this.initFirebase();
+                    console.log('[Init] - Firebase inicializado.');
+
+                    await this.loadInitialData();
+                    console.log('[Init] - Datos iniciales cargados.');
+
+                    this.setupEventListeners();
+                    console.log('[Init] - Listeners configurados.');
+
+                    await this.loadHistory();
+                    console.log('[Init] - Historial cargado.');
+
+                    this.isReady = true;
+                    console.log('[Init] - Sistema listo. Mostrando interfaz...');
+                    this.showMainInterface();
+                    this.updateSystemInfo();
+
+                    this.showStatus('✅ Sistema v3 completamente cargado y listo!', 'success');
+                    console.log('🚀 Sistema v3 listo.');
+
+                } catch (error) {
+                    console.error('❌ Error GRAVE inicializando sistema v3:', error);
+                    this.showStatus(`❌ Error crítico al iniciar: ${error.message}. Intenta recargar.`, 'error', 10000);
+                    this.activateOfflineMode();
+                }
+            }
+
+            // ----- MÉTODOS DE RESPALDO / POR DEFECTO -----
+            loadDefaultTarifas() {
+                console.warn("[Tarifas] Cargando tarifas por defecto (locales).");
+                this.tarifas.set('GDMTO_local', { id: 'GDMTO_local', nombre: 'GDMTO (Offline)', energia: 1.95, demanda_facturable: 190, cargo_fijo: 490, active: true });
+                this.updateTarifaSelector();
+            }
+
+            loadDefaultTemplates() {
+                console.warn("[Plantillas] Cargando plantillas por defecto (locales).");
+                this.preloadedTemplates.set('basica_local', {
+                    id: 'basica_local', type: 'preloaded', nombre: 'Básica (Offline)', active: true,
+                    descripcion: 'Plantilla local de respaldo', downloadURL: '',
+                    placeholders: ['cliente_nombre', 'fecha_generacion']
+                });
+                this.updateTemplateSelector();
+            }
+
+            loadDefaultConfig() {
+                console.warn("[Config] Cargando configuración por defecto (local).");
+                this.configuracion = {
+                    parametros_led: { eficiencia_ahorro: 0.6, vida_util_años: 8, costo_instalacion_kw: 2000 },
+                    factores_ambientales: { co2_kwh_mx: 0.0005, arboles_por_ton_co2: 2.0 }
+                };
+            }
+            async createDefaultTarifas() {
+                console.log("[Tarifas] Intentando crear tarifas por defecto en Firestore...");
+                this.loadDefaultTarifas();
+            }
+            async createDefaultConfig() {
+                console.log("[Config] Intentando crear config por defecto en Firestore...");
+                this.loadDefaultConfig();
+            }
+
+
+            // ----- UI Actualizaciones -----
+            updateFirebaseStatus(status) {
+                const statusBadge = document.getElementById('firebaseStatus');
+                const connectionInfo = document.getElementById('connectionInfo');
+                if (!statusBadge || !connectionInfo) return;
+
+                switch (status) {
+                    case 'connected':
+                        statusBadge.className = 'firebase-badge firebase-connected';
+                        statusBadge.textContent = '🔥 Conectado';
+                        connectionInfo.textContent = `Usuario: ${this.userId ? this.userId.substring(0, 8) + '...' : 'Anónimo'}`;
+                        break;
+                    case 'offline':
+                        statusBadge.className = 'firebase-badge firebase-offline';
+                        statusBadge.textContent = '⚠️ Offline';
+                        connectionInfo.textContent = 'Sin conexión a Firebase';
+                        break;
+                    default:
+                        statusBadge.className = 'firebase-badge firebase-loading';
+                        statusBadge.textContent = '🔄 Conectando...';
+                        connectionInfo.textContent = 'Estableciendo conexión...';
+                        break;
+                }
+            }
+
+            showMainInterface() {
+                console.log('[UI] - Mostrando interfaz principal.');
+                const loadingScreen = document.getElementById('loadingScreen');
+                const mainApp = document.getElementById('mainApp');
+                if (loadingScreen) loadingScreen.style.display = 'none';
+                if (mainApp) mainApp.style.display = 'block';
+                this.enableDocumentGeneration();
+            }
+
+            updateSystemInfo() {
+                // const buildTimeEl = document.getElementById('buildTime'); // No existe en el HTML
+                // if(buildTimeEl) buildTimeEl.textContent = `Build: ${this.startTime.toLocaleTimeString('es-ES')}`;
+            }
+
+            activateOfflineMode() {
+                console.warn("Activando modo offline...");
+                this.isConnected = false;
+                this.loadDefaultTarifas();
+                this.loadDefaultTemplates();
+                this.loadDefaultConfig();
+                this.showMainInterface();
+                this.updateFirebaseStatus('offline');
+                this.showStatus('⚠️ Modo offline activado. Funcionalidad limitada.', 'error', 7000);
+            }
+
+            updateTarifaSelector() {
+                const selector = document.getElementById('tarifaCfe');
+                if (!selector) { console.warn("Elemento tarifaCfe no encontrado"); return; }
+                const currentValue = selector.value;
+                selector.innerHTML = '<option value="">Seleccionar tarifa...</option>';
+                if (this.tarifas.size === 0) {
+                    selector.innerHTML = '<option value="">No hay tarifas</option>';
+                    return;
+                }
+                this.tarifas.forEach((tarifa, id) => {
+                    if (tarifa.active !== false) {
+                        const option = document.createElement('option');
+                        option.value = id;
+                        option.textContent = `${id} - ${tarifa.nombre}`;
+                        selector.appendChild(option);
+                    }
+                });
+                if (this.tarifas.has(currentValue) && this.tarifas.get(currentValue).active !== false) {
+                    selector.value = currentValue;
+                } else if (this.tarifas.has('GDMTO') && this.tarifas.get('GDMTO').active !== false) {
+                    selector.value = 'GDMTO';
+                } else {
+                    const firstActiveOption = Array.from(this.tarifas.values()).find(t => t.active !== false);
+                    if (firstActiveOption) selector.value = firstActiveOption.id;
+                }
+            }
+
+            updateTemplateSelector() {
+                const selector = document.getElementById('templateSelect');
+                if (!selector) { console.warn("Elemento templateSelect no encontrado"); return; }
+                const currentValue = selector.value;
+                selector.innerHTML = '<option value="">Seleccionar plantilla...</option>';
+                let hasTemplates = false;
+
+                const addTemplatesToGroup = (groupLabel, templatesMap) => {
+                    const activeTemplates = Array.from(templatesMap.values()).filter(t => t.active !== false);
+                    if (activeTemplates.length > 0) {
+                        const optgroup = document.createElement('optgroup');
+                        optgroup.label = groupLabel;
+                        activeTemplates.forEach(template => {
+                            const option = document.createElement('option');
+                            option.value = template.id;
+                            option.textContent = `${template.nombre} (${template.type === 'user' ? 'Personal' : 'Sistema'})`;
+                            option.dataset.templateType = template.type;
+                            optgroup.appendChild(option);
+                            hasTemplates = true;
+                        });
+                        selector.appendChild(optgroup);
+                    }
+                };
+
+                addTemplatesToGroup('Plantillas del Sistema', this.preloadedTemplates);
+                addTemplatesToGroup('Mis Plantillas Cargadas', this.userTemplates);
+
+                if (hasTemplates) {
+                    const allTemplates = new Map([...this.preloadedTemplates, ...this.userTemplates]);
+                    if (allTemplates.has(currentValue) && allTemplates.get(currentValue).active !== false) {
+                        selector.value = currentValue;
+                    } else {
+                        const firstValidOption = Array.from(selector.options).find(opt => opt.value !== "" && opt.parentElement.tagName !== 'SELECT');
+                        if (firstValidOption) selector.value = firstValidOption.value;
+                    }
+                } else {
+                    selector.innerHTML = '<option value="">No hay plantillas. Sube una.</option>';
+                }
+                this.showTemplatePreview();
+                this.enableDocumentGeneration();
+            }
+
+            showTemplatePreview() {
+                const selector = document.getElementById('templateSelect');
+                const previewDiv = document.getElementById('templatePreview');
+                if (!selector || !previewDiv) return;
+
+                const selectedOption = selector.options[selector.selectedIndex];
+                previewDiv.classList.add('template-preview-placeholder');
+
+                if (!selectedOption || !selectedOption.value) {
+                    previewDiv.textContent = 'Seleccione una plantilla para ver sus placeholders...';
+                    return;
+                }
+
+                const templateId = selectedOption.value;
+                const templateType = selectedOption.dataset.templateType;
+                const templateMap = templateType === 'user' ? this.userTemplates : this.preloadedTemplates;
+                const plantilla = templateMap.get(templateId);
+
+                if (plantilla && plantilla.placeholders && plantilla.placeholders.length > 0) {
+                    previewDiv.textContent = `Placeholders: \n${plantilla.placeholders.join(',\n ')}`;
+                    previewDiv.classList.remove('template-preview-placeholder');
+                } else if (plantilla) {
+                    previewDiv.textContent = `Plantilla: ${plantilla.nombre}. (Placeholders no definidos en Firestore).`;
+                    previewDiv.classList.remove('template-preview-placeholder');
+                } else {
+                    previewDiv.textContent = 'Error al cargar vista previa de la plantilla.';
+                }
+            }
+
+            updateCounters() {
+                const auditCounterEl = document.getElementById('auditCounter');
+                const templateCounterEl = document.getElementById('templateCounter');
+                if (auditCounterEl) auditCounterEl.textContent = this.auditCounter;
+                if (templateCounterEl) templateCounterEl.textContent = this.preloadedTemplates.size + this.userTemplates.size;
+            }
+
+            enableDocumentGeneration() {
+                const btn = document.getElementById('generateDocBtn');
+                if (!btn) return;
+                const templateSelect = document.getElementById('templateSelect');
+                const templateSelected = templateSelect ? !!templateSelect.value : false;
+
+                if (this.currentCalculations && templateSelected) {
+                    btn.disabled = false;
+                    btn.className = 'w-full btn-primary py-4 px-6 rounded-lg font-semibold text-lg';
+                    btn.textContent = '🚀 Generar Documento .docx';
+                } else {
+                    btn.disabled = true;
+                    btn.className = 'w-full bg-gray-400 text-white py-4 px-6 rounded-lg font-semibold text-lg cursor-not-allowed';
+                    let reason = !this.currentCalculations ? 'Complete cálculos' : 'Seleccione plantilla';
+                    if (!this.currentCalculations && !templateSelected) reason = 'Complete cálculos y seleccione plantilla';
+                    btn.textContent = `⏳ ${reason}`;
+                }
+            }
+
+            // ----- LÓGICA DE DATOS Y CÁLCULOS -----
+            gatherAuditData() {
+                const clienteNombreEl = document.getElementById('clienteNombre');
+                const seccionAuditadaEl = document.getElementById('seccionAuditada');
+                const clienteDireccionEl = document.getElementById('clienteDireccion');
+                const consumoKwhEl = document.getElementById('consumoKwh');
+                const demandaKwEl = document.getElementById('demandaKw');
+                const tarifaCfeEl = document.getElementById('tarifaCfe');
+                const auditorNombreEl = document.getElementById('auditorNombre');
+                const observacionesEl = document.getElementById('observaciones');
+
+                const now = new Date();
+                const clienteNombre = clienteNombreEl ? clienteNombreEl.value.trim() : 'ClienteEjemplo';
+                const seccionAuditada = seccionAuditadaEl ? seccionAuditadaEl.value.trim() : 'General';
+                const uniquePart = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(Date.now()).slice(-4)}`;
+                const auditId = `AUD-${clienteNombre.substring(0, 5).toUpperCase().replace(/\s/g, '')}-${seccionAuditada.substring(0, 5).toUpperCase().replace(/\s/g, '')}-${uniquePart}`;
+
+                return {
+                    id: auditId,
+                    cliente_nombre: clienteNombre,
+                    seccion_auditada: seccionAuditada,
+                    cliente_direccion: clienteDireccionEl?.value.trim() || 'N/A',
+                    consumo_kwh: parseFloat(consumoKwhEl?.value) || 0,
+                    demanda_kw: parseFloat(demandaKwEl?.value) || 0,
+                    tarifa_codigo: tarifaCfeEl?.value || 'GDMTO_local',
+                    auditor_nombre: auditorNombreEl?.value.trim() || 'Auditor del Sistema',
+                    observaciones: observacionesEl?.value.trim() || 'Sin observaciones.'
+                };
+            }
+
+            prepareTemplateData() {
+                const datos = this.currentAuditData || this.gatherAuditData();
+                const calculos = this.currentCalculations || {};
+                const now = new Date();
+                return {
+                    cliente_nombre: datos.cliente_nombre || 'N/A',
+                    seccion_auditada: datos.seccion_auditada || 'N/A',
+                    cliente_direccion: datos.cliente_direccion || 'N/A',
+                    numero_documento: datos.id || 'N/A',
+                    fecha_generacion: now.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }),
+                    hora_generacion: now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+                    auditor_nombre: datos.auditor_nombre || 'N/A',
+                    consumo_kwh: (datos.consumo_kwh || 0).toLocaleString('es-MX'),
+                    demanda_kw: (datos.demanda_kw || 0).toLocaleString('es-MX'),
+                    tarifa_nombre: calculos.tarifa_nombre || 'N/A',
+                    costo_anual: this.formatCurrency(calculos.costo_anual),
+                    observaciones: datos.observaciones || 'N/A',
+                    conclusion_recomendacion: calculos.conclusion_recomendacion || 'N/A',
+                    factor_potencia: (calculos.factor_potencia_calculado || 0).toFixed(2),
+                    costo_kwh_promedio: this.formatCurrency(calculos.costo_kwh_promedio),
+                    ahorro_pesos_led: this.formatCurrency(calculos.ahorro_pesos_led),
+                    periodo_recuperacion_led: (calculos.periodo_recuperacion_led || 0).toFixed(1) + ' años',
+                    roi_led: (calculos.roi_led || 0).toFixed(1) + '%'
+                };
+            }
+
+            prepareTemplateDataWithImages() {
+                const baseData = this.prepareTemplateData();
+                const imageData = {};
+                this.currentAuditImages.forEach((img, index) => {
+                    // Placeholder en Word debe ser {%imagen_X} (un solo %)
+                    imageData[`imagen_${index + 1}`] = img.base64;
+                });
+                console.log("[PrepareData] Datos de imagen a enviar a Docxtemplater:", imageData);
+                return { ...baseData, ...imageData };
+            }
+
+            async performCalculations() {
+                console.log('[Calculos] - Iniciando cálculos...');
+                if (!this.isConnected && this.tarifas.size === 0) {
+                    this.showStatus('⚠️ Modo offline y sin tarifas locales. No se pueden realizar cálculos.', 'error');
+                    return null;
+                }
+                try {
+                    const datosAuditoria = this.gatherAuditData();
+                    this.currentAuditData = datosAuditoria;
+                    const tarifaId = datosAuditoria.tarifa_codigo;
+                    const tarifaData = this.tarifas.get(tarifaId);
+
+                    if (!tarifaData) {
+                        console.error(`[Calculos] - Tarifa con ID "${tarifaId}" no encontrada.`);
+                        this.showStatus(`❌ Tarifa "${tarifaId}" no encontrada. Verifique la selección.`, 'error');
+                        return null;
+                    }
+
+                    // 🔥 IMPORTANTE: REEMPLAZA ESTO CON TU LÓGICA DE CÁLCULO COMPLETA Y CORRECTA
+                    const calculos = this.calculateWithTariffData(datosAuditoria, tarifaData);
+
+                    this.currentCalculations = calculos;
+                    this.displayCalculations(calculos);
+                    this.displayLEDAnalysis(calculos);
+                    this.enableDocumentGeneration();
+                    this.showStatus('✅ Cálculos completados.', 'success');
+                    console.log('[Calculos] - Cálculos finalizados:', calculos);
+                    return calculos;
+                } catch (error) {
+                    console.error('[Calculos] - Error en cálculos:', error);
+                    this.showStatus(`❌ Error en cálculos: ${error.message}`, 'error');
+                    this.currentCalculations = null;
+                    this.enableDocumentGeneration();
+                    return null;
+                }
+            }
+
+            calculateWithTariffData(datos, tarifaData) {
+                // 🔥 ESTA ES UNA FUNCIÓN DE EJEMPLO. DEBES PONER TU LÓGICA COMPLETA AQUÍ.
+                console.log("[Calculos] - Usando datos:", datos, "y tarifa:", tarifaData);
+                const consumo_kwh = datos.consumo_kwh || 0;
+
+                let costo_anual_estimado = consumo_kwh * (tarifaData.energia?.intermedia || tarifaData.energia || 2.0);
+
+                return {
+                    tarifa_nombre: tarifaData.nombre || 'Desconocida',
+                    costo_anual: costo_anual_estimado,
+                    factor_potencia_calculado: 0.9,
+                    costo_kwh_promedio: consumo_kwh > 0 ? costo_anual_estimado / consumo_kwh : 0,
+                    ahorro_pesos_led: costo_anual_estimado * 0.1,
+                    periodo_recuperacion_led: 2.5,
+                    roi_led: 40,
+                    conclusion_recomendacion: "Recomendación placeholder basada en cálculos de ejemplo."
+                };
+            }
+            displayCalculations(calculos) {
+                const container = document.getElementById('calculationsContainer');
+                if (!container) return;
+                if (!calculos) {
+                    container.innerHTML = '<p class="text-gray-500">Cálculos no disponibles.</p>'; return;
+                }
+                container.innerHTML = `
+                    <div class="calc-card bg-blue-50 p-3 rounded-lg border border-blue-200"><span class="font-semibold text-blue-800">Costo Anual Estimado:</span> ${this.formatCurrency(calculos.costo_anual)}</div>
+                    <div class="calc-card bg-orange-50 p-3 rounded-lg border border-orange-200"><span class="font-semibold text-orange-800">Tarifa:</span> ${calculos.tarifa_nombre || 'N/A'}</div>
+                `;
+            }
+            displayLEDAnalysis(calculos) {
+                const container = document.getElementById('ledAnalysisContainer');
+                if (!container) return;
+                if (!calculos) {
+                    container.innerHTML = '<p class="text-gray-500">Análisis LED no disponible.</p>'; return;
+                }
+                container.innerHTML = `
+                    <div class="calc-card bg-green-50 p-3 rounded-lg border border-green-200"><span class="font-semibold text-green-800">Ahorro LED:</span> ${this.formatCurrency(calculos.ahorro_pesos_led)}</div>
+                    <div class="calc-card bg-yellow-50 p-3 rounded-lg border border-yellow-200"><span class="font-semibold text-yellow-800">Recuperación:</span> ${calculos.periodo_recuperacion_led || 0} años</div>
+                `;
+            }
+
+
+            // ----- GESTIÓN DE PLANTILLAS Y DOCUMENTOS -----
+            async uploadUserTemplate() {
+                const fileInput = document.getElementById('userTemplateFile');
+                const descriptionInput = document.getElementById('userTemplateDescription');
+                if (!fileInput || !descriptionInput) { console.error("Inputs de plantilla no encontrados"); return; }
+                const file = fileInput.files[0];
+
+                if (!file) { this.showStatus('⚠️ Selecciona un archivo .docx.', 'error'); return; }
+                if (!file.name.endsWith('.docx')) { this.showStatus('⚠️ Solo archivos .docx.', 'error'); return; }
+                if (!this.userId) { this.showStatus('⚠️ No autenticado.', 'error'); return; }
+
+                this.showStatus('🔄 Subiendo plantilla...', 'info');
+                try {
+                    const originalFileName = file.name.replace(/\.docx$/i, '');
+                    const timestamp = Date.now();
+                    const storagePath = `plantillas_usuario/${this.userId}/${originalFileName}_${timestamp}.docx`;
+                    const storageRefInstance = ref(this.storage, storagePath);
+
+                    await uploadBytes(storageRefInstance, file);
+                    const downloadURL = await getDownloadURL(storageRefInstance);
+
+                    const templateDataForFirestore = {
+                        nombre: originalFileName,
+                        descripcion: descriptionInput.value.trim() || `Plantilla: ${originalFileName}`,
+                        storagePath: storagePath, downloadURL: downloadURL, userId: this.userId,
+                        createdAt: serverTimestamp(), type: 'user', active: true,
+                        placeholders: []
+                    };
+                    const docRef = await addDoc(collection(this.db, 'plantillas_usuario'), templateDataForFirestore);
+
+                    this.userTemplates.set(docRef.id, { id: docRef.id, ...templateDataForFirestore, createdAt: new Date() });
+                    this.updateTemplateSelector();
+                    this.updateCounters();
+                    this.showStatus(`✅ Plantilla "${originalFileName}" subida.`, 'success');
+                    fileInput.value = ''; descriptionInput.value = '';
+                } catch (error) {
+                    console.error('[UploadTemplate] Error:', error);
+                    this.showStatus(`❌ Error subiendo plantilla: ${error.message}`, 'error');
+                }
+            }
+
+            async handleImageUpload(event) {
+                const files = event.target.files;
+                if (!files || !files.length) return;
+
+                const MAX_SIZE = 1 * 1024 * 1024; // 1MB
+                this.currentAuditImages = [];
+                const imageListPreview = document.getElementById('imageListPreview');
+                if (imageListPreview) imageListPreview.innerHTML = '<p class="text-xs text-gray-500">Procesando imágenes...</p>';
+
+                let validFiles = Array.from(files).filter(f => {
+                    if (!f.type.startsWith('image/')) {
+                        return false;
+                    }
+                    if (f.size > MAX_SIZE) {
+                        this.showStatus(`⚠️ Imagen ${f.name} excede 1MB. No se cargará.`, 'error');
+                        return false;
+                    }
+                    return true;
+                });
+
+                if (validFiles.length === 0) {
+                    if (imageListPreview) imageListPreview.innerHTML = '<p class="text-xs text-gray-500">Ningún archivo de imagen válido seleccionado o todos exceden 1MB.</p>';
+                    return;
+                }
+
+                let processedCount = 0;
+                for (const file of validFiles) {
+                    try {
+                        const reader = new FileReader();
+                        const result = await new Promise((resolve, reject) => {
+                            reader.onload = (e) => resolve(e.target.result);
+                            reader.onerror = (err) => reject(err);
+                            reader.readAsDataURL(file);
+                        });
+
+                        this.currentAuditImages.push({
+                            name: file.name,
+                            type: file.type,
+                            base64: result,
+                            index: this.currentAuditImages.length
+                        });
+                        processedCount++;
                     } catch (error) {
-                        console.error('Error cargando imagen:', itemRef.name, error);
+                        console.error(`Error procesando imagen ${file.name}:`, error);
+                        this.showStatus(`❌ Error con imagen ${file.name}`, 'error');
+                        processedCount++;
+                    }
+
+                    if (processedCount === validFiles.length) {
+                        this.updateImageListPreview();
                     }
                 }
-                
-            } catch (error) {
-                console.error('Error cargando imágenes:', error);
-                mostrarStatus('❌ Error cargando imágenes: ' + error.message, 'error');
             }
-        }
 
-        // Cargar datos de todos los módulos del sistema
-        async function cargarDatosDelSistema() {
-            try {
-                datosDelSistema = {};
-                
-                // Cargar datos de climatología
-                const climatologiaSnapshot = await getDocs(query(collection(db, 'climatologia'), orderBy('fecha', 'desc'), limit(1)));
-                if (!climatologiaSnapshot.empty) {
-                    datosDelSistema.climatologia = climatologiaSnapshot.docs[0].data();
-                    document.getElementById('datosClimatologia').innerHTML = `
-                        <p><strong>Temperatura:</strong> ${datosDelSistema.climatologia.temperatura || 'N/A'}°C</p>
-                        <p><strong>Humedad:</strong> ${datosDelSistema.climatologia.humedad || 'N/A'}%</p>
-                        <p><strong>Última actualización:</strong> ${new Date(datosDelSistema.climatologia.fecha).toLocaleDateString('es-ES')}</p>
-                    `;
-                }
-                
-                // Cargar datos de calculadoras
-                const calculadorasSnapshot = await getDocs(query(collection(db, 'calculadoras'), orderBy('created_at', 'desc'), limit(1)));
-                if (!calculadorasSnapshot.empty) {
-                    datosDelSistema.calculadoras = calculadorasSnapshot.docs[0].data();
-                    document.getElementById('datosCalculadoras').innerHTML = `
-                        <p><strong>Consumo:</strong> ${datosDelSistema.calculadoras.consumo_kwh || 'N/A'} kWh</p>
-                        <p><strong>Demanda:</strong> ${datosDelSistema.calculadoras.demanda_kw || 'N/A'} kW</p>
-                        <p><strong>Ahorro LED:</strong> $${(datosDelSistema.calculadoras.ahorro_led || 0).toLocaleString()}</p>
-                    `;
-                }
-                
-                // Cargar datos de facturación
-                const facturacionSnapshot = await getDocs(query(collection(db, 'facturacion'), orderBy('fecha', 'desc'), limit(1)));
-                if (!facturacionSnapshot.empty) {
-                    datosDelSistema.facturacion = facturacionSnapshot.docs[0].data();
-                    document.getElementById('datosFacturacion').innerHTML = `
-                        <p><strong>Costo mensual:</strong> $${(datosDelSistema.facturacion.costo_mensual || 0).toLocaleString()}</p>
-                        <p><strong>Costo anual:</strong> $${(datosDelSistema.facturacion.costo_anual || 0).toLocaleString()}</p>
-                        <p><strong>Tarifa:</strong> ${datosDelSistema.facturacion.tarifa || 'N/A'}</p>
-                    `;
-                }
-                
-                // Cargar datos solares
-                const solarSnapshot = await getDocs(query(collection(db, 'solar'), orderBy('fecha', 'desc'), limit(1)));
-                if (!solarSnapshot.empty) {
-                    datosDelSistema.solar = solarSnapshot.docs[0].data();
-                    document.getElementById('datosSolar').innerHTML = `
-                        <p><strong>Radiación:</strong> ${datosDelSistema.solar.radiacion || 'N/A'} kWh/m²</p>
-                        <p><strong>Potencia recomendada:</strong> ${datosDelSistema.solar.potencia_kw || 'N/A'} kW</p>
-                        <p><strong>Ahorro estimado:</strong> $${(datosDelSistema.solar.ahorro_anual || 0).toLocaleString()}</p>
-                    `;
-                }
-                
-                const totalDatos = Object.keys(datosDelSistema).length;
-                document.getElementById('datosCount').textContent = totalDatos;
-                
-            } catch (error) {
-                console.error('Error cargando datos del sistema:', error);
-                mostrarStatus('❌ Error cargando datos: ' + error.message, 'error');
+            deleteImage(indexToDelete) {
+                this.currentAuditImages = this.currentAuditImages.filter((img, currentIndex) => currentIndex !== indexToDelete);
+                this.updateImageListPreview();
             }
-        }
 
-        // Subir plantilla DOCX a Firebase
-        async function subirPlantilla() {
-            const nombre = document.getElementById('nombrePlantilla').value.trim();
-            const archivo = document.getElementById('archivoPlantilla').files[0];
-            
-            if (!nombre || !archivo) {
-                mostrarStatus('❌ Complete el nombre y seleccione un archivo DOCX', 'error');
-                return;
-            }
-            
-            if (!archivo.name.toLowerCase().endsWith('.docx')) {
-                mostrarStatus('❌ Solo se permiten archivos .docx', 'error');
-                return;
-            }
-            
-            try {
-                mostrarStatus('🔄 Subiendo plantilla...', 'info');
-                
-                // Subir archivo a Storage
-                const storageRef = ref(storage, `plantillas_docx/${Date.now()}_${archivo.name}`);
-                const snapshot = await uploadBytes(storageRef, archivo);
-                const downloadURL = await getDownloadURL(snapshot.ref);
-                
-                // Guardar metadata en Firestore
-                const plantillaData = {
-                    nombre: nombre,
-                    archivo_url: downloadURL,
-                    archivo_nombre: archivo.name,
-                    tamaño: archivo.size,
-                    subido_en: new Date().toISOString(),
-                    tipo: 'docx'
-                };
-                
-                await addDoc(collection(db, 'plantillas_docx'), plantillaData);
-                
-                // Limpiar formulario
-                document.getElementById('nombrePlantilla').value = '';
-                document.getElementById('archivoPlantilla').value = '';
-                
-                await cargarPlantillas();
-                mostrarStatus(`✅ Plantilla "${nombre}" subida exitosamente`, 'success');
-                
-            } catch (error) {
-                console.error('Error subiendo plantilla:', error);
-                mostrarStatus('❌ Error subiendo plantilla: ' + error.message, 'error');
-            }
-        }
+            updateImageListPreview() {
+                const imageListPreview = document.getElementById('imageListPreview');
+                if (!imageListPreview) return;
 
-        // Subir imagen a Firebase Storage
-        async function subirImagen() {
-            const nombre = document.getElementById('nombreImagen').value.trim();
-            const archivo = document.getElementById('archivoImagen').files[0];
-            
-            if (!nombre || !archivo) {
-                mostrarStatus('❌ Complete el nombre y seleccione una imagen', 'error');
-                return;
-            }
-            
-            if (!archivo.type.startsWith('image/')) {
-                mostrarStatus('❌ Solo se permiten archivos de imagen', 'error');
-                return;
-            }
-            
-            try {
-                mostrarStatus('🔄 Subiendo imagen...', 'info');
-                
-                const extension = archivo.name.split('.').pop();
-                const nombreArchivo = `${nombre}.${extension}`;
-                const storageRef = ref(storage, `imagenes_informes/${nombreArchivo}`);
-                
-                await uploadBytes(storageRef, archivo);
-                
-                // Limpiar formulario
-                document.getElementById('nombreImagen').value = '';
-                document.getElementById('archivoImagen').value = '';
-                
-                await cargarImagenes();
-                mostrarStatus(`✅ Imagen "${nombre}" subida exitosamente`, 'success');
-                
-            } catch (error) {
-                console.error('Error subiendo imagen:', error);
-                mostrarStatus('❌ Error subiendo imagen: ' + error.message, 'error');
-            }
-        }
+                if (this.currentAuditImages.length === 0) {
+                    imageListPreview.innerHTML = '<p class="text-xs text-gray-500">Ninguna imagen seleccionada.</p>';
+                    return;
+                }
 
-        // Generar documento DOCX con datos de Firebase
-        async function generarDOCX() {
-            const plantillaId = document.getElementById('plantillaSeleccionada').value;
-            const cliente = document.getElementById('nombreCliente').value.trim();
-            const fecha = document.getElementById('fechaInforme').value;
-            
-            if (!plantillaId) {
-                mostrarStatus('❌ Seleccione una plantilla', 'error');
-                return;
-            }
-            
-            if (!cliente) {
-                mostrarStatus('❌ Ingrese el nombre del cliente', 'error');
-                return;
-            }
-            
-            try {
-                mostrarStatus('🔄 Generando documento DOCX...', 'info');
-                
-                const plantilla = plantillasDisponibles[plantillaId];
-                
-                // Descargar plantilla DOCX
-                const response = await fetch(plantilla.archivo_url);
-                const arrayBuffer = await response.arrayBuffer();
-                
-                // Preparar datos para reemplazar
-                const datosParaReemplazar = prepararDatosParaPlantilla(cliente, fecha);
-                
-                // Procesar plantilla con docxtemplater
-                const zip = new PizZip(arrayBuffer);
-                const doc = new Docxtemplater(zip, {
-                    paragraphLoop: true,
-                    linebreaks: true,
+                imageListPreview.innerHTML = '<div class="image-preview-container"></div>';
+                const container = imageListPreview.querySelector('.image-preview-container');
+
+                this.currentAuditImages.forEach((img, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'image-preview-item';
+                    item.innerHTML = `
+                        <img src="${img.base64}" alt="${img.name}">
+                        <div class="delete-image-btn" data-index="${index}">×</div>
+                    `;
+                    container.appendChild(item);
                 });
-                
-                // Reemplazar variables
-                doc.setData(datosParaReemplazar);
-                
+
+                container.querySelectorAll('.delete-image-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const index = parseInt(e.target.getAttribute('data-index'));
+                        this.deleteImage(index);
+                    });
+                });
+            }
+
+            async generateDocument() {
+                if (!this.currentCalculations) { this.showStatus('⚠️ Complete cálculos primero.', 'error'); return; }
+                const templateSelect = document.getElementById('templateSelect');
+                if (!templateSelect) { this.showStatus('⚠️ Error interno: selector de plantillas no encontrado.', 'error'); return; }
+                const templateId = templateSelect.value;
+                const selectedOption = templateSelect.options[templateSelect.selectedIndex];
+
+                if (!templateId || !selectedOption || !selectedOption.value) { this.showStatus('⚠️ Seleccione una plantilla.', 'error'); return; }
+
+                const templateType = selectedOption.dataset.templateType;
+                const templateMap = templateType === 'user' ? this.userTemplates : this.preloadedTemplates;
+                const plantillaDef = templateMap.get(templateId);
+
+                if (!plantillaDef || !plantillaDef.downloadURL) { this.showStatus('❌ Plantilla no válida o sin URL de descarga. Verifique Firestore.', 'error'); return; }
+
+                let imageModuleInstance = null;
+                if (this.imageModuleIsAvailable && typeof ImageModule !== 'undefined') {
+                    imageModuleInstance = new ImageModule({
+                        centered: false,
+                        getImage: (tagValue, tagName) => {
+                            console.log(`[ImageModule.getImage] - Procesando tag: ${tagName}, valor (inicio):`, typeof tagValue === 'string' ? tagValue.substring(0, 70) + "..." : tagValue);
+                            if (typeof tagValue === "string" && tagValue.startsWith("data:image")) {
+                                return base64ToArrayBuffer(tagValue);
+                            }
+                            console.warn(`[ImageModule.getImage] - tagValue para ${tagName} no es un string base64 de imagen válido.`);
+                            return null;
+                        },
+                        getSize: (img, tagValue, tagName) => {
+                            console.log(`[ImageModule.getSize] - Obteniendo tamaño para ${tagName}`);
+                            return [150, 150];
+                        },
+                    });
+                } else {
+                    console.error("[GenerateDoc] - ImageModule NO ESTÁ DEFINIDO o no se cargó. No se procesarán imágenes.");
+                    if (!this.imageModuleIsAvailable) this.showStatus('❌ Módulo de imágenes no cargado. No se procesarán imágenes.', 'error');
+                }
+
+
+                this.showStatus('🔄 Generando documento...', 'info');
                 try {
+                    console.log(`[GenerateDoc] - Descargando plantilla desde: ${plantillaDef.downloadURL}`);
+                    const response = await fetch(plantillaDef.downloadURL);
+                    if (!response.ok) {
+                        console.error(`[GenerateDoc] - Fallo al descargar plantilla. Status: ${response.status}. Origen: ${window.location.origin}. URL: ${plantillaDef.downloadURL}. ¿Problema de CORS o URL incorrecta? Asegúrese que la configuración CORS en su bucket de Firebase Storage permita solicitudes GET desde el origen '${window.location.origin}' o desde '*'.`);
+                        this.showStatus(`❌ Error descargando plantilla (${response.status}). Verifique CORS y la URL.`, 'error', 15000);
+                        return;
+                    }
+                    const templateBlob = await response.arrayBuffer();
+                    console.log('[GenerateDoc] - Plantilla descargada.');
+
+                    const templateData = this.prepareTemplateDataWithImages();
+                    console.log('[GenerateDoc] - Datos para plantilla (inicio de base64 de imágenes):',
+                        Object.fromEntries(Object.entries(templateData).map(([k, v]) => [k, typeof v === 'string' && v.startsWith('data:image') ? v.substring(0, 100) + '...' : v]))
+                    );
+
+                    const zip = new PizZip(templateBlob);
+                    const modulesToAttach = [];
+                    if (imageModuleInstance) {
+                        modulesToAttach.push(imageModuleInstance);
+                    }
+
+                    const doc = new docxtemplater(zip, {
+                        paragraphLoop: true,
+                        linebreaks: true,
+                        modules: modulesToAttach
+                    });
+
+                    doc.setData(templateData);
+                    console.log('[GenerateDoc] - Datos asignados. Renderizando...');
                     doc.render();
+                    console.log('[GenerateDoc] - Documento renderizado.');
+
+                    const outBlob = doc.getZip().generate({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+
+                    const auditDataForFilename = this.currentAuditData || this.gatherAuditData();
+                    const filename = await this.generateVersionedFilename(auditDataForFilename.cliente_nombre, auditDataForFilename.seccion_auditada || plantillaDef.nombre, "docx");
+
+                    const generatedDocStoragePath = `documentos_generados/${this.userId}/${filename}`;
+                    const generatedDocRef = ref(this.storage, generatedDocStoragePath);
+                    await uploadBytes(generatedDocRef, outBlob);
+                    const generatedDocDownloadURL = await getDownloadURL(generatedDocRef);
+
+                    await this.saveDocumentRecord({ filename, blob: outBlob, storagePath: generatedDocStoragePath, downloadURL: generatedDocDownloadURL }, templateId, templateData);
+                    this.downloadFile(outBlob, filename);
+
+                    this.auditCounter++; this.updateCounters();
+                    this.showStatus(`✅ Documento "${filename}" generado.`, 'success');
+                    setTimeout(() => this.loadHistory(), 1500);
+
                 } catch (error) {
-                    console.error('Error rendering template:', error);
-                    mostrarStatus('❌ Error procesando plantilla: ' + error.message, 'error');
-                    return;
+                    console.error('[GenerateDoc] Error:', error);
+                    let errorMsg = error.message;
+                    if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                        errorMsg = "Fallo al descargar la plantilla. Verifique la URL y la configuración CORS de Firebase Storage.";
+                    } else if (error.properties && error.properties.errors) {
+                        errorMsg = "Error en la plantilla Docxtemplater: " + error.properties.errors.map(e => `[${e.id}] ${e.message || e.explanation || JSON.stringify(e.properties)}`).join("; ");
+                    } else if (error.message && error.message.includes("namespaceURI")) {
+                        errorMsg = "Error con el módulo de imágenes: Problema de namespaceURI. Verifique la plantilla Word y los placeholders de imagen (ej. {%imagen_1}).";
+                    }
+                    this.showStatus(`❌ Error generando documento: ${errorMsg}`, 'error', 12000);
                 }
-                
-                // Generar archivo final
-                const buffer = doc.getZip().generate({ type: 'blob' });
-                
-                // Guardar registro en Firebase
-                await guardarRegistroInforme(plantillaId, cliente, fecha, 'docx');
-                
-                // Descargar archivo
-                const nombreArchivo = `Informe_${cliente.replace(/\s+/g, '_')}_${fecha || new Date().toISOString().split('T')[0]}.docx`;
-                descargarArchivo(buffer, nombreArchivo);
-                
-                mostrarStatus(`✅ Documento DOCX generado: ${nombreArchivo}`, 'success');
-                await cargarHistorial();
-                
-            } catch (error) {
-                console.error('Error generando DOCX:', error);
-                mostrarStatus('❌ Error generando DOCX: ' + error.message, 'error');
             }
-        }
 
-        // Generar PDF desde los datos
-        async function generarPDF() {
-            const plantillaId = document.getElementById('plantillaSeleccionada').value;
-            const cliente = document.getElementById('nombreCliente').value.trim();
-            const fecha = document.getElementById('fechaInforme').value;
-            
-            if (!plantillaId) {
-                mostrarStatus('❌ Seleccione una plantilla', 'error');
-                return;
-            }
-            
-            if (!cliente) {
-                mostrarStatus('❌ Ingrese el nombre del cliente', 'error');
-                return;
-            }
-            
-            try {
-                mostrarStatus('🔄 Generando documento PDF...', 'info');
-                
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                
-                const datosParaReemplazar = prepararDatosParaPlantilla(cliente, fecha);
-                
-                // Configurar PDF
-                doc.setFont('helvetica');
-                
-                // Título
-                doc.setFontSize(20);
-                doc.setTextColor(44, 90, 160);
-                doc.text('INFORME TÉCNICO DE AUDITORÍA ENERGÉTICA', 20, 30);
-                
-                // Información del cliente
-                doc.setFontSize(14);
-                doc.setTextColor(0, 0, 0);
-                let y = 50;
-                
-                doc.text(`Cliente: ${cliente}`, 20, y);
-                y += 10;
-                doc.text(`Fecha: ${fecha || new Date().toLocaleDateString('es-ES')}`, 20, y);
-                y += 20;
-                
-                // Datos de climatología
-                if (datosDelSistema.climatologia) {
-                    doc.setFontSize(16);
-                    doc.setTextColor(44, 90, 160);
-                    doc.text('DATOS CLIMATOLÓGICOS', 20, y);
-                    y += 10;
-                    
-                    doc.setFontSize(12);
-                    doc.setTextColor(0, 0, 0);
-                    doc.text(`Temperatura promedio: ${datosDelSistema.climatologia.temperatura || 'N/A'}°C`, 20, y);
-                    y += 7;
-                    doc.text(`Humedad relativa: ${datosDelSistema.climatologia.humedad || 'N/A'}%`, 20, y);
-                    y += 15;
-                }
-                
-                // Datos de consumo energético
-                if (datosDelSistema.calculadoras) {
-                    doc.setFontSize(16);
-                    doc.setTextColor(44, 90, 160);
-                    doc.text('ANÁLISIS ENERGÉTICO', 20, y);
-                    y += 10;
-                    
-                    doc.setFontSize(12);
-                    doc.setTextColor(0, 0, 0);
-                    doc.text(`Consumo anual: ${(datosDelSistema.calculadoras.consumo_kwh || 0).toLocaleString()} kWh`, 20, y);
-                    y += 7;
-                    doc.text(`Demanda máxima: ${datosDelSistema.calculadoras.demanda_kw || 0} kW`, 20, y);
-                    y += 7;
-                    doc.text(`Ahorro estimado LED: ${(datosDelSistema.calculadoras.ahorro_led || 0).toLocaleString()}`, 20, y);
-                    y += 15;
-                }
-                
-                // Datos de facturación
-                if (datosDelSistema.facturacion) {
-                    doc.setFontSize(16);
-                    doc.setTextColor(44, 90, 160);
-                    doc.text('ANÁLISIS ECONÓMICO', 20, y);
-                    y += 10;
-                    
-                    doc.setFontSize(12);
-                    doc.setTextColor(0, 0, 0);
-                    doc.text(`Costo mensual: ${(datosDelSistema.facturacion.costo_mensual || 0).toLocaleString()}`, 20, y);
-                    y += 7;
-                    doc.text(`Costo anual: ${(datosDelSistema.facturacion.costo_anual || 0).toLocaleString()}`, 20, y);
-                    y += 7;
-                    doc.text(`Tarifa aplicada: ${datosDelSistema.facturacion.tarifa || 'N/A'}`, 20, y);
-                    y += 15;
-                }
-                
-                // Datos solares
-                if (datosDelSistema.solar) {
-                    doc.setFontSize(16);
-                    doc.setTextColor(44, 90, 160);
-                    doc.text('POTENCIAL SOLAR', 20, y);
-                    y += 10;
-                    
-                    doc.setFontSize(12);
-                    doc.setTextColor(0, 0, 0);
-                    doc.text(`Radiación solar: ${datosDelSistema.solar.radiacion || 'N/A'} kWh/m²`, 20, y);
-                    y += 7;
-                    doc.text(`Potencia recomendada: ${datosDelSistema.solar.potencia_kw || 'N/A'} kW`, 20, y);
-                    y += 7;
-                    doc.text(`Ahorro solar estimado: ${(datosDelSistema.solar.ahorro_anual || 0).toLocaleString()}`, 20, y);
-                    y += 15;
-                }
-                
-                // Footer
-                doc.setFontSize(10);
-                doc.setTextColor(128, 128, 128);
-                doc.text('Documento generado automáticamente por el Sistema de Informes Técnicos', 20, 280);
-                doc.text(`Generado el: ${new Date().toLocaleString('es-ES')}`, 20, 290);
-                
-                // Guardar registro
-                await guardarRegistroInforme(plantillaId, cliente, fecha, 'pdf');
-                
-                // Descargar
-                const nombreArchivo = `Informe_${cliente.replace(/\s+/g, '_')}_${fecha || new Date().toISOString().split('T')[0]}.pdf`;
-                doc.save(nombreArchivo);
-                
-                mostrarStatus(`✅ Documento PDF generado: ${nombreArchivo}`, 'success');
-                await cargarHistorial();
-                
-            } catch (error) {
-                console.error('Error generando PDF:', error);
-                mostrarStatus('❌ Error generando PDF: ' + error.message, 'error');
-            }
-        }
+            async generateVersionedFilename(empresa, seccion, extension) {
+                const safeEmpresa = empresa.replace(/[^\w\s-]/g, '').replace(/\s+/g, '_').substring(0, 20);
+                const safeSeccion = seccion.replace(/[^\w\s-]/g, '').replace(/\s+/g, '_').substring(0, 20);
+                const baseName = `${safeEmpresa}_${safeSeccion}`;
+                const metadataRef = doc(this.db, "document_versions", baseName);
 
-        // Preparar datos para reemplazar en plantilla
-        function prepararDatosParaPlantilla(cliente, fecha) {
-            const fechaFormateada = fecha || new Date().toLocaleDateString('es-ES');
-            
-            return {
-                // Datos básicos
-                cliente: cliente,
-                fecha: fechaFormateada,
-                fecha_generacion: new Date().toLocaleDateString('es-ES'),
-                hora_generacion: new Date().toLocaleTimeString('es-ES'),
-                
-                // Datos de climatología
-                temperatura_promedio: datosDelSistema.climatologia?.temperatura || 'N/A',
-                humedad_relativa: datosDelSistema.climatologia?.humedad || 'N/A',
-                presion_atmosferica: datosDelSistema.climatologia?.presion || 'N/A',
-                
-                // Datos de calculadoras/consumo
-                consumo_electrico: (datosDelSistema.calculadoras?.consumo_kwh || 0).toLocaleString(),
-                demanda_maxima: datosDelSistema.calculadoras?.demanda_kw || 0,
-                factor_potencia: datosDelSistema.calculadoras?.factor_potencia || 'N/A',
-                ahorro_led: formatearMoneda(datosDelSistema.calculadoras?.ahorro_led || 0),
-                
-                // Datos de facturación
-                costo_energia_mensual: formatearMoneda(datosDelSistema.facturacion?.costo_mensual || 0),
-                costo_energia_anual: formatearMoneda(datosDelSistema.facturacion?.costo_anual || 0),
-                tarifa_electrica: datosDelSistema.facturacion?.tarifa || 'N/A',
-                
-                // Datos solares
-                radiacion_solar: datosDelSistema.solar?.radiacion || 'N/A',
-                potencia_solar_recomendada: datosDelSistema.solar?.potencia_kw || 'N/A',
-                ahorro_solar_estimado: formatearMoneda(datosDelSistema.solar?.ahorro_anual || 0),
-                
-                // Imágenes (URLs para insertar)
-                ...Object.fromEntries(
-                    Object.entries(imagenesDisponibles).map(([nombre, datos]) => [
-                        `imagen_${nombre}`, datos.url
-                    ])
-                ),
-                
-                // Número de documento
-                numero_documento: `INF-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`
-            };
-        }
-
-        // Previsualizar informe antes de generar
-        async function previsualizarInforme() {
-            const plantillaId = document.getElementById('plantillaSeleccionada').value;
-            const cliente = document.getElementById('nombreCliente').value.trim();
-            const fecha = document.getElementById('fechaInforme').value;
-            
-            if (!plantillaId) {
-                mostrarStatus('❌ Seleccione una plantilla', 'error');
-                return;
-            }
-            
-            if (!cliente) {
-                mostrarStatus('❌ Ingrese el nombre del cliente', 'error');
-                return;
-            }
-            
-            const datosParaReemplazar = prepararDatosParaPlantilla(cliente, fecha);
-            const plantilla = plantillasDisponibles[plantillaId];
-            
-            // Crear vista previa HTML
-            let contenidoHTML = `
-                <div class="max-w-4xl mx-auto bg-white p-8 shadow-lg">
-                    <div class="text-center mb-8">
-                        <h1 class="text-3xl font-bold text-blue-800 mb-2">INFORME TÉCNICO DE AUDITORÍA ENERGÉTICA</h1>
-                        <p class="text-gray-600">Generado automáticamente desde datos de Firebase</p>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-6 mb-8">
-                        <div>
-                            <h3 class="font-bold text-lg text-gray-800 mb-2">Información del Cliente</h3>
-                            <p><strong>Cliente:</strong> ${datosParaReemplazar.cliente}</p>
-                            <p><strong>Fecha:</strong> ${datosParaReemplazar.fecha}</p>
-                            <p><strong>Documento:</strong> ${datosParaReemplazar.numero_documento}</p>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-lg text-gray-800 mb-2">Plantilla Utilizada</h3>
-                            <p><strong>Nombre:</strong> ${plantilla.nombre}</p>
-                            <p><strong>Tipo:</strong> ${plantilla.tipo}</p>
-                        </div>
-                    </div>
-            `;
-            
-            // Datos de climatología
-            if (datosDelSistema.climatologia) {
-                contenidoHTML += `
-                    <div class="mb-6">
-                        <h3 class="font-bold text-lg text-blue-800 mb-3">📊 Datos Climatológicos</h3>
-                        <div class="bg-blue-50 p-4 rounded-lg grid grid-cols-3 gap-4">
-                            <div><strong>Temperatura:</strong> ${datosParaReemplazar.temperatura_promedio}°C</div>
-                            <div><strong>Humedad:</strong> ${datosParaReemplazar.humedad_relativa}%</div>
-                            <div><strong>Presión:</strong> ${datosParaReemplazar.presion_atmosferica}</div>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            // Datos energéticos
-            if (datosDelSistema.calculadoras) {
-                contenidoHTML += `
-                    <div class="mb-6">
-                        <h3 class="font-bold text-lg text-green-800 mb-3">⚡ Análisis Energético</h3>
-                        <div class="bg-green-50 p-4 rounded-lg grid grid-cols-2 gap-4">
-                            <div><strong>Consumo anual:</strong> ${datosParaReemplazar.consumo_electrico} kWh</div>
-                            <div><strong>Demanda máxima:</strong> ${datosParaReemplazar.demanda_maxima} kW</div>
-                            <div><strong>Factor de potencia:</strong> ${datosParaReemplazar.factor_potencia}</div>
-                            <div><strong>Ahorro LED estimado:</strong> ${datosParaReemplazar.ahorro_led}</div>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            // Datos económicos
-            if (datosDelSistema.facturacion) {
-                contenidoHTML += `
-                    <div class="mb-6">
-                        <h3 class="font-bold text-lg text-purple-800 mb-3">💰 Análisis Económico</h3>
-                        <div class="bg-purple-50 p-4 rounded-lg grid grid-cols-2 gap-4">
-                            <div><strong>Costo mensual:</strong> ${datosParaReemplazar.costo_energia_mensual}</div>
-                            <div><strong>Costo anual:</strong> ${datosParaReemplazar.costo_energia_anual}</div>
-                            <div><strong>Tarifa aplicada:</strong> ${datosParaReemplazar.tarifa_electrica}</div>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            // Datos solares
-            if (datosDelSistema.solar) {
-                contenidoHTML += `
-                    <div class="mb-6">
-                        <h3 class="font-bold text-lg text-orange-800 mb-3">☀️ Potencial Solar</h3>
-                        <div class="bg-orange-50 p-4 rounded-lg grid grid-cols-2 gap-4">
-                            <div><strong>Radiación solar:</strong> ${datosParaReemplazar.radiacion_solar} kWh/m²</div>
-                            <div><strong>Potencia recomendada:</strong> ${datosParaReemplazar.potencia_solar_recomendada} kW</div>
-                            <div><strong>Ahorro estimado:</strong> ${datosParaReemplazar.ahorro_solar_estimado}</div>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            // Variables disponibles para la plantilla
-            contenidoHTML += `
-                <div class="mb-6">
-                    <h3 class="font-bold text-lg text-gray-800 mb-3">🔧 Variables Disponibles para la Plantilla</h3>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <div class="grid grid-cols-2 gap-2 text-sm">
-            `;
-            
-            Object.entries(datosParaReemplazar).forEach(([clave, valor]) => {
-                if (typeof valor === 'string' || typeof valor === 'number') {
-                    contenidoHTML += `<div><code>{{${clave}}}</code> → ${valor}</div>`;
+                let newVersion = 1;
+                try {
+                    await runTransaction(this.db, async (transaction) => {
+                        const docSnap = await transaction.get(metadataRef);
+                        if (docSnap.exists()) {
+                            newVersion = (docSnap.data().lastVersion || 0) + 1;
+                        }
+                        transaction.set(metadataRef, { lastVersion: newVersion, updatedAt: serverTimestamp() }, { merge: true });
+                    });
+                    console.log(`[Version] - Nueva versión para ${baseName}: v${newVersion}`);
+                } catch (error) {
+                    console.error("[Version] Error obteniendo/actualizando versión, usando v1:", error);
                 }
-            });
-            
-            contenidoHTML += `
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="text-center text-sm text-gray-500 mt-8 pt-4 border-t">
-                    <p>Vista previa generada el ${new Date().toLocaleString('es-ES')}</p>
-                    <p class="mt-1">Los datos se extraen automáticamente de Firebase</p>
-                </div>
-            </div>
-            `;
-            
-            document.getElementById('contenidoPreview').innerHTML = contenidoHTML;
-            document.getElementById('modalPreview').classList.remove('hidden');
-        }
+                return `${baseName}_v${newVersion}.${extension}`;
+            }
 
-        // Guardar registro del informe generado
-        async function guardarRegistroInforme(plantillaId, cliente, fecha, formato) {
-            try {
-                await addDoc(collection(db, 'informes_generados'), {
-                    plantilla_id: plantillaId,
-                    plantilla_nombre: plantillasDisponibles[plantillaId].nombre,
-                    cliente: cliente,
-                    fecha_informe: fecha || new Date().toISOString().split('T')[0],
-                    formato: formato,
-                    datos_utilizados: Object.keys(datosDelSistema),
-                    generado_en: new Date().toISOString(),
-                    estado: 'completado'
+            showHtmlPreview() {
+                if (!this.currentCalculations) { this.showStatus('⚠️ Complete cálculos primero.', 'error'); return; }
+                const templateData = this.prepareTemplateDataWithImages();
+                let htmlContent = `<h2 class="text-xl font-semibold mb-3">${templateData.cliente_nombre || 'Auditoría'} - ${templateData.seccion_auditada || 'General'}</h2>`;
+                Object.entries(templateData).forEach(([key, value]) => {
+                    if (typeof value === 'string' && value.startsWith('data:image')) {
+                        htmlContent += `<div class="my-2 py-1 border-b"><strong class="capitalize text-sm text-gray-600">${key.replace(/_/g, ' ')}:</strong><br><img src="${value}" alt="${key}" class="max-w-full h-auto my-1 border rounded" style="max-height: 200px;"></div>`;
+                    } else if (typeof value === 'string' || typeof value === 'number') {
+                        htmlContent += `<p class="mb-1 py-1 border-b text-sm"><strong class="capitalize text-gray-600">${key.replace(/_/g, ' ')}:</strong> ${value}</p>`;
+                    }
                 });
-            } catch (error) {
-                console.error('Error guardando registro:', error);
+                const previewContentEl = document.getElementById('previewHtmlContent');
+                const modalEl = document.getElementById('previewHtmlModal');
+                if (previewContentEl) previewContentEl.innerHTML = htmlContent;
+                if (modalEl) modalEl.style.display = 'flex';
             }
-        }
 
-        // Cargar historial de informes generados
-        async function cargarHistorial() {
-            try {
-                const q = query(collection(db, 'informes_generados'), orderBy('generado_en', 'desc'), limit(20));
-                const snapshot = await getDocs(q);
-                
-                const container = document.getElementById('historialInformes');
-                
-                if (snapshot.empty) {
-                    container.innerHTML = '<p class="text-gray-500 text-center py-8">No hay informes generados</p>';
+            closeHtmlPreviewModal() {
+                const modal = document.getElementById('previewHtmlModal');
+                if (modal) modal.style.display = 'none';
+            }
+
+
+            // ----- HISTORIAL -----
+            async loadHistory() {
+                console.log('[Historial] - Iniciando loadHistory...');
+                const historyContainer = document.getElementById('historyContainer');
+                if (!historyContainer) { console.warn("Elemento historyContainer no encontrado"); return; }
+
+                if (!this.isConnected || !this.userId) {
+                    historyContainer.innerHTML = '<p class="text-center text-gray-500 py-8">⚠️ Sin conexión para cargar historial.</p>';
                     return;
                 }
-                
-                let html = '<div class="grid gap-4">';
-                snapshot.forEach(doc => {
-                    const informe = doc.data();
-                    html += `
-                        <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-lg border-l-4 border-blue-500">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h4 class="font-bold text-lg">${informe.cliente}</h4>
-                                    <p class="text-sm text-gray-600">Plantilla: ${informe.plantilla_nombre}</p>
-                                    <p class="text-xs text-gray-500">
-                                        📅 ${new Date(informe.fecha_informe).toLocaleDateString('es-ES')} • 
-                                        🕒 ${new Date(informe.generado_en).toLocaleString('es-ES')}
-                                    </p>
-                                    <div class="flex items-center space-x-2 mt-2">
-                                        <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
-                                            ${informe.formato.toUpperCase()}
-                                        </span>
-                                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
-                                            ${informe.estado}
-                                        </span>
+                historyContainer.innerHTML = '<p class="text-center text-gray-500 py-8">🔄 Cargando historial...</p>';
+                try {
+                    const q = query(collection(this.db, 'auditorias_v2'), where('userId', '==', this.userId), orderBy('createdAt', 'desc'), limit(10));
+                    const snapshot = await getDocs(q);
+                    console.log(`[Historial] - Documentos encontrados: ${snapshot.size}`);
+
+                    if (snapshot.empty) {
+                        historyContainer.innerHTML = `<div class="text-center text-gray-500 py-12"><div class="text-4xl mb-4">📋</div><p class="text-lg mb-2">No hay auditorías guardadas.</p></div>`;
+                        this.auditCounter = 0;
+                    } else {
+                        historyContainer.innerHTML = '';
+                        this.auditCounter = snapshot.size;
+                        snapshot.forEach((docSnap) => {
+                            const data = docSnap.data();
+                            const item = document.createElement('div');
+                            item.className = 'timeline-item';
+                            const date = data.createdAt?.toDate ? data.createdAt.toDate() : new Date(data.createdAt || Date.now());
+                            const deleteBtnId = `delete-audit-${docSnap.id}`;
+
+                            item.innerHTML = `
+                                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
+                                    <div class="flex justify-between items-start">
+                                        <div class="flex-1 min-w-0"> 
+                                            <h4 class="font-bold text-gray-800 text-md truncate" title="${data.auditId || docSnap.id}">${data.auditId || docSnap.id}</h4>
+                                            <p class="text-blue-600 text-sm truncate" title="${data.clienteNombre || 'N/A'}">${data.clienteNombre || 'N/A'}</p>
+                                        </div>
+                                        <div class="text-right text-xs text-gray-500 flex-shrink-0 ml-2">
+                                            <div>${this.getTimeAgo(date)}</div>
+                                            <button id="${deleteBtnId}" class="mt-1 text-xs btn-danger px-2 py-0.5 rounded-md">Eliminar</button>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-sm font-medium text-gray-700">Módulos utilizados:</p>
-                                    <p class="text-xs text-gray-500">${informe.datos_utilizados?.join(', ') || 'N/A'}</p>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                                </div>`;
+                            historyContainer.appendChild(item);
+                            document.getElementById(deleteBtnId)?.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                this.deleteAuditHistoryItem(docSnap.id, data.documentStoragePath);
+                            });
+                        });
+                    }
+                    this.updateCounters();
+                    console.log('[Historial] - loadHistory completado.');
+                } catch (error) {
+                    console.error('[Historial] - Error:', error);
+                    historyContainer.innerHTML = '<p class="text-center text-red-500 py-8">❌ Error al cargar el historial.</p>';
+                }
+            }
+
+            async deleteAuditHistoryItem(auditDocIdFirestore, documentStoragePath) {
+                if (!confirm(`¿Eliminar auditoría ${auditDocIdFirestore} y su documento asociado?`)) return;
+                this.showStatus(`🔄 Eliminando auditoría ${auditDocIdFirestore}...`, 'info');
+                try {
+                    await deleteDoc(doc(this.db, "auditorias_v2", auditDocIdFirestore));
+                    console.log(`[DeleteAudit] - Documento ${auditDocIdFirestore} eliminado de Firestore.`);
+
+                    if (documentStoragePath) {
+                        try {
+                            const fileRef = ref(this.storage, documentStoragePath);
+                            await deleteObject(fileRef);
+                            console.log(`[DeleteAudit] - Archivo ${documentStoragePath} eliminado de Storage.`);
+                        } catch (storageError) {
+                            console.warn(`[DeleteAudit] - No se pudo eliminar archivo de Storage ${documentStoragePath}:`, storageError);
+                        }
+                    } else {
+                        console.warn(`[DeleteAudit] - No se proporcionó ruta de Storage para ${auditDocIdFirestore}.`);
+                    }
+
+                    const q = query(collection(this.db, "documentos_generados_v2"), where("auditId", "==", auditDocIdFirestore));
+                    const snapshot = await getDocs(q);
+                    for (const docSnap of snapshot.docs) {
+                        const docGenData = docSnap.data();
+                        if (docGenData.storagePath && docGenData.storagePath !== documentStoragePath) {
+                            try {
+                                const fileRefToDelete = ref(this.storage, docGenData.storagePath);
+                                await deleteObject(fileRefToDelete);
+                                console.log(`[DeleteAudit] - Archivo de doc_generado ${docGenData.storagePath} eliminado.`);
+                            } catch (storageErrorInner) {
+                                console.warn(`[DeleteAudit] - No se pudo eliminar archivo de Storage ${docGenData.storagePath}:`, storageErrorInner);
+                            }
+                        }
+                        await deleteDoc(doc(this.db, "documentos_generados_v2", docSnap.id));
+                        console.log(`[DeleteAudit] - Registro de documento ${docSnap.id} eliminado.`);
+                    }
+
+                    this.showStatus(`✅ Auditoría ${auditDocIdFirestore} eliminada.`, 'success');
+                    this.loadHistory();
+                } catch (error) {
+                    console.error(`[DeleteAudit] - Error eliminando auditoría ${auditDocIdFirestore}:`, error);
+                    this.showStatus(`❌ Error al eliminar: ${error.message}`, 'error');
+                }
+            }
+
+            getTimeAgo(date) {
+                if (!(date instanceof Date) || isNaN(date)) return "Fecha inválida";
+                const now = new Date(); const diffMs = now - date;
+                const diffSecs = Math.round(diffMs / 1000);
+                const diffMins = Math.round(diffSecs / 60);
+                const diffHours = Math.round(diffMins / 60);
+                const diffDays = Math.round(diffHours / 24);
+
+                if (diffSecs < 60) return `Hace ${diffSecs} seg`;
+                if (diffMins < 60) return `Hace ${diffMins} min`;
+                if (diffHours < 24) return `Hace ${diffHours} hr`;
+                if (diffDays < 7) return `Hace ${diffDays} día(s)`;
+                return date.toLocaleDateString('es-ES');
+            }
+
+            // ----- GUARDADO -----
+            async saveAudit() {
+                if (!this.isConnected) { this.showStatus('⚠️ Sin conexión.', 'error'); return; }
+                this.currentAuditData = this.gatherAuditData();
+                if (!this.currentAuditData.cliente_nombre || this.currentAuditData.cliente_nombre === 'ClienteEjemplo') {
+                    this.showStatus('⚠️ Nombre de empresa es requerido y debe ser específico.', 'error'); return;
+                }
+
+                this.showStatus('🔄 Guardando auditoría...', 'info');
+                try {
+                    const auditToSave = {
+                        userId: this.userId,
+                        auditId: this.currentAuditData.id,
+                        clienteNombre: this.currentAuditData.cliente_nombre,
+                        seccionAuditada: this.currentAuditData.seccion_auditada,
+                        formData: this.currentAuditData,
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    };
+                    await setDoc(doc(this.db, "auditorias_v2", this.currentAuditData.id), auditToSave);
+
+                    this.showStatus(`✅ Auditoría ${this.currentAuditData.id} guardada.`, 'success');
+                    this.currentCalculations = null;
+                    this.enableDocumentGeneration();
+                    this.loadHistory();
+                } catch (error) {
+                    console.error('[SaveAudit] Error:', error);
+                    this.showStatus(`❌ Error guardando: ${error.message}`, 'error');
+                }
+            }
+
+            async saveDocumentRecord(docGeneratedData, templateId, templateData) {
+                if (!this.isConnected) {
+                    console.warn("[SaveDocRecord] No conectado."); return;
+                }
+                // Asegurarse que currentAuditData y su id existen ANTES de intentar guardar el registro del documento.
+                // Esto es crucial si el usuario va directo a "Generar Documento" sin "Guardar Auditoría" primero.
+                if (!this.currentAuditData || !this.currentAuditData.id) {
+                    console.log("[SaveDocRecord] No hay auditoría actual guardada. Guardando datos del formulario como auditoría base...");
+                    await this.saveAudit(); // Intentar guardar la auditoría actual si no existe
+                    if (!this.currentAuditData || !this.currentAuditData.id) { // Volver a verificar después del intento de guardado
+                        console.error("[SaveDocRecord] Falla crítica: No se pudo guardar/obtener ID de auditoría para asociar el documento.");
+                        this.showStatus('❌ Error: No se pudo asociar el documento. Guarde la auditoría primero.', 'error');
+                        return;
+                    }
+                }
+                try {
+                    const auditDocRef = doc(this.db, "auditorias_v2", this.currentAuditData.id);
+                    await updateDoc(auditDocRef, { // Usar updateDoc aquí, asumiendo que saveAudit ya creó el documento
+                        documentStoragePath: docGeneratedData.storagePath,
+                        lastDocumentFilename: docGeneratedData.filename,
+                        lastDocumentGeneratedAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    });
+                    console.log('[SaveDocRecord] ✅ Auditoría actualizada en Firestore con info del documento.');
+
+                    await addDoc(collection(this.db, 'documentos_generados_v2'), {
+                        userId: this.userId,
+                        auditId: this.currentAuditData.id,
+                        templateId: templateId,
+                        clienteNombre: templateData.cliente_nombre,
+                        seccionAuditada: templateData.seccion_auditada,
+                        filename: docGeneratedData.filename,
+                        version: parseInt(docGeneratedData.filename.match(/_v(\d+)\.docx$/)?.[1] || '1'),
+                        format: docGeneratedData.filename.split('.').pop(),
+                        sizeBytes: docGeneratedData.blob.size,
+                        storagePath: docGeneratedData.storagePath,
+                        downloadURL: docGeneratedData.downloadURL,
+                        createdAt: serverTimestamp(),
+                    });
+                    console.log('[SaveDocRecord] ✅ Registro de documento específico guardado.');
+                } catch (error) {
+                    console.error('[SaveDocRecord] Error:', error);
+                    this.showStatus(`❌ Error guardando registro del documento: ${error.message}`, 'error');
+                }
+            }
+
+            // ----- UTILIDADES -----
+            downloadFile(blob, filename) {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url; link.download = filename;
+                document.body.appendChild(link); link.click();
+                document.body.removeChild(link); URL.revokeObjectURL(url);
+            }
+            formatCurrency(amount, currency = 'MXN') {
+                if (typeof amount !== 'number' || isNaN(amount)) amount = 0;
+                return new Intl.NumberFormat('es-MX', { style: 'currency', currency: currency, minimumFractionDigits: 2 })
+                    .format(amount);
+            }
+
+            // ----- EVENT LISTENERS -----
+            setupEventListeners() {
+                console.log('[Events] - Configurando event listeners...');
+                document.getElementById('saveAuditBtn')?.addEventListener('click', () => this.saveAudit());
+                document.getElementById('calculateBtn')?.addEventListener('click', () => this.performCalculations());
+                document.getElementById('recalculateBtn')?.addEventListener('click', () => this.performCalculations());
+                document.getElementById('generateDocBtn')?.addEventListener('click', () => this.generateDocument());
+                document.getElementById('previewDocHtmlBtn')?.addEventListener('click', () => this.showHtmlPreview());
+                document.getElementById('uploadTemplateBtn')?.addEventListener('click', () => this.uploadUserTemplate());
+                document.getElementById('templateSelect')?.addEventListener('change', () => {
+                    this.showTemplatePreview();
+                    this.enableDocumentGeneration();
                 });
-                html += '</div>';
-                
-                container.innerHTML = html;
-                
-            } catch (error) {
-                console.error('Error cargando historial:', error);
-                document.getElementById('historialInformes').innerHTML = '<p class="text-red-500 text-center py-4">❌ Error cargando historial</p>';
+                document.getElementById('auditImages')?.addEventListener('change', (event) => this.handleImageUpload(event));
+                document.getElementById('refreshHistoryBtn')?.addEventListener('click', () => this.loadHistory());
+
+                document.getElementById('closePreviewHtmlBtn')?.addEventListener('click', () => this.closeHtmlPreviewModal());
+                document.getElementById('closePreviewHtmlBtn2')?.addEventListener('click', () => this.closeHtmlPreviewModal());
+                document.getElementById('previewHtmlModal')?.addEventListener('click', (e) => { if (e.target.id === 'previewHtmlModal') this.closeHtmlPreviewModal(); });
+                document.getElementById('generateFromPreviewBtnModal')?.addEventListener('click', () => {
+                    this.closeHtmlPreviewModal();
+                    this.generateDocument();
+                });
+
+                ['consumoKwh', 'demandaKw', 'tarifaCfe'].forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) element.addEventListener('input', () => this.enableDocumentGeneration());
+                });
+                console.log('[Events] - Event listeners configurados.');
             }
         }
 
-        // Funciones auxiliares
-        function habilitarBotones() {
-            const tieneData = Object.keys(datosDelSistema).length > 0;
-            const tienePlantillas = Object.keys(plantillasDisponibles).length > 0;
-            
-            if (tieneData && tienePlantillas) {
-                ['btnGenerarDOCX', 'btnGenerarPDF', 'btnPrevisualizar'].forEach(id => {
-                    const btn = document.getElementById(id);
-                    btn.disabled = false;
-                    btn.className = btn.className.replace('opacity-50 cursor-not-allowed', '');
-                });
-            }
-        }
-
-        function formatearMoneda(cantidad) {
-            return new Intl.NumberFormat('es-MX', {
-                style: 'currency',
-                currency: 'MXN'
-            }).format(cantidad || 0);
-        }
-
-        function descargarArchivo(blob, nombre) {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = nombre;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        function mostrarStatus(mensaje, tipo) {
-            const container = document.getElementById('statusPanel');
-            const colores = {
-                success: 'bg-green-100 border-green-400 text-green-700',
-                error: 'bg-red-100 border-red-400 text-red-700',
-                warning: 'bg-yellow-100 border-yellow-400 text-yellow-700',
-                info: 'bg-blue-100 border-blue-400 text-blue-700'
-            };
-            
-            container.innerHTML = `
-                <div class="p-4 rounded-lg border-l-4 ${colores[tipo] || colores.info}">
-                    ${mensaje}
-                </div>
-            `;
-            
-            setTimeout(() => {
-                container.innerHTML = '';
-            }, 6000);
-        }
-
-        // Exponer funciones globalmente
-        window.subirPlantilla = subirPlantilla;
-        window.subirImagen = subirImagen;
-        window.generarDOCX = generarDOCX;
-        window.generarPDF = generarPDF;
-        window.previsualizarInforme = previsualizarInforme;
-        window.actualizarDatos = cargarDatosDelSistema;
-        window.cargarHistorial = cargarHistorial;
-        window.cerrarPreview = () => document.getElementById('modalPreview').classList.add('hidden');
-        window.generarDesdePrevisualizacion = generarDOCX;
-
-        // Establecer fecha por defecto
-        document.getElementById('fechaInforme').value = new Date().toISOString().split('T')[0];
-
-        // Inicializar sistema al cargar
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🏢 Iniciando Sistema Automatizado de Informes Técnicos');
-            console.log('📋 Especificaciones: Firebase + DOCX + PDF + Plantillas + Imágenes');
-            inicializarSistema();
-        });
+            console.log("DOM completamente cargado y parseado.");
+            if (typeof PizZip === 'undefined') console.error("PizZip no está definido!");
+            if (typeof docxtemplater === 'undefined') console.error("docxtemplater no está definido!");
+            if (typeof ImageModule === 'undefined') {
+                console.error("ImageModule no está definido! La funcionalidad de imágenes no funcionará.");
+            } else {
+                console.log("ImageModule SÍ está definido.");
+            }
 
+            window.auditSystemApp = new AuditSystemProV3();
+        });
     </script>
 </body>
+
 </html>
